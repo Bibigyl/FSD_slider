@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "target": "esnext",
-    "removeComments": false
+    "target": "es5",
+    "removeComments": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],

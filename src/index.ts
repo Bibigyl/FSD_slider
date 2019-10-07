@@ -19,4 +19,9 @@ import {Car} from './Car';
 console.log('hi');
 const car: Car = new Car();
 car.go('vroom');
-// alert("re");
+
+
+ 
+$(() => {
+    $("#content").html("<h1>Привет мир</h1>");
+});
