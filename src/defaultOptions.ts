@@ -1,17 +1,5 @@
 export default interface IOptions {
     // Model options
-/*     dataFormat: string;
-    initialVal: number | string | null;
-    minVal: number | string;
-    maxVal: number | string;
-    step: number;    
-    reverse: boolean;
-    range: [number, number] | [string, string] | null; 
-    customValues?: string[];
-    initialValInCustomValues?: string;
-    initialValNumInCustomValues?: number;
-    initialRangeInCustomValues?: [string, string];
-    initialRangeNumInCustomValues?: [number, number]; */
     dataFormat: any;
     initialVal: any;
     minVal: any;
@@ -26,7 +14,11 @@ export default interface IOptions {
     initialRangeNumInCustomValues?: any;
 
 
-    width: number | string;
+    // View options
+    width: any;
+    height: any; 
+    vertical: any;
+    tooltip?: any;
 }
 
 var defaultOptions: IOptions = {
@@ -38,9 +30,10 @@ var defaultOptions: IOptions = {
     step: 1,          // (initialVal) и позиция бегунка равны минимальному значению
     reverse: false,
     range: null,
-
     
     width: '377px',
+    height: '300px',
+    vertical: false,
 }
 
 export { defaultOptions };

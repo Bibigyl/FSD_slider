@@ -1,4 +1,4 @@
-import Model from '../src/Model';
+/* import Model from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -392,4 +392,4 @@ describe('When Model has custom format,', function() {
             expect( model.getRange()[1] ).toBe(2);
         });
     });
-});
+}); */
