@@ -18,7 +18,8 @@ export default interface IOptions {
     width: any;
     height: any; 
     vertical: any;
-    tooltip?: any;
+    tooltip: any;
+    tooltipMask: any;
 }
 
 var defaultOptions: IOptions = {
@@ -31,9 +32,11 @@ var defaultOptions: IOptions = {
     reverse: false,
     range: null,
     
-    width: '377px',
+    width: '300px',
     height: '300px',
     vertical: false,
+    tooltip: true,
+    tooltipMask: 'val',
 }
 
 export { defaultOptions };

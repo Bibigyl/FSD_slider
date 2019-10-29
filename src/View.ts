@@ -1,4 +1,4 @@
-import IOptions, { defaultOptions } from './defaultOptions';
+import IOptions from './defaultOptions';
 
 interface IViewOptions {
     width?: string;
@@ -13,24 +13,33 @@ export default class View {
 
     private _width?: string;
     private _height?: string;
-    private _slider: HTMLDivElement;
     private _vertical: boolean;
-    private _tooltip?: boolean;
+
+    private _slider: HTMLDivElement;
+    private _thumb: HTMLDivElement;
+    private _tooltip?: HTMLDivElement;
+
 
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
-        if ( options.vertical && this.widthValidation(options.height) ) {
-            this._height = options.height;
-            this._vertical = true;
-        } else {
-            this._width = this.widthValidation(options.width);
-            this._vertical = false;
-        }
 
         this._slider = this.buildSlider(sliderNode);
 
+        if ( options.vertical == true ) {
+            this._height = this.widthValidation(options.height);
+            this._vertical = true;
+            this.setHeightToSlider(this._slider, this._height);
+        } else {
+            this._width = this.widthValidation(options.width);
+            this._vertical = false;
+            this.setWidthToSlider(this._slider, this._width);
+        }
+ 
         if ( options.tooltip ) {
             this.buildTooltip(this._slider);
-            this._tooltip = options.tooltip;
+            this._tooltip = this._slider.querySelector('.tooltip');
+
+            // удалить
+            this.setValToTooltip(this._slider, '123', options.tooltipMask);
         }
         
     }
@@ -46,6 +55,14 @@ export default class View {
         return sliderNode;
     }
 
+    private setThumbPosition(thumb: HTMLDivElement, pos: string, vertical: boolean = false) {
+        if ( !vertical ) {
+            thumb.style.left = pos;
+        } else {
+            thumb.style.top = pos;
+        }
+    }
+
     private buildTooltip(sliderNode: HTMLDivElement): void {
         let tooltip: HTMLDivElement = document.createElement('div');
         tooltip.classList.add('tooltip');
@@ -53,8 +70,15 @@ export default class View {
         sliderNode.querySelector('.thumb').append(tooltip);
     }
 
-    private setValToTooltip(sliderNode: HTMLDivElement, val: string): void {
-        sliderNode.querySelector('.tooltip').textContent = val;
+    private setValToTooltip(sliderNode: HTMLDivElement, val: string, mask: string = 'val'): void {
+        console.log(eval(mask));
+        if ( typeof eval(mask) != 'string') {
+            console.warn('Invalid mask for tooltip');
+            // функция eval, вопрос с безопасностью, нужно ли ее заменить
+            sliderNode.querySelector('.tooltip').textContent = val;
+        } else {
+            sliderNode.querySelector('.tooltip').textContent = eval(mask);
+        }
     }
     
     private widthValidation(str: any) {
@@ -69,8 +93,12 @@ export default class View {
         throw new Error('Width (or height) should be valid to css');
     }
 
-    private setWidthToSlider(width: string, node: HTMLDivElement): void {
+    private setWidthToSlider(node: HTMLDivElement, width: string): void {
         node.style.width = width;
+    }
+
+    private setHeightToSlider(node: HTMLDivElement, height: string): void {
+        node.style.height = height;
     }
 
     private isNumeric(n: any): boolean {
