@@ -9,6 +9,18 @@ interface IViewOptions {
     tooltip?: boolean;
 }
 
+export interface IView {
+    getWidth(): string;
+    getHeight(): string;
+    getVertical(): boolean;
+
+    getSlider(): HTMLDivElement;
+    getThumb(): HTMLDivElement;
+    getTooltip(): HTMLDivElement;
+
+    setThumbPosition(thumbPosition: number): void;
+}
+
 export default class View {
 
     private _width?: string;
@@ -23,6 +35,7 @@ export default class View {
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
         this._slider = this.buildSlider(sliderNode);
+        this._thumb = this._slider.querySelector('.thumb');
 
         if ( options.vertical == true ) {
             this._height = this.widthValidation(options.height);
@@ -44,6 +57,37 @@ export default class View {
         
     }
 
+    getWidth(): string {
+        return this._width;
+    }
+    getHeight(): string {
+        return this._height;
+    }
+    getVertical(): boolean {
+        return this._vertical;
+    }
+    getSlider(): HTMLDivElement {
+        return this._slider;
+    }
+    getThumb(): HTMLDivElement {
+        return this._thumb;
+    }
+    setThumbPosition(thumbPosition): void {
+        if ( !this._vertical ) {
+            this._thumb.style.left = thumbPosition - this._thumb.offsetWidth/2 + 'px';
+        } else {
+            this._thumb.style.top = thumbPosition - this._thumb.offsetWidth/2 + 'px';    
+        }
+        
+    }
+    getTooltip(): HTMLDivElement | undefined {
+        if ( this._tooltip ) {
+            return this._tooltip;
+        } else {
+            return undefined;
+        }
+    }
+
     private buildSlider(sliderNode: HTMLDivElement): HTMLDivElement {
         let thumb: HTMLDivElement = document.createElement('div');
         
@@ -53,14 +97,6 @@ export default class View {
         sliderNode.append(thumb);
 
         return sliderNode;
-    }
-
-    private setThumbPosition(thumb: HTMLDivElement, pos: string, vertical: boolean = false) {
-        if ( !vertical ) {
-            thumb.style.left = pos;
-        } else {
-            thumb.style.top = pos;
-        }
     }
 
     private buildTooltip(sliderNode: HTMLDivElement): void {

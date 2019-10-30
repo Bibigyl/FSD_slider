@@ -1,5 +1,19 @@
 import IOptions, { defaultOptions } from './defaultOptions';
 
+export interface IModel {
+    getDataFormat(): string;
+
+    getVal(): number;
+    setVal(newVal: number): void;
+
+    getStep(): number;
+    getMaxVal(): number;
+    getMinVal(): number;
+    getRange(): [number, number];
+    getReverse(): boolean;
+    getCustomValues(): string[] | undefined;
+}
+
 interface IModelOptions {
     dataFormat: string;
     initialVal: number | null;
@@ -20,6 +34,7 @@ export default class Model {
     private _step: number;
     private _reverse: boolean;
     private _range: [number, number] | null;
+    private _customValues: string[] | undefined;
 
     constructor(allOptions: IOptions) {
         let options: IOptions = allOptions;
@@ -46,10 +61,12 @@ export default class Model {
         this._step = validOptions.step;
         this._reverse = validOptions.reverse;
         this._range = validOptions.range;
-        
+        this._customValues = validOptions.customValues;        
     }
 
-
+    getDataFormat(): string {
+        return this._dataFormat;
+    }
     getVal(): number {
         return this._val;
     }
@@ -58,13 +75,9 @@ export default class Model {
         this.oneValueValidation(this.getMinVal(), this.getMaxVal(), newVal);
         this._val = newVal;
     }
-
     getStep(): number {
         return this._step;
     }
-    getNumberOfSteps(): number {
-        return 3;
-    } // может не нужен
     getMaxVal(): number {
         return this._maxVal;
     }
@@ -73,6 +86,16 @@ export default class Model {
     }
     getRange(): [number, number] {
         return this._range;
+    }
+    getReverse(): boolean {
+        return this._reverse;
+    }
+    getCustomValues(): string[] {
+        if (this._customValues) {
+            return this._customValues;
+        } else {
+            return undefined;
+        }
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -87,13 +110,14 @@ export default class Model {
             maxVal: defaultOptions.maxVal,
             step: defaultOptions.step,
             reverse: defaultOptions.reverse,
-            range: defaultOptions.range
+            range: defaultOptions.range,
         }
 
         this.areNumeric(options.maxVal, options.minVal);
         this.stepValidation(options.minVal, options.maxVal, options.step);
 
         // если мин и макс перепутаны пользователем, меняем порядок
+        // подразумевается, что min - это то что слева на слайдере, max - справа
         if ( this.minMaxValidation(options.minVal, options.maxVal, options.reverse) ) {
             newOptions.minVal = options.minVal;
             newOptions.maxVal = options.maxVal;            
