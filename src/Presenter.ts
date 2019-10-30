@@ -1,6 +1,6 @@
 import IOptions, { defaultOptions } from './defaultOptions';
 import {IModel} from './Model';
-import {IView} from './View';
+import View, {IView} from './View';
 
 export default class Presenter {
 
@@ -12,11 +12,20 @@ export default class Presenter {
         this._model = model;
         this._view = view;
 
+        if ( this._view.getTooltip() ) {
+            // ??????????????
+            this._view.setValToTooltip(this._view.getTooltip(), '' + this._model.getTranslatedVal(), this._view.getTooltipMask());
+        }
+
         this.thumbOnMouseDown = this.thumbOnMouseDown.bind(this);
         this.thumbOnMouseMove = this.thumbOnMouseMove.bind(this);
         this.thumbOnMouseUp = this.thumbOnMouseUp.bind(this);
         
         this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+
+        
+            // удалить
+            //this.setValToTooltip(this._slider, '123', options.tooltipMask);
         
     }
 
@@ -31,18 +40,22 @@ export default class Presenter {
     thumbOnMouseMove(event) {
 
         let sliderNode: HTMLDivElement = this._view.getSlider();
-        let thumbNode: HTMLDivElement = this._view.getThumb();
       
         let minVal: number = this._model.getMinVal();
         let maxVal: number = this._model.getMaxVal();
         let step: number = this._model.getStep();
+        let reverse: number = !this._model.getReverse() ? 1 : -1;
 
         let sliderLenght: number;
         let sliderBorder: number;
+        let stepLenght: number;
         let eventPos: number;
-        let thumbPosition: number;
-        let oneStepLenght: number;
+        let thumbPosition: number;   
         let newVal: number;
+
+        // Позиция бегунка в px вычисляется относительно начала слайдера.
+        // Вначале newVal вычисляется как количество шагов от начала (от 0),
+        // (то есть значения min, max, reverse не имеют значения).
 
         if ( !this._view.getVertical() ) {
 
@@ -51,44 +64,40 @@ export default class Presenter {
             eventPos = event.clientX;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
 
-            console.log('привет');
-            console.log('thumbPosition' + thumbPosition);
-
         } else {
 
-            sliderLenght = sliderNode.clientWidth;
-            sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX;            
-            thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
+            sliderLenght = sliderNode.clientHeight;
+            sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
+            eventPos = event.clientY;            
+            thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
+
         }
 
-        oneStepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
-        newVal = Math.round(thumbPosition / oneStepLenght);
+        stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
+        newVal = Math.round(thumbPosition / stepLenght);
 
-        console.log('newVal' + newVal);
     
-        if (newVal <= minVal) {
-            newVal = minVal;
+        if ( thumbPosition <= 0 ) {
             thumbPosition = 0;
-        } else if (newVal >= maxVal) {
-            newVal = maxVal;
+            newVal = minVal;
+        } else if ( thumbPosition >= sliderLenght ) {
             thumbPosition = sliderLenght;
+            newVal = maxVal;
         } else {
-            thumbPosition = newVal * oneStepLenght;
+            // если бегунок не вышел за границы, ставим его на ближайшее значение,
+            // кратное шагу.
+            // только после этого преобразуем его для модели. Если reverse == true, то == -1 
+            thumbPosition = newVal * stepLenght;
+            newVal = minVal + reverse * newVal;
         }
-
-        console.log(thumbPosition);
-
-/*         if ( !this._model.getReverse() ) {
-            newVal = minVal + newVal * step; 
-        } else {
-            newVal = minVal - newVal * step;
-        } */
     
         this._model.setVal(newVal);
         this._view.setThumbPosition(thumbPosition);
 
-        console.log(this._model.getVal());
+        if ( this._view.getTooltip() ) {
+            // ??????????????????
+            this._view.setValToTooltip(this._view.getTooltip(), ''+this._model.getTranslatedVal(), this._view.getTooltipMask()); 
+        }
     }
     
     thumbOnMouseUp(event) {

@@ -14,9 +14,10 @@ import {defaultOptions} from './defaultOptions';
       let view: IView = new View(options, this);
       let presenter = new Presenter(model, view);
 
-      console.log(model.getMinVal());
+/*       console.log(model.getMinVal());
       console.log(model.getMaxVal());
-      console.log(model.getVal());
+      console.log(model.getVal()); */
+      console.log(model.getTranslated(3));
     };
   
     return this.each(make); 
@@ -24,6 +25,14 @@ import {defaultOptions} from './defaultOptions';
 })(jQuery);
   
 // теперь можно задавать плагин с настройками по умолчанию:
-$('.test').slider({minVal: -5});
+$('.test').slider({
+  dataFormat: 'custom',
+  width: '500px',
+  vertical: false,
+  initialVal: 2,
+  customValues: ['kjk', 1, 0, 'fsd', 'sf'],
+  tooltip: true,
+  tooltipMaskWithCalc: "'val = ' + val/2",
+});
 
    

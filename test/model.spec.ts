@@ -1,4 +1,4 @@
-/* import Model from '../src/Model';
+import Model from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -373,6 +373,8 @@ describe('When Model has custom format,', function() {
         });
 
         let model = new Model(testOptions);
+        // @ts-ignore
+        console.log(model._customValues)
 
         it('can create', function() {
             expect(model).toBeDefined();
@@ -391,5 +393,8 @@ describe('When Model has custom format,', function() {
             // @ts-ignore
             expect( model.getRange()[1] ).toBe(2);
         });
+        it('returns translated data', function() {
+            expect( model.getTranslated(1) ).toBe(2)
+        })
     });
-}); */
+});

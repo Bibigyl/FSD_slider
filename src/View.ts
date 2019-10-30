@@ -1,67 +1,77 @@
 import IOptions from './defaultOptions';
 
-interface IViewOptions {
+/* interface IViewOptions {
     width?: string;
     height?: string;
     vertical: boolean;
     sliderNode: HTMLElement;
     thumb: HTMLElement;
     tooltip?: boolean;
-}
+} */
 
 export interface IView {
-    getWidth(): string;
-    getHeight(): string;
+    getLenght(): number;
     getVertical(): boolean;
+    getTooltipMask(): string;
 
     getSlider(): HTMLDivElement;
     getThumb(): HTMLDivElement;
     getTooltip(): HTMLDivElement;
+    getTooltipMask(): string;
 
     setThumbPosition(thumbPosition: number): void;
+    setValToTooltip(tooltipNode: HTMLDivElement, val: string, mask: string): void;
 }
 
 export default class View {
 
-    private _width?: string;
-    private _height?: string;
+    private _lenght: number;
     private _vertical: boolean;
 
     private _slider: HTMLDivElement;
     private _thumb: HTMLDivElement;
     private _tooltip?: HTMLDivElement;
+    private _tooltipMask?: string;
 
 
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
         this._slider = this.buildSlider(sliderNode);
-        this._thumb = this._slider.querySelector('.thumb');
+        this._thumb = this._slider.querySelector('.slider__thumb');
 
-        if ( options.vertical == true ) {
-            this._height = this.widthValidation(options.height);
-            this._vertical = true;
-            this.setHeightToSlider(this._slider, this._height);
-        } else {
-            this._width = this.widthValidation(options.width);
+        if ( !options.vertical ) {
             this._vertical = false;
-            this.setWidthToSlider(this._slider, this._width);
+            this._slider.style.width = this.widthValidation(options.width);
+            this._lenght = this._slider.clientWidth;
+            this._slider.classList.add('slider_horizontal');
+        } else {
+            this._vertical = true;
+            this._slider.style.height = this.widthValidation(options.height);
+            this._lenght = this._slider.clientHeight;
+            this._slider.classList.add('slider_vertical');            
         }
  
         if ( options.tooltip ) {
             this.buildTooltip(this._slider);
-            this._tooltip = this._slider.querySelector('.tooltip');
+            this._tooltip = this._slider.querySelector('.slider__tooltip');
 
-            // удалить
-            this.setValToTooltip(this._slider, '123', options.tooltipMask);
+            // маски для подсказок
+            // больший приоритет имеет маска с вычислениями
+            // если ее нет, применяется обычная, которая по дефолту возвращает просто val
+            // (в числовом формате вернется кол-во секунд)
+            options.tooltipMaskWithCalc ? this._tooltipMask = options.tooltipMaskWithCalc : this._tooltipMask = options.tooltipMask;
         }
         
+        // удалить
+        //this.setValToTooltip(this._slider, '12fgdgdgdx3', options.tooltipMask);
     }
 
-    getWidth(): string {
-        return this._width;
-    }
-    getHeight(): string {
-        return this._height;
+    getLenght(): number {
+        if ( !this._vertical ) {
+            return this._slider.clientWidth;
+        } else {
+            return this._slider.clientHeight;
+        }    
     }
     getVertical(): boolean {
         return this._vertical;
@@ -77,8 +87,7 @@ export default class View {
             this._thumb.style.left = thumbPosition - this._thumb.offsetWidth/2 + 'px';
         } else {
             this._thumb.style.top = thumbPosition - this._thumb.offsetWidth/2 + 'px';    
-        }
-        
+        }       
     }
     getTooltip(): HTMLDivElement | undefined {
         if ( this._tooltip ) {
@@ -87,12 +96,24 @@ export default class View {
             return undefined;
         }
     }
+    getTooltipMask(): string {
+        return this._tooltipMask;
+    }
+    setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string = 'val'): void {
+        if ( typeof eval(mask) != 'string') {
+            console.warn('Invalid mask for tooltip');
+            // функция eval, вопрос с безопасностью, нужно ли ее заменить
+            tooltipNode.textContent = '' + val;
+        } else {
+            tooltipNode.textContent = eval(mask);
+        }
+    }
 
     private buildSlider(sliderNode: HTMLDivElement): HTMLDivElement {
         let thumb: HTMLDivElement = document.createElement('div');
         
         sliderNode.classList.add('slider');
-        thumb.classList.add('thumb');
+        thumb.classList.add('slider__thumb');
 
         sliderNode.append(thumb);
 
@@ -101,20 +122,9 @@ export default class View {
 
     private buildTooltip(sliderNode: HTMLDivElement): void {
         let tooltip: HTMLDivElement = document.createElement('div');
-        tooltip.classList.add('tooltip');
+        tooltip.classList.add('slider__tooltip');
 
-        sliderNode.querySelector('.thumb').append(tooltip);
-    }
-
-    private setValToTooltip(sliderNode: HTMLDivElement, val: string, mask: string = 'val'): void {
-        console.log(eval(mask));
-        if ( typeof eval(mask) != 'string') {
-            console.warn('Invalid mask for tooltip');
-            // функция eval, вопрос с безопасностью, нужно ли ее заменить
-            sliderNode.querySelector('.tooltip').textContent = val;
-        } else {
-            sliderNode.querySelector('.tooltip').textContent = eval(mask);
-        }
+        sliderNode.querySelector('.slider__thumb').append(tooltip);
     }
     
     private widthValidation(str: any) {
@@ -127,14 +137,6 @@ export default class View {
             }
         }
         throw new Error('Width (or height) should be valid to css');
-    }
-
-    private setWidthToSlider(node: HTMLDivElement, width: string): void {
-        node.style.width = width;
-    }
-
-    private setHeightToSlider(node: HTMLDivElement, height: string): void {
-        node.style.height = height;
     }
 
     private isNumeric(n: any): boolean {

@@ -4,6 +4,8 @@ export interface IModel {
     getDataFormat(): string;
 
     getVal(): number;
+    getTranslated(num: number): number | string;
+    getTranslatedVal(): number | string;
     setVal(newVal: number): void;
 
     getStep(): number;
@@ -34,7 +36,7 @@ export default class Model {
     private _step: number;
     private _reverse: boolean;
     private _range: [number, number] | null;
-    private _customValues: string[] | undefined;
+    private _customValues?: string[] | undefined;
 
     constructor(allOptions: IOptions) {
         let options: IOptions = allOptions;
@@ -50,6 +52,7 @@ export default class Model {
             validOptions = this.dateFormatValidation(options, defaultOptions);
         } else if ( options.dataFormat == 'custom' ) {
             validOptions = this.customFormatValidation(options, defaultOptions);
+            validOptions.customValues = options.customValues;
         } else {
             throw new Error('Unknown format of data');
         }
@@ -69,6 +72,19 @@ export default class Model {
     }
     getVal(): number {
         return this._val;
+    }
+    getTranslatedVal(): number | string {
+        return this.getTranslated(this._val);
+    }
+    getTranslated(num: number): number | string {
+        // эта функция не форматирут даты
+        // они возвращиются как миллесекунды
+        // это нужно, чтобы их было удобно форматировать в маске в представлении 
+        if ( this._dataFormat == 'custom' ) {
+            return this._customValues[num];
+        } else {
+            return num;
+        }
     }
     setVal(newVal: number): void {
         this.areNumeric(newVal);
@@ -330,7 +346,7 @@ export default class Model {
         return step * 24 * 3600 * 1000;
     }
 
-    /* private */ findPositionInArr(item: any, arr: any[]) {
+    findPositionInArr(item: any, arr: any[]) {
         if ( arr.indexOf(item) != -1 ) {
             return arr.indexOf(item);
         } else {
