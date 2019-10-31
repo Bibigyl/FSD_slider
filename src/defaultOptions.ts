@@ -25,6 +25,7 @@ export default interface IOptions {
 
 var defaultOptions: IOptions = {
     // Model options
+    // в range и в min и max слева то, что слева на слайдере
     dataFormat: 'numeric',
     initialVal: null, // внимание! в начальных настройках не определены
     minVal: 0,        // начальное значение или промежуток.

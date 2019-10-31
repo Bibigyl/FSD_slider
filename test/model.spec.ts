@@ -395,6 +395,6 @@ describe('When Model has custom format,', function() {
         });
         it('returns translated data', function() {
             expect( model.getTranslated(1) ).toBe(2)
-        })
+        });
     });
 });

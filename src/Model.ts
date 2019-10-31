@@ -1,19 +1,34 @@
 import IOptions, { defaultOptions } from './defaultOptions';
 
 export interface IModel {
-    getDataFormat(): string;
-
+    // 1
     getVal(): number;
-    getTranslated(num: number): number | string;
-    getTranslatedVal(): number | string;
     setVal(newVal: number): void;
-
-    getStep(): number;
-    getMaxVal(): number;
-    getMinVal(): number;
+    // 2  
+    getTranslatedVal(): number | string;
+    setTranslatedVal(newVal: number | string): void;
+    // 3
     getRange(): [number, number];
+    setRange(newRange: [number, number]): void;
+    // 4
+    getStep(): number;
+    setStep(step: number): void;
+    // 5
+    getMaxVal(): number;
+    setMaxVal(val: number): void;
+    // 6
+    getMinVal(): number;
+    setMinVal(val: number): void;
+    // 7
     getReverse(): boolean;
+    setRevesre(): void;
+    // 8
     getCustomValues(): string[] | undefined;
+    setCustomValues(arr: string[]): void;
+
+    // вспомогательные методы
+    getDataFormat(): string;
+    getTranslated(num: number): number | string;
 }
 
 interface IModelOptions {
@@ -67,11 +82,14 @@ export default class Model {
         this._customValues = validOptions.customValues;        
     }
 
-    getDataFormat(): string {
-        return this._dataFormat;
-    }
+    // 1
     getVal(): number {
         return this._val;
+    }
+    setVal(newVal: number): void {
+        this.areNumeric(newVal);
+        this.oneValueValidation(this.getMinVal(), this.getMaxVal(), newVal);
+        this._val = newVal;
     }
     getTranslatedVal(): number | string {
         return this.getTranslated(this._val);
@@ -86,11 +104,7 @@ export default class Model {
             return num;
         }
     }
-    setVal(newVal: number): void {
-        this.areNumeric(newVal);
-        this.oneValueValidation(this.getMinVal(), this.getMaxVal(), newVal);
-        this._val = newVal;
-    }
+
     getStep(): number {
         return this._step;
     }
@@ -103,6 +117,17 @@ export default class Model {
     getRange(): [number, number] {
         return this._range;
     }
+    setRange(newRange: [number, number]): void {
+        this.rangeValidation(this._minVal, this._maxVal, newRange, this._step);
+
+/*         if ( this.minMaxValidation(newRange[0], newRange[1], this._reverse) ) {
+            this._range = newRange;
+        } else {
+            this._range = [newRange[1], newRange[0]];
+        } */
+
+        this._range = newRange;
+    }
     getReverse(): boolean {
         return this._reverse;
     }
@@ -112,6 +137,11 @@ export default class Model {
         } else {
             return undefined;
         }
+    }
+
+    // вспомогательные методы
+    getDataFormat(): string {
+        return this._dataFormat;
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -132,6 +162,10 @@ export default class Model {
         this.areNumeric(options.maxVal, options.minVal);
         this.stepValidation(options.minVal, options.maxVal, options.step);
 
+        newOptions.step = Math.abs(options.step);
+        newOptions.reverse = options.reverse;
+        newOptions.dataFormat = options.dataFormat;
+
         // если мин и макс перепутаны пользователем, меняем порядок
         // подразумевается, что min - это то что слева на слайдере, max - справа
         if ( this.minMaxValidation(options.minVal, options.maxVal, options.reverse) ) {
@@ -142,9 +176,8 @@ export default class Model {
             newOptions.maxVal = options.minVal;        
         }
 
-
         if ( options.range ) {
-            this.rangeValidation(options.minVal, options.maxVal, options.range);
+            this.rangeValidation(options.minVal, options.maxVal, options.range, options.step);
             // если мин и макс в диапазоне range перепутаны пользователем, меняем порядок
             if ( this.minMaxValidation(options.range[0], options.range[1], options.reverse) ) {
                 newOptions.range = options.range;
@@ -163,10 +196,6 @@ export default class Model {
             newOptions.initialVal = options.initialVal;
             newOptions.range = null;
         }
-
-        newOptions.step = Math.abs(options.step);
-        newOptions.reverse = options.reverse;
-        newOptions.dataFormat = options.dataFormat;
 
         //предупреждаем пользователя о том, что некоторые его опции проигнорированы
         if (options.dataFormat == 'numeric' || options.dataFormat == 'date') {
@@ -289,7 +318,7 @@ export default class Model {
         return true;
     }
 
-    private rangeValidation(minVal: number, maxVal: number, range: [number, number]) {
+    private rangeValidation(minVal: number, maxVal: number, range: [number, number], step: number) {
         if ( range.length != 2 ) {
             throw new Error('Range should contain two values');
         }
@@ -298,6 +327,9 @@ export default class Model {
         }
         if ( Math.max(minVal, maxVal) < Math.max(range[0], range[1])  ||  Math.min(minVal, maxVal) > Math.min(range[0], range[1]) ) {
             throw new Error('The range should be within min and max values');
+        }
+        if ( ((range[0] - minVal)/step) % 1 != 0 || ((range[1] - minVal)/step) % 1 != 0 ) {
+            throw new Error('The range should be divided by step');
         }
         return true;
     }

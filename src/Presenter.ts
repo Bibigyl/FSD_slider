@@ -1,5 +1,5 @@
 import IOptions, { defaultOptions } from './defaultOptions';
-import {IModel} from './Model';
+import Model, {IModel} from './Model';
 import View, {IView} from './View';
 
 export default class Presenter {
@@ -7,31 +7,33 @@ export default class Presenter {
     private _model: IModel;
     private _view: IView;
 
+    private _activeThumb: HTMLDivElement;
+
     constructor(model: IModel, view: IView) {
 
         this._model = model;
         this._view = view;
 
-        if ( this._view.getTooltip() ) {
-            // ??????????????
-            this._view.setValToTooltip(this._view.getTooltip(), '' + this._model.getTranslatedVal(), this._view.getTooltipMask());
-        }
-
         this.thumbOnMouseDown = this.thumbOnMouseDown.bind(this);
         this.thumbOnMouseMove = this.thumbOnMouseMove.bind(this);
         this.thumbOnMouseUp = this.thumbOnMouseUp.bind(this);
         
-        this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
-
+        if ( !this._model.getRange() ) {
+            this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+        } else {
+            this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
+            this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+        }
         
-            // удалить
-            //this.setValToTooltip(this._slider, '123', options.tooltipMask);
+        console.log(this._view.getThumb());
         
     }
 
     thumbOnMouseDown(event) {
         // предотвратить запуск выделения (действие браузера)
         event.preventDefault();
+
+        this._activeThumb = event.currentTarget;
 
         document.addEventListener('mousemove', this.thumbOnMouseMove);
         document.addEventListener('mouseup', this.thumbOnMouseUp);
@@ -50,7 +52,9 @@ export default class Presenter {
         let sliderBorder: number;
         let stepLenght: number;
         let eventPos: number;
-        let thumbPosition: number;   
+        let thumbPosition: number;
+        let leftPoint: number;
+        let rightPoint: number;
         let newVal: number;
 
         // Позиция бегунка в px вычисляется относительно начала слайдера.
@@ -76,33 +80,67 @@ export default class Presenter {
         stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
         newVal = Math.round(thumbPosition / stepLenght);
 
+        if ( this._model.getRange() ) {
+            if ( this._activeThumb.classList.contains('slider__thumb_right') ) {
+                // если промежуток, то левая граница - это левый бегунок
+                // здесь рассчитывается количество шагов от начала (от 0), 
+                // затем расстояние в px от начала слайдера.
+                leftPoint = (this._model.getRange()[0] - minVal) / step;
+                leftPoint = leftPoint * stepLenght;
+                rightPoint = sliderLenght;
+
+                minVal = this._model.getRange()[0];
+            } else {
+                rightPoint = (this._model.getRange()[1] - minVal) / step;
+                rightPoint = rightPoint * stepLenght;
+                leftPoint = 0;
+
+                maxVal = this._model.getRange()[1];
+            }
+        } else {
+            leftPoint = 0;
+            rightPoint = sliderLenght;
+        }
     
-        if ( thumbPosition <= 0 ) {
-            thumbPosition = 0;
+        if ( thumbPosition <= leftPoint) {
+            thumbPosition = leftPoint;
             newVal = minVal;
-        } else if ( thumbPosition >= sliderLenght ) {
-            thumbPosition = sliderLenght;
+        } else if ( thumbPosition >= rightPoint) {
+            thumbPosition = rightPoint;
             newVal = maxVal;
         } else {
             // если бегунок не вышел за границы, ставим его на ближайшее значение,
             // кратное шагу.
             // только после этого преобразуем его для модели. Если reverse == true, то == -1 
             thumbPosition = newVal * stepLenght;
-            newVal = minVal + reverse * newVal;
+            newVal = this._model.getMinVal() + reverse * newVal;
         }
     
-        this._model.setVal(newVal);
-        this._view.setThumbPosition(thumbPosition);
+        if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
+            this._model.setRange( [newVal, this._model.getRange()[1]] );
+            
+        } else if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_right')) {
+            this._model.setRange( [this._model.getRange()[0], newVal] );
 
-        if ( this._view.getTooltip() ) {
-            // ??????????????????
-            this._view.setValToTooltip(this._view.getTooltip(), ''+this._model.getTranslatedVal(), this._view.getTooltipMask()); 
+        } else {
+            this._model.setVal(newVal);
+        }
+        this._view.setThumbPosition(this._activeThumb, thumbPosition);
+
+        console.log(this._view.getTooltip());
+        // ???????????????????
+        if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
+            let val: number | string = this._model.getTranslated(newVal);
+            console.log(val);
+            this._view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), ''+val, this._view.getTooltipMask() ); 
         }
     }
     
     thumbOnMouseUp(event) {
         document.removeEventListener('mouseup', this.thumbOnMouseUp);
         document.removeEventListener('mousemove', this.thumbOnMouseMove);
+
+        this._activeThumb = undefined;
     }
 
 }
