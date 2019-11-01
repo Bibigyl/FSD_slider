@@ -9,24 +9,21 @@ export interface IModel {
     setRange(newRange: [number, number]): void;
     // 3
     getStep(): number;
-    setStep(step: number): void;
     // 4
     getMinVal(): number;
-    setMinVal(val: number): void;
     // 5
     getMaxVal(): number;
-    setMaxVal(val: number): void;
     // 6
     getReverse(): boolean;
-    setRevesre(): void;
     // 7
     getCustomValues(): string[] | undefined;
-    setCustomValues(arr: string[]): void;
+    // 8
+    getDataFormat(): string;
 
     // вспомогательные методы
-    getDataFormat(): string;
-    getTranslated(num: number): number | string;
-    findPositionInArr(val: any): number
+    findPositionInArr(val: any, arr?: any[]): number;
+    findPositionByStep(val: number): number;
+    numberOfSteps(): number;
 }
 
 interface IModelOptions {
@@ -94,6 +91,7 @@ export default class Model {
         return this._range;
     }
     setRange(newRange: [number, number]): void {
+        this.areNumeric(newRange[0], newRange[1])
         this.rangeValidation(this._minVal, this._maxVal, newRange, this._step);
 
         if ( this.minMaxValidation(newRange[0], newRange[1], this._reverse) ) {
@@ -108,62 +106,53 @@ export default class Model {
     getStep(): number {
         return this._step;
     }
-    setStep(step: number): void {
-        let newStep: number = Math.abs(step);
-        this.stepValidation(this._minVal, this._maxVal, newStep);
-        if (this._val) {
-            this.oneValueValidation(this._minVal, this._maxVal, this._val, newStep);
-        } else {
-            this.rangeValidation(this._minVal, this._maxVal, this._range, newStep);
-        }
-        this._step = newStep;
-    }
     // 4
     getMinVal(): number {
         return this._minVal;
     }
-    setMinVal(val: number): void {
-        if ( this._customValues ) {
-            throw new Error('cant set new min value to custom values');
-        }
-        this.areNumeric(val);
-        this.stepValidation(options.minVal, options.maxVal, options.step);      
-    }
-
     // 5
-    getMaxVal(): number;
-    setMaxVal(val: number): void;
-
     getMaxVal(): number {
         return this._maxVal;
     }
-    getMinVal(): number {
-        return this._minVal;
-    }
-
-
+    // 6
     getReverse(): boolean {
         return this._reverse;
     }
-    getCustomValues(): string[] {
+    // 7
+    getCustomValues(): any[] {
         if (this._customValues) {
             return this._customValues;
         } else {
             return undefined;
         }
     }
-
-    // вспомогательные методы
+    // 8
     getDataFormat(): string {
         return this._dataFormat;
     }
 
-    findPositionInArr(val: any): number {
+    // вспомогательные методы
+    findPositionInArr(val: any, arr?: any[]): number {
+        // ищет позицию val в custom values
+        // так же может быть использован с любым други массивом
+        if ( arr ) {
+            return arr.indexOf(val);
+        }
+
+        if ( !this._customValues ) {
+            return val;
+        }
         if ( this._customValues.indexOf(val) != -1 ) {
             return this._customValues.indexOf(val);
         } else {
             throw new Error('Not valid value for custom values');
         }
+    }
+    findPositionByStep(val: number): number {
+        return Math.abs(val - this._minVal) * this.numberOfSteps() / Math.abs(this._maxVal - this._minVal);
+    }
+    numberOfSteps(): number {
+        return Math.abs(this._maxVal - this._minVal) / this._step;
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -276,6 +265,10 @@ export default class Model {
         // 4. initialVal как значение 
         if ( options.initialRangeNumInCustomValues || options.initialRangeInCustomValues ) {
 
+            if ( options.range ) {
+                console.warn('Option range is ignored, when initialRangeNumInCustomValues or initialRangeInCustomValues');
+            }
+
             options.range = [0, options.maxVal];
 
             if ( Array.isArray(options.initialRangeInCustomValues) && options.initialRangeInCustomValues.length == 2 ) {
@@ -290,10 +283,11 @@ export default class Model {
                 options.range[1] = options.initialRangeNumInCustomValues[1];
             }  
         } else {
+            // если не введены val или range в custom values
+            // присваиваем простые initialVal или range, если они есть
             if ( options.initialValInCustomValues ) {
-                options.initialVal = this.findPositionInArr(options.initialValInCustomValues, options.customValues);
-            }
-            if ( options.initialValNumInCustomValues ) {
+                options.initialVal = this.findPositionInArr(options.initialValInCustomValues);
+            } else if ( options.initialValNumInCustomValues ) {
                 options.initialVal = options.initialValNumInCustomValues;
             }
         }

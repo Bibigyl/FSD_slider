@@ -21,6 +21,8 @@ export interface IView {
 
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void;
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string): void;
+
+    findThumbPosition(newStep, numOfSteps): number;
 }
 
 export default class View {
@@ -28,6 +30,7 @@ export default class View {
     private _lenght: number;
     private _vertical: boolean;
     private _range: boolean;
+    private _tooltipMask?: string;
 
     private _slider: HTMLDivElement;
     private _thumb?: HTMLDivElement | undefined;
@@ -36,25 +39,13 @@ export default class View {
     private _tooltip?: HTMLDivElement | undefined;
     private _tooltipLeft?: HTMLDivElement | undefined;
     private _tooltipRight?: HTMLDivElement | undefined;
-    private _tooltipMask?: string;
-
+    
 
     constructor(model: IModel, options: IOptions, sliderNode: HTMLDivElement) {
 
         this._slider = sliderNode;
         this._slider.classList.add('slider');
-        //model.getRange() ? this._range = true : this._range = false;
         this._range = model.getRange() ? true : false;
-        console.log(model.getRange());
-        console.log(this._range);
-
-        if ( !this._range ) {
-            this._thumb = this.buildThumb(this._slider);
-        } else {     
-            this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
-            this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
-        }
-        console.log(this._thumbLeft);
 
         if ( !options.vertical ) {
             this._vertical = false;
@@ -67,6 +58,24 @@ export default class View {
             this._lenght = this._slider.clientHeight;
             this._slider.classList.add('slider_vertical');            
         }
+        console.log(this._lenght);
+
+        let pos: number;
+        if ( !this._range ) {
+
+            this._thumb = this.buildThumb(this._slider);
+            pos = this.findThumbPosition( model.findPositionByStep(model.getVal()), model.numberOfSteps() );
+            this.setThumbPosition( this._thumb, pos);
+        } else {     
+
+            this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
+            pos = this.findThumbPosition( model.findPositionByStep(model.getRange()[0]), model.numberOfSteps() );
+            this.setThumbPosition( this._thumbLeft, pos);
+
+            this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
+            pos = this.findThumbPosition( model.findPositionByStep(model.getRange()[1]), model.numberOfSteps() );
+            this.setThumbPosition( this._thumbRight, pos);
+        }
  
         if ( options.tooltip ) {
 
@@ -75,17 +84,21 @@ export default class View {
             // если ее нет, применяется обычная, которая по дефолту возвращает просто val
             // (в формате дат вернется кол-во миллисекунд)
             this._tooltipMask = options.tooltipMaskWithCalc ? options.tooltipMaskWithCalc : options.tooltipMask;
+            let val;
 
-            if (!this._range) {                
+            if (!this._range) {   
+                val = model.getCustomValues()[model.getVal()];       
                 this._tooltip = this.buildTooltip(this._thumb);
-                this.setValToTooltip( this._tooltip, model.getTranslatedVal(), this._tooltipMask );   
+                this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
-            } else {          
+            } else {
+                val = model.getCustomValues()[ model.getRange()[0] ];         
                 this._tooltipLeft = this.buildTooltip(this._thumbLeft, 'slider__tooltip_left');
-                this.setValToTooltip( this._tooltipLeft, model.getTranslated( model.getRange()[0] ), this._tooltipMask );  
+                this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
 
+                val = model.getCustomValues()[ model.getRange()[1] ];  
                 this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
-                this.setValToTooltip( this._tooltipRight, model.getTranslated( model.getRange()[1] ), this._tooltipMask ); 
+                this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
             }
         }       
     }
@@ -100,6 +113,11 @@ export default class View {
     getVertical(): boolean {
         return this._vertical;
     }
+    getTooltipMask(): string {
+        return this._tooltipMask;
+    }
+    
+
     getSlider(): HTMLDivElement {
         return this._slider;
     }
@@ -115,31 +133,28 @@ export default class View {
         }
         return this._thumb;
     }
+    getTooltip(num: number = 0): HTMLDivElement | undefined {
+        if ( this._tooltip || this._tooltipLeft ) {
+            if ( this._tooltip && num == 0 ) {
+                return this._tooltip;
+            }
+            if ( this._tooltipLeft && num == 1 ) {
+                return this._tooltipLeft;
+            }
+            if ( this._tooltipLeft && num == 2 ) {
+                return this._tooltipRight;
+            }
+        } else {
+            return undefined;
+        }
+    }
+
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void {
         if ( !this._vertical ) {
             thumbNode.style.left = thumbPosition - thumbNode.offsetWidth/2 + 'px';
         } else {
             thumbNode.style.top = thumbPosition - thumbNode.offsetWidth/2 + 'px';    
         }       
-    }
-    getTooltip(num: number = 0): HTMLDivElement | undefined {
-        if ( this._tooltip ) {
-            if ( num == 0 ) {
-                return this._tooltip;
-            }
-            if ( num == 1 ) {
-                return this._tooltipLeft;
-            }
-            if ( num == 2 ) {
-                return this._tooltipRight;
-            }
-            return this._tooltip;
-        } else {
-            return undefined;
-        }
-    }
-    getTooltipMask(): string {
-        return this._tooltipMask;
     }
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string = 'val'): void {
         if ( typeof eval(mask) != 'string') {
@@ -149,6 +164,9 @@ export default class View {
         } else {
             tooltipNode.textContent = eval(mask);
         }
+    }
+    findThumbPosition(newStep, numOfSteps): number {
+        return this.getLenght() / numOfSteps * newStep;
     }
 
     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {

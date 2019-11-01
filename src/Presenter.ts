@@ -23,10 +23,7 @@ export default class Presenter {
         } else {
             this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
             this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
-        }
-        
-        console.log(this._view.getThumb());
-        
+        }        
     }
 
     thumbOnMouseDown(event) {
@@ -127,12 +124,12 @@ export default class Presenter {
         }
         this._view.setThumbPosition(this._activeThumb, thumbPosition);
 
-        console.log(this._view.getTooltip());
-        // ???????????????????
+
         if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
-            let val: number | string = this._model.getTranslated(newVal);
-            console.log(val);
-            this._view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), ''+val, this._view.getTooltipMask() ); 
+            let val: number | string;
+            val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
+
+            this._view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
         }
     }
     
