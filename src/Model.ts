@@ -4,31 +4,29 @@ export interface IModel {
     // 1
     getVal(): number;
     setVal(newVal: number): void;
-    // 2  
-    getTranslatedVal(): number | string;
-    setTranslatedVal(newVal: number | string): void;
-    // 3
+    // 2
     getRange(): [number, number];
     setRange(newRange: [number, number]): void;
-    // 4
+    // 3
     getStep(): number;
     setStep(step: number): void;
+    // 4
+    getMinVal(): number;
+    setMinVal(val: number): void;
     // 5
     getMaxVal(): number;
     setMaxVal(val: number): void;
     // 6
-    getMinVal(): number;
-    setMinVal(val: number): void;
-    // 7
     getReverse(): boolean;
     setRevesre(): void;
-    // 8
+    // 7
     getCustomValues(): string[] | undefined;
     setCustomValues(arr: string[]): void;
 
     // вспомогательные методы
     getDataFormat(): string;
     getTranslated(num: number): number | string;
+    findPositionInArr(val: any): number
 }
 
 interface IModelOptions {
@@ -88,46 +86,62 @@ export default class Model {
     }
     setVal(newVal: number): void {
         this.areNumeric(newVal);
-        this.oneValueValidation(this.getMinVal(), this.getMaxVal(), newVal);
+        this.oneValueValidation(this._minVal, this._maxVal, newVal, this._step);
         this._val = newVal;
     }
-    getTranslatedVal(): number | string {
-        return this.getTranslated(this._val);
-    }
-    getTranslated(num: number): number | string {
-        // эта функция не форматирут даты
-        // они возвращиются как миллесекунды
-        // это нужно, чтобы их было удобно форматировать в маске в представлении 
-        if ( this._dataFormat == 'custom' ) {
-            return this._customValues[num];
-        } else {
-            return num;
-        }
-    }
-
-    getStep(): number {
-        return this._step;
-    }
-    getMaxVal(): number {
-        return this._maxVal;
-    }
-    getMinVal(): number {
-        return this._minVal;
-    }
+    // 2
     getRange(): [number, number] {
         return this._range;
     }
     setRange(newRange: [number, number]): void {
         this.rangeValidation(this._minVal, this._maxVal, newRange, this._step);
 
-/*         if ( this.minMaxValidation(newRange[0], newRange[1], this._reverse) ) {
+        if ( this.minMaxValidation(newRange[0], newRange[1], this._reverse) ) {
             this._range = newRange;
         } else {
             this._range = [newRange[1], newRange[0]];
-        } */
+        }
 
         this._range = newRange;
     }
+    // 3
+    getStep(): number {
+        return this._step;
+    }
+    setStep(step: number): void {
+        let newStep: number = Math.abs(step);
+        this.stepValidation(this._minVal, this._maxVal, newStep);
+        if (this._val) {
+            this.oneValueValidation(this._minVal, this._maxVal, this._val, newStep);
+        } else {
+            this.rangeValidation(this._minVal, this._maxVal, this._range, newStep);
+        }
+        this._step = newStep;
+    }
+    // 4
+    getMinVal(): number {
+        return this._minVal;
+    }
+    setMinVal(val: number): void {
+        if ( this._customValues ) {
+            throw new Error('cant set new min value to custom values');
+        }
+        this.areNumeric(val);
+        this.stepValidation(options.minVal, options.maxVal, options.step);      
+    }
+
+    // 5
+    getMaxVal(): number;
+    setMaxVal(val: number): void;
+
+    getMaxVal(): number {
+        return this._maxVal;
+    }
+    getMinVal(): number {
+        return this._minVal;
+    }
+
+
     getReverse(): boolean {
         return this._reverse;
     }
@@ -142,6 +156,14 @@ export default class Model {
     // вспомогательные методы
     getDataFormat(): string {
         return this._dataFormat;
+    }
+
+    findPositionInArr(val: any): number {
+        if ( this._customValues.indexOf(val) != -1 ) {
+            return this._customValues.indexOf(val);
+        } else {
+            throw new Error('Not valid value for custom values');
+        }
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -177,9 +199,9 @@ export default class Model {
         }
 
         if ( options.range ) {
-            this.rangeValidation(options.minVal, options.maxVal, options.range, options.step);
+            this.rangeValidation(newOptions.minVal, newOptions.maxVal, options.range, newOptions.step);
             // если мин и макс в диапазоне range перепутаны пользователем, меняем порядок
-            if ( this.minMaxValidation(options.range[0], options.range[1], options.reverse) ) {
+            if ( this.minMaxValidation(options.range[0], options.range[1], newOptions.reverse) ) {
                 newOptions.range = options.range;
             } else {
                 newOptions.range = [options.range[1], options.range[0]];
@@ -191,7 +213,7 @@ export default class Model {
         } else {
             // запускаем проверки для начального значения, только если не указан диапазон range
             this.areNumeric(options.initialVal);
-            this.oneValueValidation(options.minVal, options.maxVal, options.initialVal);
+            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.initialVal, newOptions.step);
 
             newOptions.initialVal = options.initialVal;
             newOptions.range = null;
@@ -311,9 +333,12 @@ export default class Model {
         }
     }
 
-    private oneValueValidation(minVal: number, maxVal: number, val: number) {
+    private oneValueValidation(minVal: number, maxVal: number, val: number, step: number) {
         if ( Math.max(minVal, maxVal) < val  ||  Math.min(minVal, maxVal) > val ) {
             throw new Error('The initial value should be within min and max values')
+        }
+        if ( ((val - minVal)/step) % 1 != 0 ) {
+            throw new Error('Value should be set on step');
         }
         return true;
     }
@@ -329,7 +354,7 @@ export default class Model {
             throw new Error('The range should be within min and max values');
         }
         if ( ((range[0] - minVal)/step) % 1 != 0 || ((range[1] - minVal)/step) % 1 != 0 ) {
-            throw new Error('The range should be divided by step');
+            throw new Error('The range should be set on step');
         }
         return true;
     }
@@ -377,15 +402,6 @@ export default class Model {
         }
         return step * 24 * 3600 * 1000;
     }
-
-    findPositionInArr(item: any, arr: any[]) {
-        if ( arr.indexOf(item) != -1 ) {
-            return arr.indexOf(item);
-        } else {
-            throw new Error('Incorrect range or initial value in custom range');
-        }
-    }
-
 
 
 }
