@@ -174,16 +174,17 @@ export default class Model {
             range: defaultOptions.range,
         }
 
-        this.areNumeric(options.maxVal, options.minVal);
-        this.stepValidation(options.minVal, options.maxVal, options.step);
+        this.areNumeric(options.maxVal, options.minVal, options.step);
 
         newOptions.step = Math.abs(options.step);
-        newOptions.reverse = options.reverse;
+        newOptions.reverse = options.reverse ? true : false;
         newOptions.dataFormat = options.dataFormat;
+        
+        this.stepValidation(options.minVal, options.maxVal, newOptions.step);
 
         // если мин и макс перепутаны пользователем, меняем порядок
         // подразумевается, что min - это то что слева на слайдере, max - справа
-        if ( this.minMaxValidation(options.minVal, options.maxVal, options.reverse) ) {
+        if ( this.minMaxValidation(options.minVal, options.maxVal, newOptions.reverse) ) {
             newOptions.minVal = options.minVal;
             newOptions.maxVal = options.maxVal;            
         } else {
@@ -227,11 +228,7 @@ export default class Model {
         this.customDateValidation(options.minVal, options.maxVal);
         options.minVal = this.translateDateToNumber(options.minVal);
         options.maxVal = this.translateDateToNumber(options.maxVal);
-        if ( !this.isNumeric(options.step) ) {
-            throw new Error('Step should be a number');
-        } else {
-            options.step = this.tranlateStepToDateFormat(options.step);
-        }
+        options.step = this.tranlateStepToDateFormat(options.step);
 
         if ( Array.isArray(options.range) && options.range.length == 2 ) {
             // если пользователь ввел что то другое, а не range, на этом
@@ -271,25 +268,30 @@ export default class Model {
         // 4. initialVal как значение 
         if ( options.initialRangeNumInCustomValues || options.initialRangeInCustomValues ) {
 
-            if ( Array.isArray(options.initialRangeInCustomValues) && options.initialRangeInCustomValues.length == 2 ) {
+            if ( Array.isArray(options.initialRangeNumInCustomValues) && options.initialRangeNumInCustomValues.length == 2 ) {
+                options.range = [];
+                options.range[0] = options.initialRangeNumInCustomValues[0];
+                options.range[1] = options.initialRangeNumInCustomValues[1];
+
+            } else if ( Array.isArray(options.initialRangeInCustomValues) && options.initialRangeInCustomValues.length == 2 ) {
                 // если пользователь ввел что то другое, а не range, на этом
                 // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
                 // (потому что range так и остается true)
+                options.range = [];
                 options.range[0] = this.findPositionInArr(options.initialRangeInCustomValues[0], options.customValues);
                 options.range[1] = this.findPositionInArr(options.initialRangeInCustomValues[1], options.customValues);
-            }
-            if ( Array.isArray(options.initialRangeNumInCustomValues) && options.initialRangeNumInCustomValues.length == 2 ) {
-                options.range[0] = options.initialRangeNumInCustomValues[0];
-                options.range[1] = options.initialRangeNumInCustomValues[1];
             }
 
         } else {
             // если не введены val или range в custom values
             // присваиваем простые initialVal или range, если они есть
-            if ( options.initialValInCustomValues ) {
-                options.initialVal = this.findPositionInArr(options.initialValInCustomValues);
-            } else if ( options.initialValNumInCustomValues ) {
+            if ( options.initialValNumInCustomValues ) {
+                options.range = null;
                 options.initialVal = options.initialValNumInCustomValues;
+                
+            } else if ( options.initialValInCustomValues ) {
+                options.range = null;
+                options.initialVal = this.findPositionInArr(options.initialValInCustomValues, options.customValues);
             }
         }
         return this.numericFormatValidation(options, defaultOptions);
@@ -331,19 +333,42 @@ export default class Model {
     private oneValueValidation(minVal: number, maxVal: number, val: number, step: number) {
 
         // округляем, чтобы избежать проблем при умножении с плавающей точкой
-        const simbols: any = step => ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
-        let test = ((val - minVal)/step).toFixed();
+        const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
+
+        let test: number = ( (val - minVal) * Math.pow(10, simbols) ) / ( step * Math.pow(10, simbols) );
+        test = +test.toFixed(simbols);
+        test = Math.abs(test);
+
+        //console.log(simbols());
+        //console.log('1 = ' + (val - minVal) * Math.pow(10, simbols + 1));
+        //console.log('2 = ' + step * Math.pow(10, simbols + 1))
+        //console.log(minVal);
+        //console.log('val = ' + val);
+        //console.log(step);
+        //console.log(test);
 
         if ( Math.max(minVal, maxVal) < val  ||  Math.min(minVal, maxVal) > val ) {
             throw new Error('The initial value should be within min and max values')
         }
-        if ( +test % 1 != 0 ) {
+        if ( test % 1 != 0 ) {
             throw new Error('Value should be set on step');
         }
         return true;
     }
 
-    private rangeValidation(minVal: number, maxVal: number, range: [number, number], step: number = 1) {
+    private rangeValidation(minVal: number, maxVal: number, range: [number, number], step: number) {
+
+        // округляем, чтобы избежать проблем при умножении с плавающей точкой
+        const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
+
+        let testLeft: number = Math.abs(( (range[0] - minVal) * Math.pow(10, simbols) )/( step * Math.pow(10, simbols) ));
+        testLeft = +testLeft.toFixed(simbols);
+        testLeft = Math.abs(testLeft);
+
+        let testRight: number =  Math.abs(( (range[1] - minVal) * Math.pow(10, simbols) )/( step * Math.pow(10, simbols) ));
+        testRight = +testRight.toFixed(simbols);
+        testRight = Math.abs(testRight);
+
         if ( range.length != 2 ) {
             throw new Error('Range should contain two values');
         }
@@ -353,15 +378,12 @@ export default class Model {
         if ( Math.max(minVal, maxVal) < Math.max(range[0], range[1])  ||  Math.min(minVal, maxVal) > Math.min(range[0], range[1]) ) {
             throw new Error('The range should be within min and max values');
         }
-        if ( ((range[0] - minVal)/step) % 1 != 0 || ((range[1] - minVal)/step) % 1 != 0 ) {
+        if ( testLeft % 1 != 0 || testRight % 1 != 0 ) {
             throw new Error('The range should be set on step');
         }
         return true;
     }
 
-    private isNumeric(n: any): boolean {
-        return !isNaN(parseFloat(n)) && !isNaN(n - 0);
-    }
 
     // внимение! нет теста!
     private warningOfUnusefulValues(...vals: any): void {
@@ -401,6 +423,10 @@ export default class Model {
             throw new Error('Step in date format should be integer');
         }
         return step * 24 * 3600 * 1000;
+    }
+    
+    private isNumeric(n: any): boolean {
+        return !isNaN(parseFloat(n)) && !isNaN(n - 0);
     }
 
 

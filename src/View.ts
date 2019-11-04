@@ -58,7 +58,6 @@ export default class View {
             this._lenght = this._slider.clientHeight;
             this._slider.classList.add('slider_vertical');            
         }
-        console.log(this._lenght);
 
         let pos: number;
         if ( !this._range ) {
@@ -93,11 +92,11 @@ export default class View {
                 this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
             } else {
-                val = model.getCustomValues()[ model.getRange()[0] ];         
+                val = model.getCustomValues() ? model.getCustomValues()[model.getRange()[0]] : model.getRange()[0];    
                 this._tooltipLeft = this.buildTooltip(this._thumbLeft, 'slider__tooltip_left');
                 this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
 
-                val = model.getCustomValues()[ model.getRange()[1] ];  
+                val = model.getCustomValues() ? model.getCustomValues()[model.getRange()[1]] : model.getRange()[1];   
                 this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
                 this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
             }

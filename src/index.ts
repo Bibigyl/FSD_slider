@@ -17,31 +17,55 @@ import {defaultOptions} from './defaultOptions';
       let view: IView = new View(model, options, this);
       let presenter = new Presenter(model, view);
 
-      let testOptions = Object.assign({}, defaultOptions, {
-        minVal: 0,
-        maxVal: 20,
-        step: 2,
-        reverse: true,
-      });
+      let min = model.getMinVal();
+      let max = model.getMaxVal();
+      let s = model.getStep();
 
     };
   
     return this.each(make); 
   };
 })(jQuery);
+
+let step = 0.1;
+const simbols: number =  ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
+//console.log(Math.pow(10, simbols));
+//console.log( Math.abs(((0.2 - 0.6)*Math.pow(10, simbols)) / (0.1 * Math.pow(10, simbols)))%1 ) 
+
   
 // теперь можно задавать плагин с настройками по умолчанию:
+/* $('.test').slider({
+  initialVal: 0.16,
+  minVal: 0.6,
+  maxVal: -1,
+  reverse: true,
+  step: 0.01,
+  initialValNumInCustomValues: 5,
+  range: [-0.61, 0.16],
+  tooltip: true,
+}); */
+
 $('.test').slider({
+  initialVal: 2,
+  minVal: -5,
+  maxVal: 12,
+  reverse: true,
+  step: 1,
+  initialValNumInCustomValues: 5,
+  range: [-3, 8],
+  tooltip: true,
+});
+
+
+/* $('.test').slider({
   //dataFormat: 'custom',
   width: '500px',
   vertical: false,
-  initialVal: 3,
-  range: [0.2, 0.8],
-  step: 0.2,
-  //initialVal: 2,
+  initialVal: 1,
+  step: .2,
   //initialRangeInCustomValues: [1, 'fsd'],
-  //range: [0, 1 ],
+  range: [0.6 , 1 ],
   //customValues: ['kjk', 1, 0, 'fsd', 'sf'],
   tooltip: true,
   tooltipMaskWithCalc: "'val = ' + val",
-});
+}); */

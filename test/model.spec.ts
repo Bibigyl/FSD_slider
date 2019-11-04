@@ -4,6 +4,8 @@ import IOptions from '../src/defaultOptions';
 
 let model: IModel;
 let testOptions;
+let newOptions;
+
 beforeEach( function() {
     model = new Model(defaultOptions);
 });
@@ -11,19 +13,7 @@ afterEach( function() {
     model = null;
     testOptions = null;
 });
-
-it('test', function() {
-    let testOptions = Object.assign({}, defaultOptions, {
-        dataFormat: 'date',
-        minVal: '01/01/2019',
-        maxVal: '02/01/2019',
-    });
-    
-    model = new Model(testOptions);
-    console.log('test ++++++++++++++++++++++ ' + model.getStep());
-    expect(5).toBe(5);
-})
-
+/* 
 describe('Model is created with default options,', function() {
 
     it('can create', function() {  
@@ -114,7 +104,7 @@ describe('Model has private functions and methods: ', function() {
                 reverse: true,
             });
             // @ts-ignore
-            let newOptions = model.numericFormatValidation(testOptions, defaultOptions);
+            newOptions = model.numericFormatValidation(testOptions, defaultOptions);
             expect(newOptions.dataFormat).toBe('numeric');
             expect(newOptions.minVal).toBe(20);
             expect(newOptions.maxVal).toBe(0);
@@ -127,80 +117,187 @@ describe('Model has private functions and methods: ', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 minVal: -10,
                 maxVal: 20,
-                step: 2,
-                //range: [0.6, -2.8],
+                step: .2,
+                range: [0.6, -2.8],
                 initialVal: 10
             });
-            console.log(testOptions.minVal);
-            console.log(testOptions.maxVal);
-            console.log(testOptions.step);
             // @ts-ignore
-            console.log(model.stepValidation(testOptions.minVal, testOptions.maxVal, testOptions.step));
-            // @ts-ignore
-            let newOptions = model.numericFormatValidation(testOptions, defaultOptions);
-            //expect(newOptions.dataFormat).toBe('numeric');
-            //expect(newOptions.minVal).toBe(-10);
-            //expect(newOptions.maxVal).toBe(20);
-            //expect(newOptions.initialVal).toBeNull();
-            //expect(newOptions.range).toBe([-2.8, 0.6]);
-            //expect(newOptions.reverse).toBeTruthy();
-            //expect(newOptions.step).toBe(0.2);
+            newOptions = model.numericFormatValidation(testOptions, defaultOptions);
+            expect(newOptions.dataFormat).toBe('numeric');
+            expect(newOptions.minVal).toBe(-10);
+            expect(newOptions.maxVal).toBe(20);
+            expect(newOptions.initialVal).toBeNull();
+            expect(newOptions.range).toEqual([-2.8, 0.6]);
+            expect(newOptions.reverse).toBeFalsy();
+            expect(newOptions.step).toBe(.2);
         });
     });
 
-/*     describe('dateValidation is used for date format, returns numbers', function() {
-        it('returns an object, with valid options, test 1. Min and max change position, initian val == min', function() {
-            let testOptions = Object.assign({}, defaultOptions, {
+    describe('dateValidation is used for date format, returns numbers', function() {
+        it('returns an object, with valid options, test 3. All options are numeric, milliseconds', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'date',
                 minVal: '01/09/2019',
-                maxVal: '10/10/2019',
-                initialVal: '20.09.2019',
+                maxVal: '19/09/2019',
+                initialVal: '01.09.2019',
                 step: 2,
                 reverse: true,
             });
             // @ts-ignore
-            let newOptions = model.numericFormatValidation(testOptions, defaultOptions);
-            console.log('min = ' + newOptions.minVal);
-            console.log('max = ' + newOptions.maxVal);
-            console.log('init = ' + newOptions.initialVal);
+            newOptions = model.dateFormatValidation(testOptions, defaultOptions);
 
-            expect(newOptions.dataFormat).toBe('numeric');
-            expect(newOptions.minVal).toBe(20);
-            expect(newOptions.maxVal).toBe(0);
-            expect(newOptions.initialVal).toBe(0);
-            expect(newOptions.range).toBeNull;
+            expect(newOptions.dataFormat).toBe('date');
+            expect(newOptions.minVal).toBe(1571432400000);
+            expect(newOptions.maxVal).toBe(1569877200000);
+            expect(newOptions.initialVal).toBe(1569877200000);
+            expect(newOptions.range).toBeNull();
             expect(newOptions.reverse).toBeTruthy();
-            expect(newOptions.step).toBe(2);
+            expect(newOptions.step).toBe(172800000);
         });  
-    }) */
+    });
 
-    describe('isNumeric checks if argument is a number, returns booleal', function() {
-        it('1', function() {
+    describe('customDataValidation is used for custom format, returns numbers. CustomValue is required, is range of any values', function() {
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: initialRangeNumInCustomValues -> initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', 'p'],
+                initialValNumInCustomValues: 2,
+                initialValInCustomValues: 'n', 
+                initialRangeNumInCustomValues: [1, 3],
+                initialRangeInCustomValues: [1, 'p'],
+                range: [0, 4],
+                initialVal: 3,
+                reverse: true,
+                step: 2,
+            });
             // @ts-ignore
-            expect(model.isNumeric(1)).toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.dataFormat).toBe('custom');
+            expect(newOptions.minVal).toBe(4);
+            expect(newOptions.maxVal).toBe(0);
+            expect(newOptions.initialVal).toBeNull();
+            expect(newOptions.range).toEqual([3, 1]);
+            expect(newOptions.reverse).toBeTruthy();
+            expect(newOptions.step).toBe(1);
         });
-        it('1.5', function() {
+
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: initialRangeNumInCustomValues -> initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', 'p'],
+                initialValNumInCustomValues: 2,
+                initialValInCustomValues: 'n', 
+                initialRangeNumInCustomValues: [1, 3],
+                initialRangeInCustomValues: [1, 'p'],
+                range: [0, 4],
+                initialVal: 3,
+                reverse: true,
+                step: 2,
+            });
             // @ts-ignore
-            expect(model.isNumeric(1.5)).toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.dataFormat).toBe('custom');
+            expect(newOptions.minVal).toBe(4);
+            expect(newOptions.maxVal).toBe(0);
+            expect(newOptions.initialVal).toBeNull();
+            expect(newOptions.range).toEqual([3, 1]);
+            expect(newOptions.reverse).toBeTruthy();
+            expect(newOptions.step).toBe(1);
         });
-        it('1,7', function() {
+
+        it('returns initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', true],
+                initialValNumInCustomValues: 2,
+                initialValInCustomValues: 'n', 
+                //initialRangeNumInCustomValues: [1, 3],
+                initialRangeInCustomValues: [1, true],
+                range: [0, 4],
+                initialVal: 3,
+            });
             // @ts-ignore
-            expect(model.isNumeric(1,7)).toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.initialVal).toBeNull();
+            expect(newOptions.range).toEqual([1, 4]);
         });
-        it('"1"', function() {  
+        it('returns initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', true],
+                initialValNumInCustomValues: 2,
+                initialValInCustomValues: 'n', 
+                //initialRangeNumInCustomValues: [1, 3],
+                //initialRangeInCustomValues: [1, true],
+                range: [0, 4],
+                initialVal: 3,
+            });
             // @ts-ignore
-            expect(model.isNumeric("1")).toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.initialVal).toBe(2);
+            expect(newOptions.range).toBeNull();
         });
-        it('-9', function() { 
-            // @ts-ignore 
-            expect(model.isNumeric(-9)).toBeTruthy();
-        });
-        it('true returns false', function() {  
+            it('returns  initialValInCustomValues -> range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', true],
+                //initialValNumInCustomValues: 2,
+                initialValInCustomValues: true, 
+                //initialRangeNumInCustomValues: [1, 3],
+                //initialRangeInCustomValues: [1, true],
+                range: [0, 4],
+                initialVal: 3,
+            });
             // @ts-ignore
-            expect(model.isNumeric(true)).not.toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.initialVal).toBe(4);
+            expect(newOptions.range).toBeNull();
         });
-        it('a', function() {  
+        it('returns range -> initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', true],
+                //initialValNumInCustomValues: 2,
+                //initialValInCustomValues: true, 
+                //initialRangeNumInCustomValues: [1, 3],
+                //initialRangeInCustomValues: [1, true],
+                range: [0, 4],
+                initialVal: 3,
+            });
             // @ts-ignore
-            expect(model.isNumeric('a')).not.toBeTruthy();
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.initialVal).toBeNull();
+            expect(newOptions.range).toEqual([0, 4]);
+        });
+        it('returns initialVal', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [0, 1, 'k', 'n', true],
+                //initialValNumInCustomValues: 2,
+                //initialValInCustomValues: true, 
+                //initialRangeNumInCustomValues: [1, 3],
+                //initialRangeInCustomValues: [1, true],
+                //range: [0, 4],
+                initialVal: 3,
+            });
+            // @ts-ignore
+            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+
+            expect(newOptions.initialVal).toBe(3);
+            expect(newOptions.range).toBeNull();
         });
     });
 
@@ -281,6 +378,25 @@ describe('Model has private functions and methods: ', function() {
         });
     });
 
+    describe('oneValueValidation ckecks one value, return true or Error', function() {
+        it('minVal=1 maxVal=10 val=4 return true', function() {
+            // @ts-ignore
+            expect(model.oneValueValidation(0, 10, 4, 2)).toBeTruthy();
+        });
+        it('minVal=10 maxVal=0 val=1.5 step 0.5  return true', function() {
+            // @ts-ignore
+            expect(model.oneValueValidation(10, 0, 1.5, 0.5)).toBeTruthy();
+        });
+        it('minVal=0 maxVal=10 val=10.6 step 0.5 return true', function() {
+            // @ts-ignore
+            expect(function() {model.oneValueValidation(0, 10, 10.6, 0.5)}).toThrow(new Error('The initial value should be within min and max values'));
+        });
+        it('minVal=0 maxVal=10 val=0.6 step 0.5 return true', function() {
+            // @ts-ignore
+            expect(function() {model.oneValueValidation(0, 10, 0.6, 0.5)}).toThrow(new Error('Value should be set on step'));
+        });    
+    });
+
     describe('rangeValidation checks the range, returns true or Error', function() {
         it('minVal=1 maxVal=10 range=[2,3] return true', function() {
             // @ts-ignore
@@ -349,16 +465,44 @@ describe('Model has private functions and methods: ', function() {
         });      
     });
 
+    describe('isNumeric checks if argument is a number, returns booleal', function() {
+        it('1', function() {
+            // @ts-ignore
+            expect(model.isNumeric(1)).toBeTruthy();
+        });
+        it('1.5', function() {
+            // @ts-ignore
+            expect(model.isNumeric(1.5)).toBeTruthy();
+        });
+        it('1,7', function() {
+            // @ts-ignore
+            expect(model.isNumeric(1,7)).toBeTruthy();
+        });
+        it('"1"', function() {  
+            // @ts-ignore
+            expect(model.isNumeric("1")).toBeTruthy();
+        });
+        it('-9', function() { 
+            // @ts-ignore 
+            expect(model.isNumeric(-9)).toBeTruthy();
+        });
+        it('true returns false', function() {  
+            // @ts-ignore
+            expect(model.isNumeric(true)).not.toBeTruthy();
+        });
+        it('a', function() {  
+            // @ts-ignore
+            expect(model.isNumeric('a')).not.toBeTruthy();
+        });
+    });
+}); */
 
 
-});
-
-/* 
 describe('When model has numeric values,', function() {
 
     describe('can create with one value,', function() {
 
-        let testOptions = Object.assign({}, defaultOptions, {
+        testOptions = Object.assign({}, defaultOptions, {
             initialVal: 0.2,
             minVal: 0.6,
             maxVal: -1,
@@ -366,7 +510,7 @@ describe('When model has numeric values,', function() {
             step: -0.1,
             initialValNumInCustomValues: 5
         });
-        let model = new Model(testOptions);
+        model = new Model(testOptions);
 
         it('returns range == null', function() {
             expect(model.getRange()).toBeNull();
@@ -379,7 +523,7 @@ describe('When model has numeric values,', function() {
         });
     });
 
-    describe('can create with range,', function() {
+/*     describe('can create with range,', function() {
 
         let testOptions: IOptions = Object.assign({}, defaultOptions, {
             range: [-1.5, 9.5],
@@ -420,9 +564,9 @@ describe('When model has numeric values,', function() {
         it('returns absolute value of step, if step < 0', function() {
             expect(model.getStep()).toBe(0.5);
         });
-    });
+    }); */
 });
-
+/* 
 describe('When Model has date format,', function() {
 
     describe('with defined range,', function() {

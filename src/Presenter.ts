@@ -111,8 +111,10 @@ export default class Presenter {
             // только после этого преобразуем его для модели. Если reverse == true, то == -1 
             thumbPosition = newVal * stepLenght;
 
-            const simbols: any = step => ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;        
-            newVal = this._model.getMinVal() + reverse * (newVal * (step * (10 ^ simbols))) /  (10 ^ simbols);
+            const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
+            newVal = +( (reverse * (newVal * (step * Math.pow(10, simbols))) / Math.pow(10, simbols) ).toFixed(simbols) );
+            newVal = +( this._model.getMinVal() + newVal ).toFixed(simbols);
+            console.log(newVal);
         }
     
         if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
