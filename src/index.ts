@@ -17,6 +17,13 @@ import {defaultOptions} from './defaultOptions';
       let view: IView = new View(model, options, this);
       let presenter = new Presenter(model, view);
 
+      let testOptions = Object.assign({}, defaultOptions, {
+        minVal: 0,
+        maxVal: 20,
+        step: 2,
+        reverse: true,
+      });
+
     };
   
     return this.each(make); 
@@ -25,16 +32,16 @@ import {defaultOptions} from './defaultOptions';
   
 // теперь можно задавать плагин с настройками по умолчанию:
 $('.test').slider({
-  dataFormat: 'custom',
+  //dataFormat: 'custom',
   width: '500px',
-  vertical: true,
+  vertical: false,
   initialVal: 3,
+  range: [0.2, 0.8],
+  step: 0.2,
   //initialVal: 2,
   //initialRangeInCustomValues: [1, 'fsd'],
   //range: [0, 1 ],
-  customValues: ['kjk', 1, 0, 'fsd', 'sf'],
+  //customValues: ['kjk', 1, 0, 'fsd', 'sf'],
   tooltip: true,
   tooltipMaskWithCalc: "'val = ' + val",
 });
-
-   

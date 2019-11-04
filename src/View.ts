@@ -84,10 +84,11 @@ export default class View {
             // если ее нет, применяется обычная, которая по дефолту возвращает просто val
             // (в формате дат вернется кол-во миллисекунд)
             this._tooltipMask = options.tooltipMaskWithCalc ? options.tooltipMaskWithCalc : options.tooltipMask;
-            let val;
+            let val: number | string;
 
-            if (!this._range) {   
-                val = model.getCustomValues()[model.getVal()];       
+            if (!this._range) { 
+                val = model.getCustomValues() ? model.getCustomValues()[model.getVal()] : model.getVal();
+                console.log('val = ' + val);     
                 this._tooltip = this.buildTooltip(this._thumb);
                 this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 

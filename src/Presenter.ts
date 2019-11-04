@@ -76,7 +76,7 @@ export default class Presenter {
 
         stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
         newVal = Math.round(thumbPosition / stepLenght);
-
+        
         if ( this._model.getRange() ) {
             if ( this._activeThumb.classList.contains('slider__thumb_right') ) {
                 // если промежуток, то левая граница - это левый бегунок
@@ -110,7 +110,9 @@ export default class Presenter {
             // кратное шагу.
             // только после этого преобразуем его для модели. Если reverse == true, то == -1 
             thumbPosition = newVal * stepLenght;
-            newVal = this._model.getMinVal() + reverse * newVal;
+
+            const simbols: any = step => ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;        
+            newVal = this._model.getMinVal() + reverse * (newVal * (step * (10 ^ simbols))) /  (10 ^ simbols);
         }
     
         if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
