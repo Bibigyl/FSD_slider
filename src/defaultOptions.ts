@@ -38,7 +38,7 @@ var defaultOptions: IOptions = {
     height: '300px',
     vertical: false,
     tooltip: false,
-    tooltipMask: "'val = ' + val",
+    tooltipMask: "val",
     tooltipMaskWithCalc: null,
 }
 

@@ -82,13 +82,13 @@ export default class Presenter {
                 // если промежуток, то левая граница - это левый бегунок
                 // здесь рассчитывается количество шагов от начала (от 0), 
                 // затем расстояние в px от начала слайдера.
-                leftPoint = (this._model.getRange()[0] - minVal) / step;
+                leftPoint = (this._model.getRange()[0] - minVal) * reverse / step;
                 leftPoint = leftPoint * stepLenght;
                 rightPoint = sliderLenght;
 
                 minVal = this._model.getRange()[0];
             } else {
-                rightPoint = (this._model.getRange()[1] - minVal) / step;
+                rightPoint = (this._model.getRange()[1] - minVal) * reverse / step;
                 rightPoint = rightPoint * stepLenght;
                 leftPoint = 0;
 

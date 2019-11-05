@@ -1,15 +1,6 @@
 import IOptions from './defaultOptions';
 import {IModel} from './Model';
 
-/* interface IViewOptions {
-    width?: string;
-    height?: string;
-    vertical: boolean;
-    sliderNode: HTMLElement;
-    thumb: HTMLElement;
-    tooltip?: boolean;
-} */
-
 export interface IView {
     getLenght(): number;
     getVertical(): boolean;
@@ -76,13 +67,13 @@ export default class View {
             this.setThumbPosition( this._thumbRight, pos);
         }
  
-        if ( options.tooltip ) {
+        // маски для подсказок
+        // больший приоритет имеет маска с вычислениями
+        // если ее нет, применяется обычная, которая по дефолту возвращает просто val
+        // (в формате дат вернется кол-во миллисекунд)
+        this._tooltipMask = options.tooltipMaskWithCalc ? options.tooltipMaskWithCalc : options.tooltipMask;
 
-            // маски для подсказок
-            // больший приоритет имеет маска с вычислениями
-            // если ее нет, применяется обычная, которая по дефолту возвращает просто val
-            // (в формате дат вернется кол-во миллисекунд)
-            this._tooltipMask = options.tooltipMaskWithCalc ? options.tooltipMaskWithCalc : options.tooltipMask;
+        if ( options.tooltip ) {
             let val: number | string;
 
             if (!this._range) { 
@@ -156,6 +147,7 @@ export default class View {
             thumbNode.style.top = thumbPosition - thumbNode.offsetWidth/2 + 'px';    
         }       
     }
+    
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string = 'val'): void {
         if ( typeof eval(mask) != 'string') {
             console.warn('Invalid mask for tooltip');
@@ -165,6 +157,7 @@ export default class View {
             tooltipNode.textContent = eval(mask);
         }
     }
+
     findThumbPosition(newStep, numOfSteps): number {
         return this.getLenght() / numOfSteps * newStep;
     }
@@ -202,7 +195,4 @@ export default class View {
     private isNumeric(n: any): boolean {
         return !isNaN(parseFloat(n)) && !isNaN(n - 0);
     }
-
-
-
 }

@@ -1,4 +1,4 @@
-import Model, { IModel } from '../src/Model';
+/* import Model, { IModel } from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -13,7 +13,7 @@ afterEach( function() {
     model = null;
     testOptions = null;
 });
-/* 
+
 describe('Model is created with default options,', function() {
 
     it('can create', function() {  
@@ -495,95 +495,88 @@ describe('Model has private functions and methods: ', function() {
             expect(model.isNumeric('a')).not.toBeTruthy();
         });
     });
-}); */
-
+});
 
 describe('When model has numeric values,', function() {
 
-    describe('can create with one value,', function() {
+    describe('can create with one value, when step < 1', function() {
 
-        testOptions = Object.assign({}, defaultOptions, {
-            initialVal: 0.2,
-            minVal: 0.6,
-            maxVal: -1,
-            reverse: true,
-            step: -0.1,
-            initialValNumInCustomValues: 5
-        });
-        model = new Model(testOptions);
+        it('returns val, doesn return range, step > 0', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                initialVal: 0.2,
+                minVal: -0.6,
+                maxVal: 1,
+                reverse: true,
+                step: -0.1,
+                initialValNumInCustomValues: 5
+            });
+            model = new Model(testOptions);
+            console.log(model.getVal());
 
-        it('returns range == null', function() {
             expect(model.getRange()).toBeNull();
-        });
-        it('val == 2', function() {
             expect(model.getVal()).toBe(0.2);
-        });
-        it('step == 0.1', function() {
             expect(model.getStep()).toBe(0.1);
+            expect(model.getMinVal()).toBe(1);
+            expect(model.getMaxVal()).toBe(-0.6);
         });
     });
 
-/*     describe('can create with range,', function() {
-
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            range: [-1.5, 9.5],
-            minVal: -1.5,
-            maxVal: 10,
-            step: 0.5,
-        });
-        let model = new Model(testOptions);
+    describe('can create with range,', function() {
     
-        it('returns range == [-1.5, 9.5]', function() {
-            expect(model.getRange()).toEqual([-1.5, 9.5]);
-        });
-        it('returns val == null', function() {
+        it('returns range, doesnt return val, can change positions if reverse', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                range: [-1.5, 9.5],
+                minVal: -1.5,
+                maxVal: 10,
+                step: -0.5,
+                reverse: true,
+            });
+            model = new Model(testOptions);
+
+            expect(model.getRange()).toEqual([9.5, -1.5]);
             expect(model.getVal()).toBeNull();
+            expect(model.getStep()).toBe(0.5);
+            expect(model.getMinVal()).toBe(10);
+            expect(model.getMaxVal()).toBe(-1.5);
         });
     });
 
     describe('can create with some custom mistakes,', function() {
-
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            initialVal: 0.5,
-            range: [15, 13],
-            minVal: 20,
-            maxVal: 10,
-            step: -0.5,
-        });
-        let model = new Model(testOptions);
     
-        it('returns range in right order, considering to reverse option', function() {
-            expect(model.getRange()).toEqual([13, 15]);
-        });
-        it('changes min and max values, considering to reverse option', function() {
-            expect([model.getMinVal(), model.getMaxVal()]).toEqual([10, 20]);
-        });
-        it('ignores initial value, if range is defined', function() {
+        it('returns range, min, max in right order, considering to reverse option. return step > 0. ignores initialVal, if range', function() {
+            let testOptions: IOptions = Object.assign({}, defaultOptions, {
+                initialVal: 0.5,
+                range: [13, 15],
+                minVal: 10,
+                maxVal: 20,
+                step: -0.5,
+                reverse: true
+            });
+            let model = new Model(testOptions);
+            expect(model.getRange()).toEqual([15, 13]);
+            expect([model.getMinVal(), model.getMaxVal()]).toEqual([20, 10]);
             expect(model.getVal()).toBeNull();
-        });
-        it('returns absolute value of step, if step < 0', function() {
             expect(model.getStep()).toBe(0.5);
         });
-    }); */
+    }); 
 });
-/* 
+ 
 describe('When Model has date format,', function() {
 
-    describe('with defined range,', function() {
+    describe('can create with defined range,', function() {
 
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            dataFormat: 'date',
-            initialVal: '15.10.2019',
-            range: ['13.10.2019', '20.10.2019'],
-            minVal: '10.10.2019',
-            maxVal: '30.10.2019',
-        });
-        let model = new Model(testOptions);
+        it('can create, all data are numeric, understand different formats', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'date',
+                initialVal: '15.10.2019',
+                range: ['13/10/2019', '20.10.2019'],
+                minVal: '10.10.2019',
+                maxVal: '30-10-2019',
+            });
+            model = new Model(testOptions);
 
-        it('can create', function() {
             expect(model).toBeDefined();
-        });
-        it('returns all data, like numbers', function() {
+            expect( model.getVal() ).toBeNull();
             // @ts-ignore
             expect( model.isNumeric(model.getMinVal()) ).toBeTruthy();
             // @ts-ignore
@@ -593,28 +586,22 @@ describe('When Model has date format,', function() {
             // @ts-ignore
             expect( model.isNumeric(model.getStep()) ).toBeTruthy();
         });
-        it('returns val == null', function() {
-            // @ts-ignore
-            expect( model.getVal() ).toBeNull();
-
-        });
-
     });
 
     describe('with defined initial value,', function() {
 
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            dataFormat: 'date',
-            initialVal: '15.10.2019',
-            minVal: '10.10.2019',
-            maxVal: '30.10.2019',
-        });
-        let model = new Model(testOptions);
+        it('can create, all data are numeric', function() {
 
-        it('can create', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'date',
+                initialVal: '15.10.2019',
+                minVal: '10/10/2019',
+                maxVal: '30-10-2019',
+            });
+            model = new Model(testOptions);
+
             expect(model).toBeDefined();
-        });
-        it('returns all data, like numbers', function() {
+            expect( model.getRange() ).toBeNull();
             // @ts-ignore
             expect( model.isNumeric(model.getMinVal()) ).toBeTruthy();
             // @ts-ignore
@@ -624,44 +611,22 @@ describe('When Model has date format,', function() {
             // @ts-ignore
             expect( model.isNumeric(model.getStep()) ).toBeTruthy();
         });
-        it('returns range == null', function() {
-            // @ts-ignore
-            expect( model.getRange() ).toBeNull();
-        });
-
-    });
-
-    describe('throught Error if range is not valid,', function() {
-
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            dataFormat: 'date',
-            range: '15.10.2019',
-            minVal: '10.10.2019',
-            maxVal: '30.10.2019',
-        });
-
-        it('returns Error "Range should contain two values"', function() {
-            // @ts-ignore
-            expect(function() { let model = new Model(testOptions) }).toThrow(new Error('Range should contain two values'));
-        });
     });
 });
 
 describe('When Model has custom format,', function() {
 
-    describe('with any custom values', function() {
+    describe('can create with any custom values', function() {
 
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            dataFormat: 'custom',
-            customValues: [1, 2, 'gdfg', true]
-        });
+        it('returns numeric values, can return range - custom values', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [1, 2, 'gdfg', true]
+            });
+    
+            model = new Model(testOptions);
 
-        let model = new Model(testOptions);
-
-        it('can create', function() {
             expect(model).toBeDefined();
-        });
-        it('returns all data, like numbers', function() {
             // @ts-ignore
             expect( model.getMinVal() ).toBe(0);
             // @ts-ignore
@@ -677,20 +642,16 @@ describe('When Model has custom format,', function() {
 
     describe('with defined range,', function() {
 
-        let testOptions: IOptions = Object.assign({}, defaultOptions, {
-            dataFormat: 'custom',
-            customValues: [1, 2, 'gdfg', 5],
-            initialRangeInCustomValues: [1, 'gdfg']
-        });
+        it('can create, returns all data, like numbers', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: [1, 2, 'gdfg', 5],
+                initialRangeInCustomValues: [1, 'gdfg']
+            });
+    
+            model = new Model(testOptions);
 
-        let model = new Model(testOptions);
-        // @ts-ignore
-        console.log(model._customValues)
-
-        it('can create', function() {
             expect(model).toBeDefined();
-        });
-        it('returns all data, like numbers', function() {
             // @ts-ignore
             expect( model.getMinVal() ).toBe(0);
             // @ts-ignore
@@ -704,6 +665,5 @@ describe('When Model has custom format,', function() {
             // @ts-ignore
             expect( model.getRange()[1] ).toBe(2);
         });
-
     });
-}); */
+});  */

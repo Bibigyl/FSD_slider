@@ -47,12 +47,12 @@ const simbols: number =  ~(step + '').indexOf('.') ? (step + '').split('.')[1].l
 
 $('.test').slider({
   initialVal: 2,
-  minVal: -5,
+  minVal: -6,
   maxVal: 12,
   reverse: true,
-  step: 1,
+  step: 0.5,
   initialValNumInCustomValues: 5,
-  range: [-3, 8],
+  range: [ -2.5, 8],
   tooltip: true,
 });
 

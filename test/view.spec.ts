@@ -1,93 +1,96 @@
-/* import View from '../src/View';
+//import * as css from '../dist/slider.css';
+const styles = require('../dist/slider.css');
+import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
+import Model, { IModel } from '../src/Model';
 
-let sliderNode = document.createElement('div');
-let view = new View(defaultOptions, sliderNode);
-// document.append(sliderNode);
+let sliderNode: HTMLDivElement;
+let testNode: HTMLDivElement;
+let view: IView;
+let model: IModel;
+let testOptions;
 
-describe('View is created with default options', function() {
+
+beforeEach( function() {
+    sliderNode = document.createElement('div');
+    document.body.append(sliderNode);
+    model = new Model(defaultOptions);
+    view = new View(model, defaultOptions, sliderNode);
+});
+afterEach( function() {
+    view = null;
+    model = null;
+    testOptions = null;
+
+    document.querySelector('.slider').remove();
+    sliderNode = null;
+    testNode = null;
+});
+
+describe('View is created with default options and has methods', function() {
 
     it('can create', function() {  
         expect(view).toBeDefined();
     });
-
     it('has default width', function() {  
-        // @ts-ignore
-        expect(view._slider.style.width).toBe(defaultOptions.width);
+        expect((view.getSlider().clientWidth) + 'px').toBe(defaultOptions.width);
     });
-});
-
-describe('View has methods (if default options)', function() {
-    it('returns lenght', function() {
+    it('getLenght returns lenght', function() {
+        expect(view.getLenght()).toBeDefined();
+    });
+    it('getVertical returns vertical as boolean', function() {
+        expect(view.getVertical()).toBeFalsy();
+    });
+    it('getTooltipMask returns "val"', function() {
+        expect(view.getTooltipMask()).toBe("val");
+    })
+    it('getSlider returns slider node', function() {
         expect(view.getSlider()).toBeDefined();
     });
-    it('returns slider node', function() {
-        expect(view.getSlider()).toBeDefined();
-    });
-    it('returns thumb node', function() {
+    it('getThumb returns thumb node', function() {
         expect(view.getThumb()).toBeDefined();
     });
-    it('returns vrtical as boolean', function() {
-        expect(view.getVertical()).toBeDefined();
-    });
-    it('sets thumb position', function() {
-        view.setThumbPosition(0);
-        //@ts-ignore
-        expect(view._thumb.style.left).toBe('0px');
-    });
-    it('dont return tooltip', function() {
+    it('getTooltip returns undefined', function() {
         expect(view.getTooltip()).toBeUndefined();
     });
-    it('dont return tooltip mask', function() {
-        expect(view.getTooltipMask()).toBeUndefined();
+    it('setThumbPosition sets thumb position', function() {
+        view.setThumbPosition(view.getThumb(), 0);
+        // ???
+        expect(view.getThumb().style.left).toBe('-150px');
+    });
+    it('findThumbPosition returns position in px', function() {
+        expect(view.findThumbPosition(3, 10)).toBe(90);
     });
 });
 
-describe('View has functions:', function() {
+describe('View has private functions:', function() {
 
-    describe('buildSlider - function for constructor,', function() {
+    describe('buildThumb - function for constructor,', function() {
 
-        let testNode = document.createElement('div');
-        // @ts-ignore
-        testNode = view.buildSlider(testNode);
-
-        it('creates thumbNode', function() {
-            expect(testNode.querySelector('.slider__thumb')).toBeDefined();
-        });
-        it('adds classes slider, slider__thumb', function() {
-            expect(testNode.classList).toContain('slider');
+        it('creates thumbNode, adds classes', function() {
+            // @ts-ignore
+            testNode = view.buildThumb(sliderNode, 'testClass');
+            
+            expect(testNode.classList).toContain('slider__thumb');
+            expect(testNode.classList).toContain('testClass');
+            expect(sliderNode.querySelector('.slider__thumb')).toBeDefined();
         });
     });
 
     describe('buildTooltip adds a tooltip with value', function() {
 
-        let testNode = document.createElement('div');
-        // @ts-ignore
-        testNode = view.buildSlider(testNode);
-        // @ts-ignore
-        view.buildTooltip(testNode);
+        it('returns tooltip, adds classes', function() {
+            testNode = document.createElement('div');
+            // @ts-ignore
+            testNode = view.buildTooltip(testNode, 'testClass');
 
-        it('returns tooltip', function() {
-            expect(testNode.querySelector('.slider__tooltip')).toBeDefined();
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__tooltip');
+            expect(testNode.classList).toContain('testClass');
         });
     });
-
-    describe('method setValToTooltip adds a value to tooltip', function() {
-
-        let testNode = document.createElement('div');
-        // @ts-ignore
-        testNode = view.buildSlider(testNode);
-        // @ts-ignore
-        view.buildTooltip(testNode);
-        // @ts-ignore
-        view.setValToTooltip(testNode.querySelector('.slider__tooltip'), 1, "'val = ' + val");
-
-        it('returns tooltip', function() {
-            expect(testNode.querySelector('.slider__tooltip').textContent).toBe('val = 1');
-        });
-    });
-
+    
     describe('widthValidation returns string if its valid', function() {
 
         it('returns 10px if 10px', function() {
@@ -106,85 +109,106 @@ describe('View has functions:', function() {
             // @ts-ignore
             expect(function() {view.widthValidation('10pxs')}).toThrow(new Error('Width (or height) should be valid to css'));
         });
-    });  
+    });
+
+    describe('method setValToTooltip adds a value to tooltip', function() {
+
+        it('can add mask', function() {
+            let testNode = document.createElement('div');
+            // @ts-ignore
+            view.setValToTooltip(testNode, 10, "'val/10 = ' + val/10");
+
+            expect(testNode.textContent).toBe('val/10 = 1');
+        });
+
+        it('without mask returns val', function() {
+            let testNode = document.createElement('div');
+            // @ts-ignore
+            view.setValToTooltip(testNode, 10);
+
+            expect(testNode.textContent).toBe('10');
+        });
+
+        it('throught error if mask is not valid', function() {
+            let testNode = document.createElement('div');
+            
+            // ???????????????? нужно ли исправлять
+            // @ts-ignore
+            expect(function() {view.setValToTooltip(testNode, 10, undefined)}).not.toThrow(new Error('Invalid mask for tooltip'));
+        });
+    });
 });
 
 describe('View is created with different options:', function() {
 
-    describe('horizontal orientation, has tooltip', function() {
+    describe('vertical orientation, has tooltip, tooltipmask', function() {
 
-        let test1sliderNode = document.createElement('div');
+        it('can create', function() {
 
-        let test1Options: IOptions = Object.assign({}, defaultOptions, {
-            width: '200px',
-            tooltip: true,
-        });
-        let test1View = new View(test1Options, test1sliderNode);
+            testOptions = Object.assign({}, defaultOptions, {
+                vertical: true,
+                height: '200px',
+                tooltip: true,
+                tooltipMask: "'val = ' + val",
+            });
 
-        it('can create', function() {  
-            expect(test1View).toBeDefined();
-        });
+            let view = new View(model, testOptions, sliderNode);
 
-        it('has width == 200px', function() {  
-            // @ts-ignore
-            expect(test1View._slider.style.width).toBe('200px')
-        });
-        it('has vertical == false', function() {  
-            // @ts-ignore
-            expect(test1View._vertical).toBeFalsy();
-        });
-        it('has tooltip == true', function() {  
-            // @ts-ignore
-            expect(test1View._tooltip).toBeTruthy();
-        });
-        it('has slider node', function() {  
-            // @ts-ignore
-            expect(test1View._slider).toBeDefined();
-        });
-        it('has thumb node', function() {  
-            // @ts-ignore
-            expect(test1View._slider.querySelector('.slider__thumb')).toBeDefined();
-        });
-        it('has tooltip node', function() {  
-            // @ts-ignore
-            expect(test1View._slider.querySelector('.sldier__tooltip')).toBeDefined();
+            expect(view).toBeDefined();
+            expect(view.getLenght()).toBe(200);
+            expect(view.getVertical()).toBeTruthy();
+            expect(view.getTooltipMask()).toBe("'val = ' + val");
+            expect(view.getSlider()).toBeDefined();
+            expect(view.getThumb()).toBeDefined();
+            expect(view.getTooltip()).toBeDefined();
+
+            view.setThumbPosition(view.getThumb(), 5);
+            view.setValToTooltip(view.getTooltip(), 5, view.getTooltipMask());
+
+            expect(view.getThumb().style.top).toBe('-145px');
+            expect(view.getTooltip().textContent).toBe("val = 5");
+
         });
     });
 
-    describe('vertical orientation, has no tooltip', function() {
+    describe('has two thumb, has tooltips', function() {
 
-        let test2sliderNode = document.createElement('div');
+        it('can create', function() {
 
-        let test2Options: IOptions = Object.assign({}, defaultOptions, {
-            width: 200,
-            height: 200,
-            vertical: true,
-        });
-        let test2View = new View(test2Options, test2sliderNode);
+            testOptions = Object.assign({}, defaultOptions, {
+                range: [1, 5]
+            });
 
-        it('can create', function() {  
-            expect(test2View).toBeDefined();
-        });
-        it('has width != 200px', function() {  
-            // @ts-ignore
-            expect(test2View._slider.style.width).not.toBe('200px');
-        });
-        it('has height == 200px', function() {  
-            // @ts-ignore
-            expect(test2View._slider.style.height).toBe('200px');
-        });
-        it('has vertical == true', function() {  
-            // @ts-ignore
-            expect(test2View._vertical).toBeTruthy();
-        });
-        it('has tooltip == false', function() {  
-            // @ts-ignore
-            expect(test2View._tooltip).toBeUndefined();
-        });
-        it('has no tooltip node', function() {  
-            // @ts-ignore
-            expect(test2View._slider.querySelector('.slider__tooltip')).toBeNull();
+            model = new Model(testOptions);
+
+            testOptions = Object.assign({}, defaultOptions, {
+                vertical: false,
+                height: '200px',
+                width: '500px',
+                tooltip: true,
+                tooltipMask: "'val = ' + val",
+            });
+
+            let view = new View(model, testOptions, sliderNode);
+
+            expect(view).toBeDefined();
+            expect(view.getLenght()).toBe(500);
+            expect(view.getVertical()).toBeFalsy();
+            expect(view.getTooltipMask()).toBe("'val = ' + val");
+            expect(view.getSlider()).toBeDefined();
+            expect(view.getThumb()).toBeUndefined();
+            expect(view.getTooltip()).toBeUndefined();
+            expect(view.getSlider().querySelector('.slider__thumb_left')).toBeDefined();
+            expect(view.getSlider().querySelector('.slider__thumb_right')).toBeDefined();
+
+            let thumb: HTMLDivElement = view.getSlider().querySelector('.slider__thumb_left');
+            let tooltip: HTMLDivElement = view.getSlider().querySelector('.slider__tooltip_left');
+            view.setThumbPosition(thumb, 5);
+            view.setValToTooltip(tooltip, 5, view.getTooltipMask());
+
+            expect(thumb.style.left).toBe('-245px');
+            expect(tooltip.textContent).toBe("val = 5");
         });
     });
-});
- */
+
+}); 
