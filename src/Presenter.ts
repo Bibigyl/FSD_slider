@@ -17,6 +17,8 @@ export default class Presenter {
         this.thumbOnMouseDown = this.thumbOnMouseDown.bind(this);
         this.thumbOnMouseMove = this.thumbOnMouseMove.bind(this);
         this.thumbOnMouseUp = this.thumbOnMouseUp.bind(this);
+
+        this.sliderOnMouseClick = this.sliderOnMouseClick.bind(this);
         
         if ( !this._model.getRange() ) {
             this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
@@ -24,6 +26,8 @@ export default class Presenter {
             this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
             this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
         }        
+
+        this._view.getSlider().addEventListener("click", this.sliderOnMouseClick);
     }
 
     thumbOnMouseDown(event) {
@@ -114,7 +118,6 @@ export default class Presenter {
             const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
             newVal = +( (reverse * (newVal * (step * Math.pow(10, simbols))) / Math.pow(10, simbols) ).toFixed(simbols) );
             newVal = +( this._model.getMinVal() + newVal ).toFixed(simbols);
-            console.log(newVal);
         }
     
         if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
@@ -142,6 +145,94 @@ export default class Presenter {
         document.removeEventListener('mousemove', this.thumbOnMouseMove);
 
         this._activeThumb = undefined;
+    }
+
+    sliderOnMouseClick(event) {
+
+        let sliderNode: HTMLDivElement = this._view.getSlider();
+      
+        let minVal: number = this._model.getMinVal();
+        let maxVal: number = this._model.getMaxVal();
+        let step: number = this._model.getStep();
+        let reverse: number = !this._model.getReverse() ? 1 : -1;
+
+        let sliderLenght: number;
+        let sliderBorder: number;
+        let stepLenght: number;
+        let eventPos: number;
+        let thumbPosition: number;
+        let leftPoint: number;
+        let rightPoint: number;
+        let newVal: number;
+
+        let changingThumb: HTMLDivElement;
+
+        // Позиция бегунка в px вычисляется относительно начала слайдера.
+        // Вначале newVal вычисляется как количество шагов от начала (от 0),
+        // (то есть значения min, max, reverse не имеют значения).
+
+        if ( !this._view.getVertical() ) {
+
+            sliderLenght = sliderNode.clientWidth;
+            sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
+            eventPos = event.clientX;            
+            thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
+
+        } else {
+
+            sliderLenght = sliderNode.clientHeight;
+            sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
+            eventPos = event.clientY;            
+            thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
+
+        }
+
+        stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
+        newVal = Math.round(thumbPosition / stepLenght);
+        
+        leftPoint = 0;
+        rightPoint = sliderLenght;
+    
+        if ( thumbPosition <= leftPoint) {
+            thumbPosition = leftPoint;
+            newVal = minVal;
+        } else if ( thumbPosition >= rightPoint) {
+            thumbPosition = rightPoint;
+            newVal = maxVal;
+        } else {
+            // если бегунок не вышел за границы, ставим его на ближайшее значение,
+            // кратное шагу.
+            // только после этого преобразуем его для модели. Если reverse == true, то == -1 
+            thumbPosition = newVal * stepLenght;
+
+            const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
+            newVal = +( (reverse * (newVal * (step * Math.pow(10, simbols))) / Math.pow(10, simbols) ).toFixed(simbols) );
+            newVal = +( this._model.getMinVal() + newVal ).toFixed(simbols);
+        }
+
+        if ( !this._model.getRange() ) {
+            this._model.setVal(newVal);
+            changingThumb = this._view.getThumb();
+            this._view.setThumbPosition(changingThumb, thumbPosition);
+
+        } else {
+            if ( Math.abs(newVal - this._model.getRange()[0]) < Math.abs(newVal - this._model.getRange()[1]) ) {
+                this._model.setRange([ newVal, this._model.getRange()[1] ]);
+                changingThumb = this._view.getThumb(1);
+                this._view.setThumbPosition(changingThumb, thumbPosition);
+            } else {
+                this._model.setRange([ this._model.getRange()[0], newVal ]);
+                changingThumb = this._view.getThumb(2);
+                this._view.setThumbPosition(changingThumb, thumbPosition);
+            }
+        }
+    
+        if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
+            let val: number | string;
+            val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
+
+            this._view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
+        }
     }
 
 }

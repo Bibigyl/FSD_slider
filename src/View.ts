@@ -145,7 +145,24 @@ export default class View {
             thumbNode.style.left = thumbPosition - thumbNode.offsetWidth/2 + 'px';
         } else {
             thumbNode.style.top = thumbPosition - thumbNode.offsetWidth/2 + 'px';    
-        }       
+        }
+
+        // если оба бегунка справа, добавлем z index для нижнего
+        if ( this.getThumb(1) ) {
+            if ( !this._vertical ) {
+                if ( (this.getThumb(1).style.left == (this.getLenght() - this.getThumb(1).clientWidth/2) + 'px') ) {
+                    this.getThumb(1).style.zIndex = '100';
+                } else {
+                    this.getThumb(1).style.zIndex = null;
+                }  
+            } else {
+                if ( (this.getThumb(1).style.top == (this.getLenght() - this.getThumb(1).clientHeight/2) + 'px') ) {
+                    this.getThumb(1).style.zIndex = '100';
+                } else {
+                    this.getThumb(1).style.zIndex = null;
+                }      
+            }         
+        }
     }
     
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string = 'val'): void {

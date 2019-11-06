@@ -45,7 +45,7 @@ const simbols: number =  ~(step + '').indexOf('.') ? (step + '').split('.')[1].l
   tooltip: true,
 }); */
 
-$('.test').slider({
+/* $('.test').slider({
   initialVal: 2,
   minVal: -6,
   maxVal: 12,
@@ -54,18 +54,26 @@ $('.test').slider({
   initialValNumInCustomValues: 5,
   range: [ -2.5, 8],
   tooltip: true,
-});
+}); */
+
+//$('.test').slider();
 
 
-/* $('.test').slider({
+/* document.addEventListener('click', func);
+function func(event) {
+  console.log('x = ' + event.clientX + '. y = ' + event.clientY);
+} */
+
+
+$('.test').slider({
   //dataFormat: 'custom',
   width: '500px',
   vertical: false,
-  initialVal: 1,
+  //initialVal: 1,
   step: .2,
   //initialRangeInCustomValues: [1, 'fsd'],
   range: [0.6 , 1 ],
   //customValues: ['kjk', 1, 0, 'fsd', 'sf'],
   tooltip: true,
   tooltipMaskWithCalc: "'val = ' + val",
-}); */
+});

@@ -1,4 +1,4 @@
-import View, { IView } from '../src/View';
+/* import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 import Model, { IModel } from '../src/Model';
@@ -16,6 +16,9 @@ beforeEach( function() {
     document.body.append(sliderNode);
     model = new Model(defaultOptions);
     view = new View(model, defaultOptions, sliderNode);
+
+    
+    console.log(getComputedStyle(view.getThumb()).opacity);
 });
 afterEach( function() {
     view = null;
@@ -195,7 +198,11 @@ describe('View is created with different options:', function() {
             expect(view.getTooltipMask()).toBe("'val = ' + val");
             expect(view.getSlider()).toBeDefined();
             expect(view.getThumb()).toBeUndefined();
+            expect(view.getThumb(1)).toBeDefined();
+            expect(view.getThumb(2)).toBeDefined();
             expect(view.getTooltip()).toBeUndefined();
+            expect(view.getTooltip(1)).toBeDefined();
+            expect(view.getTooltip(2)).toBeDefined();
             expect(view.getSlider().querySelector('.slider__thumb_left')).toBeDefined();
             expect(view.getSlider().querySelector('.slider__thumb_right')).toBeDefined();
 
@@ -209,3 +216,4 @@ describe('View is created with different options:', function() {
         });
     });
 }); 
+ */
