@@ -1,15 +1,14 @@
-//import * as css from '../dist/slider.css';
-const styles = require('../dist/slider.css');
 import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 import Model, { IModel } from '../src/Model';
 
+
 let sliderNode: HTMLDivElement;
 let testNode: HTMLDivElement;
 let view: IView;
 let model: IModel;
-let testOptions;
+let testOptions: IOptions;
 
 
 beforeEach( function() {
@@ -56,8 +55,7 @@ describe('View is created with default options and has methods', function() {
     });
     it('setThumbPosition sets thumb position', function() {
         view.setThumbPosition(view.getThumb(), 0);
-        // ???
-        expect(view.getThumb().style.left).toBe('-150px');
+        expect(view.getThumb().style.left).toBe('-10px');
     });
     it('findThumbPosition returns position in px', function() {
         expect(view.findThumbPosition(3, 10)).toBe(90);
@@ -165,7 +163,7 @@ describe('View is created with different options:', function() {
             view.setThumbPosition(view.getThumb(), 5);
             view.setValToTooltip(view.getTooltip(), 5, view.getTooltipMask());
 
-            expect(view.getThumb().style.top).toBe('-145px');
+            expect(view.getThumb().style.top).toBe('-5px');
             expect(view.getTooltip().textContent).toBe("val = 5");
 
         });
@@ -203,12 +201,11 @@ describe('View is created with different options:', function() {
 
             let thumb: HTMLDivElement = view.getSlider().querySelector('.slider__thumb_left');
             let tooltip: HTMLDivElement = view.getSlider().querySelector('.slider__tooltip_left');
-            view.setThumbPosition(thumb, 5);
+            view.setThumbPosition(thumb, 150);
             view.setValToTooltip(tooltip, 5, view.getTooltipMask());
 
-            expect(thumb.style.left).toBe('-245px');
+            expect(thumb.style.left).toBe('140px');
             expect(tooltip.textContent).toBe("val = 5");
         });
     });
-
 }); 
