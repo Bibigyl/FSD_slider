@@ -1,4 +1,4 @@
-/* import View, { IView } from '../src/View';
+import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 import Model, { IModel } from '../src/Model';
@@ -16,18 +16,15 @@ beforeEach( function() {
     document.body.append(sliderNode);
     model = new Model(defaultOptions);
     view = new View(model, defaultOptions, sliderNode);
-
-    
-    console.log(getComputedStyle(view.getThumb()).opacity);
 });
 afterEach( function() {
-    view = null;
+/*     view = null;
     model = null;
     testOptions = null;
 
     document.querySelector('.slider').remove();
     sliderNode = null;
-    testNode = null;
+    testNode = null; */
 });
 
 describe('View is created with default options and has methods', function() {
@@ -216,4 +213,3 @@ describe('View is created with different options:', function() {
         });
     });
 }); 
- */

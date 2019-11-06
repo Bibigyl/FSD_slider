@@ -1,4 +1,4 @@
-/* import Model, { IModel } from '../src/Model';
+import Model, { IModel } from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -10,8 +10,8 @@ beforeEach( function() {
     model = new Model(defaultOptions);
 });
 afterEach( function() {
-    model = null;
-    testOptions = null;
+/*     model = null;
+    testOptions = null; */
 });
 
 describe('Model is created with default options,', function() {
@@ -511,7 +511,6 @@ describe('When model has numeric values,', function() {
                 initialValNumInCustomValues: 5
             });
             model = new Model(testOptions);
-            console.log(model.getVal());
 
             expect(model.getRange()).toBeNull();
             expect(model.getVal()).toBe(0.2);
@@ -666,4 +665,4 @@ describe('When Model has custom format,', function() {
             expect( model.getRange()[1] ).toBe(2);
         });
     });
-});  */
+}); 

@@ -21,6 +21,11 @@ import {defaultOptions} from './defaultOptions';
       let max = model.getMaxVal();
       let s = model.getStep();
 
+      //------------------
+
+     
+      //------------------
+
     };
   
     return this.each(make); 
@@ -56,7 +61,7 @@ const simbols: number =  ~(step + '').indexOf('.') ? (step + '').split('.')[1].l
   tooltip: true,
 }); */
 
-//$('.test').slider();
+$('.test').slider();
 
 
 /* document.addEventListener('click', func);
@@ -65,7 +70,7 @@ function func(event) {
 } */
 
 
-$('.test').slider({
+/* $('.test').slider({
   //dataFormat: 'custom',
   width: '500px',
   vertical: false,
@@ -76,4 +81,25 @@ $('.test').slider({
   //customValues: ['kjk', 1, 0, 'fsd', 'sf'],
   tooltip: true,
   tooltipMaskWithCalc: "'val = ' + val",
+}); */
+
+
+let sliderOnClick = new MouseEvent("click", {
+  bubbles: true,
+  cancelable: true,
+  clientX: 100,
+  clientY: 45
 });
+
+
+document.querySelector('.slider').dispatchEvent(sliderOnClick);
+
+
+
+/* let sliderOnClick = new MouseEvent("click", {
+  //bubbles: true,
+  //cancelable: true,
+  clientX: 2000,
+  clientY: 45
+});
+document.querySelector('.slider').dispatchEvent(sliderOnClick); */
