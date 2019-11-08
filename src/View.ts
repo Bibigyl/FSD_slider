@@ -9,6 +9,7 @@ export interface IView {
     getSlider(): HTMLDivElement;
     getThumb(num?: number): HTMLDivElement;
     getTooltip(num?: number): HTMLDivElement;
+    getScale(): HTMLDivElement;
 
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void;
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string): void;
@@ -22,6 +23,7 @@ export default class View {
     private _vertical: boolean;
     private _range: boolean;
     private _tooltipMask?: string;
+    private _numberOfSteps: number;
 
     private _slider: HTMLDivElement;
     private _thumb?: HTMLDivElement | undefined;
@@ -30,9 +32,12 @@ export default class View {
     private _tooltip?: HTMLDivElement | undefined;
     private _tooltipLeft?: HTMLDivElement | undefined;
     private _tooltipRight?: HTMLDivElement | undefined;
+    private _scale?: HTMLDivElement | undefined;
     
 
     constructor(model: IModel, options: IOptions, sliderNode: HTMLDivElement) {
+
+        this._numberOfSteps = model.numberOfSteps();
 
         this._slider = sliderNode;
         this._slider.classList.add('slider');
@@ -54,16 +59,16 @@ export default class View {
         if ( !this._range ) {
 
             this._thumb = this.buildThumb(this._slider);
-            pos = this.findThumbPosition( model.findPositionByStep(model.getVal()), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
             this.setThumbPosition( this._thumb, pos);
         } else {     
 
             this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
-            pos = this.findThumbPosition( model.findPositionByStep(model.getRange()[0]), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
             this.setThumbPosition( this._thumbLeft, pos);
 
             this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
-            pos = this.findThumbPosition( model.findPositionByStep(model.getRange()[1]), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
             this.setThumbPosition( this._thumbRight, pos);
         }
  
@@ -77,8 +82,7 @@ export default class View {
             let val: number | string;
 
             if (!this._range) { 
-                val = model.getCustomValues() ? model.getCustomValues()[model.getVal()] : model.getVal();
-                console.log('val = ' + val);     
+                val = model.getCustomValues() ? model.getCustomValues()[model.getVal()] : model.getVal();  
                 this._tooltip = this.buildTooltip(this._thumb);
                 this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
@@ -91,7 +95,40 @@ export default class View {
                 this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
                 this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
             }
-        }       
+        }
+        
+        if ( options.scale ) {
+            let step: number;
+
+            if ( options.scaleStep ) {
+                let stepIsValid: boolean;
+                let test: number
+
+                // округляем, чтобы избежать проблем при вычислениях с плавающей точкой
+                let n: number = Math.max( this.decimalPlaces(options.scaleStep), this.decimalPlaces(model.getStep()) );
+                
+                stepIsValid = this.isNumeric(options.scaleStep);
+
+                options.scaleStep = model.getDataFormat() == 'date' ? options.scaleStep * 24 * 3600 * 1000 : options.scaleStep;
+
+                test = (options.scaleStep * Math.pow(10, n)) / (model.getStep() * Math.pow(10, n));
+                test = Math.abs(test);
+
+                stepIsValid = stepIsValid && ( test % 1 == 0 );
+
+                test = +( model.getMaxVal() - model.getMinVal() ).toFixed(n);
+                test = ( test * Math.pow(10, n) ) / ( options.scaleStep * Math.pow(10, n) );
+                test = Math.abs(test);
+
+                stepIsValid = stepIsValid && ( test % 1 == 0 );
+
+                step = stepIsValid ? options.scaleStep : model.getStep();
+
+            } else {
+                step = model.getStep();
+            }
+            this._scale = this.buildScale(this._slider, step, model, options.scaleMask);
+        }
     }
 
     getLenght(): number {
@@ -101,9 +138,11 @@ export default class View {
             return this._slider.clientHeight;
         }    
     }
+
     getVertical(): boolean {
         return this._vertical;
     }
+
     getTooltipMask(): string {
         return this._tooltipMask;
     }
@@ -112,6 +151,7 @@ export default class View {
     getSlider(): HTMLDivElement {
         return this._slider;
     }
+
     getThumb(num: number = 0): HTMLDivElement {
         if ( num == 0 ) {
             return this._thumb;
@@ -124,6 +164,7 @@ export default class View {
         }
         return this._thumb;
     }
+
     getTooltip(num: number = 0): HTMLDivElement | undefined {
         if ( this._tooltip || this._tooltipLeft ) {
             if ( this._tooltip && num == 0 ) {
@@ -138,6 +179,10 @@ export default class View {
         } else {
             return undefined;
         }
+    }
+
+    getScale(): HTMLDivElement {
+        return this._scale;
     }
 
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void {
@@ -164,19 +209,17 @@ export default class View {
             }         
         }
     }
-    
+
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string = 'val'): void {
-        if ( typeof eval(mask) != 'string') {
-            console.warn('Invalid mask for tooltip');
-            // функция eval, вопрос с безопасностью, нужно ли ее заменить
-            tooltipNode.textContent = '' + val;
-        } else {
-            tooltipNode.textContent = eval(mask);
-        }
+        tooltipNode.textContent = eval(mask);
     }
 
     findThumbPosition(newStep, numOfSteps): number {
         return this.getLenght() / numOfSteps * newStep;
+    }
+
+    oneStepLenght() {
+        return this.getLenght() / this._numberOfSteps;
     }
 
     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
@@ -196,6 +239,40 @@ export default class View {
 
         return tooltip;
     }
+
+    private buildScale(sliderNode, step, model, mask) {
+        let scale: HTMLDivElement = document.createElement('div');
+        let division: HTMLDivElement;
+
+        scale.classList.add('slider__scale');
+        sliderNode.prepend(scale);
+
+        // множитель. во сколько раз шаг в моделе меньше шага шкалы
+        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(model.getStep()) );
+        let mult: number = step / model.getStep();
+        mult = +mult.toFixed(n);
+        mult = Math.abs(mult);     
+        
+        for (let i: number = 0; i <= model.numberOfSteps(); i = i + mult) {
+
+            // i + mult возвращает на какой шаг модели попадает шаг шкалы
+            let val: number | string | Date = model.getTranslatedVal(i);
+
+            division = document.createElement('div');
+            division.classList.add('slider__scale-division');
+            division.innerHTML = '<span>' +  eval(mask) + '</span>';
+
+            if (!this._vertical) {
+                division.style.left = this.oneStepLenght() * i + 'px';
+            } else {
+                division.style.top = this.oneStepLenght() * i + 'px';
+            }
+
+            scale.append(division);
+        }
+        return scale;
+        
+    }
     
     private widthValidation(str: any) {
         if ( typeof ('' + str) == 'string' ) {
@@ -211,5 +288,10 @@ export default class View {
 
     private isNumeric(n: any): boolean {
         return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+    }
+
+    private decimalPlaces(num: number): number {
+        // околичество знаков после запятой
+        return ~(num + '').indexOf('.') ? (num + '').split('.')[1].length : 0;
     }
 }

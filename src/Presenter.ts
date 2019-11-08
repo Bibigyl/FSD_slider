@@ -150,6 +150,7 @@ export default class Presenter {
     sliderOnMouseClick(event) {
 
         let sliderNode: HTMLDivElement = this._view.getSlider();
+        let changingThumb: HTMLDivElement;
       
         let minVal: number = this._model.getMinVal();
         let maxVal: number = this._model.getMaxVal();
@@ -164,8 +165,6 @@ export default class Presenter {
         let leftPoint: number;
         let rightPoint: number;
         let newVal: number;
-
-        let changingThumb: HTMLDivElement;
 
         // Позиция бегунка в px вычисляется относительно начала слайдера.
         // Вначале newVal вычисляется как количество шагов от начала (от 0),

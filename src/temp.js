@@ -22,8 +22,8 @@ export interface IModel {
 
     // вспомогательные методы
     findPositionInArr(val: any, arr?: any[]): number;
-    getStepNumber(val: number): number;
-    getTranslatedVal(step: number): number | string | Date;
+    findPositionByStep(val: number): number;
+    findValueByStep(step): number | string;
     numberOfSteps(): number;
 }
 
@@ -154,42 +154,21 @@ export default class Model {
         }
     }
 
-    getStepNumber(val: number): number {
-        // находит, на каком по счету шаге стоит val
-        // применять только для нетрансформированных, правильных значений!
-        let stepNum: number;
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
-
-        let a: number = +(val - this._minVal).toFixed(n);
-        let b: number = +(this._maxVal - this._minVal).toFixed(n)
-        
-        stepNum = +( a * this.numberOfSteps() / b ).toFixed();
-        stepNum = Math.abs(stepNum);
-
-        return stepNum;
+    findPositionByStep(val: number): number {
+        return Math.abs(val - this._minVal) * this.numberOfSteps() / Math.abs(this._maxVal - this._minVal);
     }
-
-    getTranslatedVal(step: number): number | string | Date {
-        if (this._dataFormat == 'custom') {
+    findValueByStep(step: number): number | string {
+        if (this.getDataFormat() == 'custom') {
             return this.getCustomValues()[step];
-
         } else {
-            let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
-            let r: number = !this._reverse ? 1 : -1;
-            let val: number = +(this._minVal + this._step * step * r).toFixed(n);
-
-            if (this._dataFormat == 'date') { 
-                return new Date(val); 
-            } else {
-               return val; 
-            }
+            let n: number = Math.pow( 10, this.decimalPlaces(this.getStep()) );
+            let temp: number = +( (this.getMaxVal() - this.getMinVal()) ).toFixed(this.decimalPlaces(this.getStep()))
+            let val = ( (this.getMaxVal() - this.getMinVal()) ) / ( this.numberOfSteps() * n ) * step;
+            return 1;
         }
     }
-
     numberOfSteps(): number {
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
-        n = Math.pow(10, n);
-        return ( Math.abs(this._maxVal - this._minVal) * n ) / ( this._step * n );
+        return Math.abs(this._maxVal - this._minVal) / this._step;
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -351,32 +330,25 @@ export default class Model {
     }
 
     private stepValidation(minVal: number, maxVal: number, step: number) {
-        
         if ( !this.isNumeric(step) ) {
             throw new Error('Step should be a number');
-        }
-        if ( step == 0 ) {
+        } else if ( step == 0 ) {
             throw new Error('Step cant be equal to 0');
-        }
-
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
-        let test: number = +(maxVal - minVal).toFixed(n)
-        test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );
-        test = Math.abs(test);
-
-        if ( test % 1 != 0 ) {
+        } else if ( (maxVal - minVal) / step % 1 != 0 ) {
             // в том числе это проверка чтобы шаг был не больше всего промежутка
             throw new Error('(Max value - min value) divided by step should return integer');
+        } else {
+            return true;
         }
-        return true;
     }
 
     private oneValueValidation(minVal: number, maxVal: number, val: number, step: number) {
 
-        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(minVal);
+        // умножаем на n = 10^decimalPlaces, чтобы избежать проблем при вычислениях с плавающей точкой
+        let n: number = Math.pow(10, this.decimalPlaces(step));
 
-        let test: number = +(val - minVal).toFixed(n)
-        test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );
+        let test: number = ( (val - minVal) * n ) / ( step * n );
+        test = +test.toFixed( this.decimalPlaces(step) );
         test = Math.abs(test);
 
         if ( Math.max(minVal, maxVal) < val  ||  Math.min(minVal, maxVal) > val ) {
@@ -390,14 +362,16 @@ export default class Model {
 
     private rangeValidation(minVal: number, maxVal: number, range: [number, number], step: number) {
 
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
 
-        let testLeft: number = (range[0] - minVal) / step;
-        testLeft = +testLeft.toFixed(n);
+        // умножаем на n = 10^decimalPlaces, чтобы избежать проблем при вычислениях с плавающей точкой
+        let n: number = Math.pow(10, this.decimalPlaces(step));
+
+        let testLeft: number = Math.abs(( (range[0] - minVal) * n )/( step * n ));
+        testLeft = +testLeft.toFixed( this.decimalPlaces(step) );
         testLeft = Math.abs(testLeft);
 
-        let testRight: number = (range[1] - minVal)/step;
-        testRight = +testRight.toFixed(n);
+        let testRight: number =  Math.abs(( (range[1] - minVal) * n )/( step * n ));
+        testRight = +testRight.toFixed( this.decimalPlaces(step) );
         testRight = Math.abs(testRight);
 
         if ( range.length != 2 ) {

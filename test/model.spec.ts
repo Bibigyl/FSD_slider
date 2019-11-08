@@ -83,9 +83,34 @@ describe('Model has private functions and methods: ', function() {
         });
     });
 
-    describe('findPositionByStep returns, how many steps from begin (from 0) has value', function() {
+    describe('getStepNumber returns, how many steps from begin (from 0) has value', function() {
         it('returns 3 if 3', function() {
-            expect(model.findPositionByStep(3)).toBe(3);
+            expect(model.getStepNumber(3)).toBe(3);
+        });
+        it('returns 2 if "c"', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 0.5,
+            });
+            model = new Model(testOptions);
+            expect(model.getStepNumber(1.5)).toBe(3);
+        });
+        it('returns 1 if 0.1', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 0.3,
+                minVal: -0.2,
+                maxVal: 2.5
+            });
+            model = new Model(testOptions);
+            expect(model.getStepNumber(0.1)).toBe(1);
+        });
+        it('returns 1 if 0.1', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 1,
+                minVal: -0.1,
+                maxVal: 1.9
+            });
+            model = new Model(testOptions);
+            expect(model.getStepNumber(0.9)).toBe(1);
         });
     });
 
@@ -93,6 +118,24 @@ describe('Model has private functions and methods: ', function() {
         it('returns 10 if default options', function() {
             expect(model.numberOfSteps()).toBe(10);
         })
+        it('returns 9', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 0.3,
+                minVal: -0.2,
+                maxVal: 2.5
+            });
+            model = new Model(testOptions);
+            expect(model.numberOfSteps()).toBe(9);
+        });
+        it('returns 1 if 0.1', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 1,
+                minVal: -0.1,
+                maxVal: 1.9
+            });
+            model = new Model(testOptions);
+            expect(model.numberOfSteps()).toBe(2);
+        });
     });
 
     describe('numericFormatValidation calls all validation functions to options. Its the main function for model, its called even if custom or date format of data', function() {
