@@ -107,3 +107,10 @@
     height: 1px;
     width: 10px;
 }
+
+/*--------------------------------------------*/
+.a {
+    width: 100px;
+    height: 100px;
+    background-color: grey;
+}

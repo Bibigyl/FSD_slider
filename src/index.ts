@@ -4,35 +4,71 @@ import Presenter from './Presenter';
 import {defaultOptions} from './defaultOptions';
 
 (function($){
-  jQuery.fn.slider = function(options?: any) {
 
-    options = $.extend(defaultOptions, options);
-  
-    var make = function(){
+  var methods: Object = {
 
-      let model: IModel = new Model(options);
-      
-      // передаем модель в представление для получения из нее 
-      // корректных данных
-      let view: IView = new View(model, options, this);
-      let presenter = new Presenter(model, view);
 
-      let min = model.getMinVal();
-      let max = model.getMaxVal();
-      let s = model.getStep();
 
-      //------------------
+    init: function( options?: any ) {
 
-     
-      //------------------
+      return this.each(function(){
+         
+        let $this = $(this);
+        let data = $this.data('slider');
+        
+        // Если плагин ещё не проинициализирован
+        if ( ! data ) {
+        
+          options = $.extend(defaultOptions, options);
 
-    };
-  
-    return this.each(make); 
+          let model: IModel = new Model(options);
+            
+          // передаем модель в представление для получения из нее 
+          // корректных данных
+          let view: IView = new View(model, options, this);
+          let presenter = new Presenter(model, view);
+
+          $(this).data('tooltip', {
+            slider : $this,
+            model: model,
+            view: view,
+            presenter: presenter
+          });
+
+        }
+      });
+    },
+
+    test: function() {
+      console.log('its test');
+    }
+
+  }
+
+  jQuery.fn.slider = function( method?: string | Object ) {
+
+    // логика вызова метода
+    if ( methods[method as string] ) {
+      return methods[ method as string ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+    } else if ( typeof method === 'object' || ! method ) {
+      // ????????????
+      // @ts-ignore
+      return methods.init.apply( this, arguments );
+    } else {
+      $.error( 'Method called ' +  method + ' does not exist for JQuery.slider' );
+    } 
+
+
   };
 })(jQuery);
 
-$('.test').slider().css('backgroundColor', 'red');
+
+
+
+
+
+$('.test').slider('make');
+
   
 // теперь можно задавать плагин с настройками по умолчанию:
 /* $('.test').slider({
