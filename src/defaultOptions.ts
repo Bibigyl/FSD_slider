@@ -20,7 +20,6 @@ export default interface IOptions {
     vertical: any;
     tooltip: any;
     tooltipMask: any;
-    tooltipMaskWithCalc: any;
     scale: any;
     scaleStep: any;
     scaleMask: any;
@@ -42,7 +41,6 @@ var defaultOptions: IOptions = {
     vertical: false,
     tooltip: false,
     tooltipMask: "val",
-    tooltipMaskWithCalc: null,
     scale: true,
     scaleStep: null,
     scaleMask: "val",

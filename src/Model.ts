@@ -373,7 +373,7 @@ export default class Model {
 
     private oneValueValidation(minVal: number, maxVal: number, val: number, step: number) {
 
-        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(minVal);
+        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(minVal) );
 
         let test: number = +(val - minVal).toFixed(n)
         test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );

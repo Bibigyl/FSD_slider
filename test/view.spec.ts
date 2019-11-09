@@ -18,13 +18,13 @@ beforeEach( function() {
     view = new View(model, defaultOptions, sliderNode);
 });
 afterEach( function() {
-/*     view = null;
-    model = null;
-    testOptions = null;
+    //view = null;
+    //model = null;
+    //testOptions = null;
 
-    document.querySelector('.slider').remove();
-    sliderNode = null;
-    testNode = null; */
+    //document.querySelector('.slider').remove();
+    //sliderNode = null;
+    //testNode = null;
 });
 
 describe('View is created with default options and has methods', function() {
@@ -60,6 +60,9 @@ describe('View is created with default options and has methods', function() {
     it('findThumbPosition returns position in px', function() {
         expect(view.findThumbPosition(3, 10)).toBe(90);
     });
+    it('oneStepLenght returns lenght of one step', function() {
+        expect(view.oneStepLenght()).toBe(30);
+    });
 });
 
 describe('View has private functions:', function() {
@@ -86,6 +89,67 @@ describe('View has private functions:', function() {
             expect(testNode).toBeDefined();
             expect(testNode.classList).toContain('slider__tooltip');
             expect(testNode.classList).toContain('testClass');
+        });
+    });
+
+    describe('buildScale adds scale', function() {
+        it('returns scale, adds divisions and values with mask', function() {
+            testNode = document.createElement('div');
+            document.body.append(testNode);
+            // @ts-ignore
+            testNode = view.buildScale(testNode, 1, model, "'val = ' + val");
+
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__scale');
+            expect(testNode.querySelectorAll('.slider__scale-division').length).toBe(11);
+            expect(testNode.querySelectorAll('.slider__scale-division span')[10].textContent).toBe('val = 10');
+        });
+        it('can create scale with other step, multiple to step in model', function() {
+            testNode = document.createElement('div');
+            document.body.append(testNode);
+            // @ts-ignore
+            testNode = view.buildScale(testNode, 2, model, "'v = ' + val/2");
+
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__scale');
+            expect(testNode.querySelectorAll('.slider__scale-division').length).toBe(6);
+            expect(testNode.querySelectorAll('.slider__scale-division span')[3].textContent).toBe('v = 3');
+        });
+        it('can create scale with other step < 0, multiple to step in model', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                minVal: -0.4,
+                maxVal: 1.6,
+                step: -0.2,
+            })
+            model = new Model(testOptions);
+
+            testNode = document.createElement('div');
+            document.body.append(testNode);
+            // @ts-ignore
+            testNode = view.buildScale(testNode, 0.4, model, "val");
+
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__scale');
+            expect(testNode.querySelectorAll('.slider__scale-division').length).toBe(6);
+            expect(testNode.querySelectorAll('.slider__scale-division span')[3].textContent).toBe('0.8');
+        });
+        it('can create scale with other step as integer, min and max values float', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                minVal: -0.4,
+                maxVal: 1.6,
+                step: 1,
+            })
+            model = new Model(testOptions);
+
+            testNode = document.createElement('div');
+            document.body.append(testNode);
+            // @ts-ignore
+            testNode = view.buildScale(testNode, 1, model, "val");
+
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__scale');
+            expect(testNode.querySelectorAll('.slider__scale-division').length).toBe(3);
+            expect(testNode.querySelectorAll('.slider__scale-division span')[1].textContent).toBe('0.6');
         });
     });
     
@@ -126,14 +190,6 @@ describe('View has private functions:', function() {
 
             expect(testNode.textContent).toBe('10');
         });
-
-        it('throught error if mask is not valid', function() {
-            let testNode = document.createElement('div');
-            
-            // ???????????????? нужно ли исправлять
-            // @ts-ignore
-            expect(function() {view.setValToTooltip(testNode, 10, undefined)}).not.toThrow(new Error('Invalid mask for tooltip'));
-        });
     });
 });
 
@@ -149,8 +205,7 @@ describe('View is created with different options:', function() {
                 tooltip: true,
                 tooltipMask: "'val = ' + val",
             });
-
-            let view = new View(model, testOptions, sliderNode);
+            view = new View(model, testOptions, sliderNode);
 
             expect(view).toBeDefined();
             expect(view.getLenght()).toBe(200);
@@ -176,7 +231,6 @@ describe('View is created with different options:', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 range: [1, 5]
             });
-
             model = new Model(testOptions);
 
             testOptions = Object.assign({}, defaultOptions, {
@@ -186,8 +240,7 @@ describe('View is created with different options:', function() {
                 tooltip: true,
                 tooltipMask: "'val = ' + val",
             });
-
-            let view = new View(model, testOptions, sliderNode);
+            view = new View(model, testOptions, sliderNode);
 
             expect(view).toBeDefined();
             expect(view.getLenght()).toBe(500);
@@ -210,6 +263,50 @@ describe('View is created with different options:', function() {
 
             expect(thumb.style.left).toBe('140px');
             expect(tooltip.textContent).toBe("val = 5");
+        });
+    });
+
+    describe('with scale,', function() {
+
+        it('can create', function() {
+
+            testOptions = Object.assign({}, defaultOptions, {
+                scale: true,
+                scaleStep: 2,
+                scaleMask: "'n ' + val"
+            });
+
+            let view = new View(model, testOptions, sliderNode);
+
+            expect(view.getScale()).toBeDefined();
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(6);
+            expect(view.getScale().querySelectorAll('.slider__scale-division span')[5].textContent).toBe('n 10');
+
+            let n: HTMLDivElement = view.getScale().querySelectorAll('.slider__scale-division')[1] as HTMLDivElement;
+            expect(n.style.left).toBe('60px');
+        });
+
+        it('can create with reverse', function() {
+            
+            testOptions = Object.assign({}, defaultOptions, {
+                reverse: true,
+            });
+            model = new Model(testOptions);
+
+            testOptions = Object.assign({}, defaultOptions, {
+                scale: true,
+                scaleStep: 2,
+                scaleMask: "'n ' + val"
+            });
+            view = new View(model, testOptions, sliderNode);
+
+            expect(view.getScale()).toBeDefined();
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(6);
+            expect(view.getScale().querySelectorAll('.slider__scale-division span')[5].textContent).toBe('n 0');
+            expect(view.getScale().querySelectorAll('.slider__scale-division span')[1].textContent).toBe('n 8');
+
+            let n: HTMLDivElement = view.getScale().querySelectorAll('.slider__scale-division')[1] as HTMLDivElement;
+            expect(n.style.left).toBe('60px');
         });
     });
 }); 

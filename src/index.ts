@@ -32,7 +32,7 @@ import {defaultOptions} from './defaultOptions';
   };
 })(jQuery);
 
-//console.log('---------------' + 0.6/0.2);
+$('.test').slider().css('backgroundColor', 'red');
   
 // теперь можно задавать плагин с настройками по умолчанию:
 /* $('.test').slider({
@@ -72,12 +72,6 @@ import {defaultOptions} from './defaultOptions';
 }); */
 
 
-/* document.addEventListener('click', func);
-function func(event) {
-  console.log('x = ' + event.clientX + '. y = ' + event.clientY);
-} */
-
-
 
 /* $('.test').slider({
   dataFormat: 'date',
@@ -90,7 +84,7 @@ function func(event) {
   vertical: true
 }); */
 
-/* $('.test').slider(); */
+
 
 /* $('.test').slider({
   //dataFormat: 'custom',

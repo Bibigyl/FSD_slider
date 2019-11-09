@@ -10,8 +10,8 @@ beforeEach( function() {
     model = new Model(defaultOptions);
 });
 afterEach( function() {
-/*     model = null;
-    testOptions = null; */
+    //model = null;
+    //testOptions = null;
 });
 
 describe('Model is created with default options,', function() {
@@ -114,11 +114,62 @@ describe('Model has private functions and methods: ', function() {
         });
     });
 
+    describe('getTranslatedVal return formated value accoding to step', function() {
+        it('returns integer values', function() {
+            expect(model.getTranslatedVal(5)).toBe(5);
+        });
+        it('returns value if reverse', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 1,
+                reverse: true
+            });
+            model = new Model(testOptions);
+            expect(model.getTranslatedVal(1)).toBe(9);
+        });
+        it('returns float values', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 0.3,
+                minVal: -0.2,
+                maxVal: 2.5
+            });
+            model = new Model(testOptions);
+            expect(model.getTranslatedVal(2)).toBe(0.4);
+        });
+        it('returns float when step is integer', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 1,
+                minVal: -0.1,
+                maxVal: 1.9,
+                reverse: true,
+            });
+            model = new Model(testOptions);
+            expect(model.getTranslatedVal(1)).toBe(0.9);
+        });
+        it('returns custom value', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: ['a','b','c']
+            });
+            model = new Model(testOptions);
+            expect(model.getTranslatedVal(1)).toBe('b');
+        });
+        it('returns object date', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'date',
+                minVal: '01/11/2019',
+                maxVal: '20/11/2019',
+            });
+            model = new Model(testOptions);
+            let date: Date = model.getTranslatedVal(0) as Date;
+            expect(date.getDate()).toBe(1);
+        });
+    });
+
     describe('nubberOfSteps returns number of steps', function() {
         it('returns 10 if default options', function() {
             expect(model.numberOfSteps()).toBe(10);
         })
-        it('returns 9', function() {
+        it('works, when float', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 step: 0.3,
                 minVal: -0.2,
@@ -127,7 +178,7 @@ describe('Model has private functions and methods: ', function() {
             model = new Model(testOptions);
             expect(model.numberOfSteps()).toBe(9);
         });
-        it('returns 1 if 0.1', function() {
+        it('works, when float and step == 1', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 step: 1,
                 minVal: -0.1,
@@ -536,6 +587,12 @@ describe('Model has private functions and methods: ', function() {
         it('a', function() {  
             // @ts-ignore
             expect(model.isNumeric('a')).not.toBeTruthy();
+        });
+    });
+    describe('decimalPlaces returns number of decimal places', function() {
+        it('returns 5 if 1.12345', function(){
+            // @ts-ignore
+            expect(model.decimalPlaces(1.12345)).toBe(5);
         });
     });
 });

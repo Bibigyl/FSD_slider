@@ -33,14 +33,14 @@ beforeEach( function() {
     presenter = new Presenter(model, view);
 });
 afterEach( function() {
-/*     view = null;
-    model = null;
-    presenter = null;
-    testOptions = null;
+    //view = null;
+    //model = null;
+    //presenter = null;
+    //testOptions = null;
 
-    document.querySelector('.slider').remove();
-    sliderNode = null;
-    testNode = null; */
+    //document.querySelector('.slider').remove();
+    //sliderNode = null;
+    //testNode = null;
 });
 
 describe('Mousedown, mousemove, mouseup on thumb', function() {

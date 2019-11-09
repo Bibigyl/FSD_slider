@@ -15,6 +15,7 @@ export interface IView {
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string): void;
 
     findThumbPosition(newStep, numOfSteps): number;
+    oneStepLenght(): number;
 }
 
 export default class View {
@@ -22,7 +23,7 @@ export default class View {
     private _lenght: number;
     private _vertical: boolean;
     private _range: boolean;
-    private _tooltipMask?: string;
+    private _tooltipMask: string;
     private _numberOfSteps: number;
 
     private _slider: HTMLDivElement;
@@ -72,11 +73,10 @@ export default class View {
             this.setThumbPosition( this._thumbRight, pos);
         }
  
-        // маски для подсказок
-        // больший приоритет имеет маска с вычислениями
+        // маска для подсказок
         // если ее нет, применяется обычная, которая по дефолту возвращает просто val
-        // (в формате дат вернется кол-во миллисекунд)
-        this._tooltipMask = options.tooltipMaskWithCalc ? options.tooltipMaskWithCalc : options.tooltipMask;
+        // (в формате дат вернется объект дата)
+        this._tooltipMask = options.tooltipMask;
 
         if ( options.tooltip ) {
             let val: number | string;
@@ -240,7 +240,7 @@ export default class View {
         return tooltip;
     }
 
-    private buildScale(sliderNode, step, model, mask) {
+    private buildScale(sliderNode: HTMLDivElement, step: number, model: IModel, mask: string) {
         let scale: HTMLDivElement = document.createElement('div');
         let division: HTMLDivElement;
 
@@ -271,7 +271,6 @@ export default class View {
             scale.append(division);
         }
         return scale;
-        
     }
     
     private widthValidation(str: any) {
