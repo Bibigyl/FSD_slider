@@ -19,15 +19,18 @@ export interface IModel {
     getCustomValues(): string[] | undefined;
     // 8
     getDataFormat(): string;
+    // 9
+    getOptions(): IModelOptions;
 
     // вспомогательные методы
     findPositionInArr(val: any, arr?: any[]): number;
     getStepNumber(val: number): number;
     getTranslatedVal(step: number): number | string | Date;
     numberOfSteps(): number;
+    change(newOptions: any): void;
 }
 
-interface IModelOptions {
+export interface IModelOptions {
     dataFormat: string;
     initialVal: number | null;
     minVal: number;
@@ -48,6 +51,7 @@ export default class Model {
     private _reverse: boolean;
     private _range: [number, number] | null;
     private _customValues?: string[] | undefined;
+    private _options: IModelOptions;
 
     constructor(allOptions: IOptions) {
         let options: IOptions = allOptions;
@@ -75,7 +79,9 @@ export default class Model {
         this._step = validOptions.step;
         this._reverse = validOptions.reverse;
         this._range = validOptions.range;
-        this._customValues = validOptions.customValues;        
+        this._customValues = validOptions.customValues;      
+        
+        this._options = validOptions;
     }
 
     // 1
@@ -131,6 +137,9 @@ export default class Model {
     // 8
     getDataFormat(): string {
         return this._dataFormat;
+    }
+    getOptions(): IModelOptions {
+        return this._options;
     }
 
     // вспомогательные методы
@@ -190,6 +199,37 @@ export default class Model {
         let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
         n = Math.pow(10, n);
         return ( Math.abs(this._maxVal - this._minVal) * n ) / ( this._step * n );
+    }
+
+    change(newOptions: any): void {
+
+        let prevOptions: IModelOptions = this._options;
+        let options: any = Object.assign(prevOptions, newOptions);
+
+        options.initialVal = options.initialVal ? options.initialVal : options.minVal;
+        let validOptions: IModelOptions;
+
+        if ( options.dataFormat == 'numeric' ) {
+            validOptions = this.numericFormatValidation(options, prevOptions as IOptions);
+        } else if ( options.dataFormat == 'date' ) {
+            validOptions = this.dateFormatValidation(options, prevOptions as IOptions);
+        } else if ( options.dataFormat == 'custom' ) {
+            validOptions = this.customFormatValidation(options, prevOptions as IOptions);
+            validOptions.customValues = options.customValues;
+        } else {
+            throw new Error('Unknown format of data');
+        }
+
+        this._dataFormat = validOptions.dataFormat;
+        this._val = validOptions.initialVal;
+        this._minVal = validOptions.minVal;
+        this._maxVal = validOptions.maxVal;
+        this._step = validOptions.step;
+        this._reverse = validOptions.reverse;
+        this._range = validOptions.range;
+        this._customValues = validOptions.customValues;      
+        
+        this._options = validOptions;
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -396,7 +436,7 @@ export default class Model {
         testLeft = +testLeft.toFixed(n);
         testLeft = Math.abs(testLeft);
 
-        let testRight: number = (range[1] - minVal)/step;
+        let testRight: number = (range[1] - minVal) / step;
         testRight = +testRight.toFixed(n);
         testRight = Math.abs(testRight);
 

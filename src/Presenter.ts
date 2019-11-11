@@ -1,5 +1,6 @@
 import IOptions, { defaultOptions } from './defaultOptions';
 import Model, {IModel} from './Model';
+import  {IModelOptions} from './Model';
 import View, {IView} from './View';
 
 export default class Presenter {
@@ -48,10 +49,10 @@ export default class Presenter {
         let maxVal: number = this._model.getMaxVal();
         let step: number = this._model.getStep();
         let reverse: number = !this._model.getReverse() ? 1 : -1;
+        let sliderLenght: number = this._view.getLenght();
+        let stepLenght: number = this._view.oneStepLenght();
 
-        let sliderLenght: number;
         let sliderBorder: number;
-        let stepLenght: number;
         let eventPos: number;
         let thumbPosition: number;
         let leftPoint: number;
@@ -64,21 +65,18 @@ export default class Presenter {
 
         if ( !this._view.getVertical() ) {
 
-            sliderLenght = sliderNode.clientWidth;
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX;            
+            eventPos = event.clientX;         
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
 
         } else {
 
-            sliderLenght = sliderNode.clientHeight;
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
             eventPos = event.clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
 
         }
-
-        stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
+ 
         newVal = Math.round(thumbPosition / stepLenght);
         
         if ( this._model.getRange() ) {
@@ -86,6 +84,8 @@ export default class Presenter {
                 // если промежуток, то левая граница - это левый бегунок
                 // здесь рассчитывается количество шагов от начала (от 0), 
                 // затем расстояние в px от начала слайдера.
+
+                // Ошибки в вычислениях с float здесь можно проигнорировать
                 leftPoint = (this._model.getRange()[0] - minVal) * reverse / step;
                 leftPoint = leftPoint * stepLenght;
                 rightPoint = sliderLenght;
@@ -103,6 +103,7 @@ export default class Presenter {
             rightPoint = sliderLenght;
         }
     
+        console.log(newVal);
         if ( thumbPosition <= leftPoint) {
             thumbPosition = leftPoint;
             newVal = minVal;
@@ -115,9 +116,15 @@ export default class Presenter {
             // только после этого преобразуем его для модели. Если reverse == true, то == -1 
             thumbPosition = newVal * stepLenght;
 
-            const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
-            newVal = +( (reverse * (newVal * (step * Math.pow(10, simbols))) / Math.pow(10, simbols) ).toFixed(simbols) );
-            newVal = +( this._model.getMinVal() + newVal ).toFixed(simbols);
+            const f = x => ( (x.toString().includes('.')) ? (x.toString().split('.').pop().length) : (0) );
+            
+            let n = f(step) + f(minVal);
+            newVal = ( newVal * Math.pow(10, n) * step * reverse  ) / Math.pow(10, n);
+
+            n = Math.max( f(step), f(minVal) );
+            newVal = +(newVal.toFixed(n));
+            newVal = this._model.getMinVal() + newVal;
+            newVal = +(newVal.toFixed(n));
         }
     
         if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
@@ -156,10 +163,10 @@ export default class Presenter {
         let maxVal: number = this._model.getMaxVal();
         let step: number = this._model.getStep();
         let reverse: number = !this._model.getReverse() ? 1 : -1;
+        let sliderLenght: number = this._view.getLenght();
+        let stepLenght: number = this._view.oneStepLenght();
 
-        let sliderLenght: number;
         let sliderBorder: number;
-        let stepLenght: number;
         let eventPos: number;
         let thumbPosition: number;
         let leftPoint: number;
@@ -172,22 +179,20 @@ export default class Presenter {
 
         if ( !this._view.getVertical() ) {
 
-            sliderLenght = sliderNode.clientWidth;
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
             eventPos = event.clientX;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
 
         } else {
 
-            sliderLenght = sliderNode.clientHeight;
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
             eventPos = event.clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
 
         }
 
-        stepLenght = (sliderLenght / Math.abs(maxVal - minVal)) * step;  
         newVal = Math.round(thumbPosition / stepLenght);
+        console.log(newVal);
         
         leftPoint = 0;
         rightPoint = sliderLenght;
@@ -204,9 +209,15 @@ export default class Presenter {
             // только после этого преобразуем его для модели. Если reverse == true, то == -1 
             thumbPosition = newVal * stepLenght;
 
-            const simbols: number = ~(step + '').indexOf('.') ? (step + '').split('.')[1].length : 0;
-            newVal = +( (reverse * (newVal * (step * Math.pow(10, simbols))) / Math.pow(10, simbols) ).toFixed(simbols) );
-            newVal = +( this._model.getMinVal() + newVal ).toFixed(simbols);
+            const f = x => ( (x.toString().includes('.')) ? (x.toString().split('.').pop().length) : (0) );
+            
+            let n = f(step) + f(minVal);
+            newVal = ( newVal * Math.pow(10, n) * step * reverse  ) / Math.pow(10, n);
+
+            n = Math.max( f(step), f(minVal) );
+            newVal = +(newVal.toFixed(n));
+            newVal = this._model.getMinVal() + newVal;
+            newVal = +(newVal.toFixed(n));
         }
 
         if ( !this._model.getRange() ) {
@@ -232,6 +243,24 @@ export default class Presenter {
 
             this._view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
         }
+    }
+
+    change(options: any): void {
+        let prevOptions: IModelOptions = this._model.getOptions();
+        let newOptions: IOptions = Object.assign({}, prevOptions, options);
+
+        this._model.change(newOptions);
+        prevOptions = this._model.getOptions();
+
+        this._view.rebuildSlider(this._model, newOptions);
+
+/*         if ( !this._model.getRange() ) {
+            this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+        } else {
+            this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
+            this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+        }  */    
+        
     }
 
 }

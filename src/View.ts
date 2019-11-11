@@ -1,5 +1,6 @@
 import IOptions from './defaultOptions';
 import {IModel} from './Model';
+import { runInThisContext } from 'vm';
 
 export interface IView {
     getLenght(): number;
@@ -16,11 +17,12 @@ export interface IView {
 
     findThumbPosition(newStep, numOfSteps): number;
     oneStepLenght(): number;
+    rebuildSlider(model: IModel, options: any): void;
 }
 
 export default class View {
 
-    private _lenght: number;
+    private _lenght: string;
     private _vertical: boolean;
     private _range: boolean;
     private _tooltipMask: string;
@@ -38,21 +40,20 @@ export default class View {
 
     constructor(model: IModel, options: IOptions, sliderNode: HTMLDivElement) {
 
-        this._numberOfSteps = model.numberOfSteps();
-
         this._slider = sliderNode;
         this._slider.classList.add('slider');
         this._range = model.getRange() ? true : false;
+        this._numberOfSteps = model.numberOfSteps();
 
         if ( !options.vertical ) {
             this._vertical = false;
-            this._slider.style.width = this.widthValidation(options.width);
-            this._lenght = this._slider.clientWidth;
+            this._lenght = this.lenghtValidation(options.width);
+            this._slider.style.width = this._lenght;
             this._slider.classList.add('slider_horizontal');
         } else {
             this._vertical = true;
-            this._slider.style.height = this.widthValidation(options.height);
-            this._lenght = this._slider.clientHeight;
+            this._lenght = this.lenghtValidation(options.height);
+            this._slider.style.height = this._lenght;
             this._slider.classList.add('slider_vertical');            
         }
 
@@ -222,6 +223,106 @@ export default class View {
         return this.getLenght() / this._numberOfSteps;
     }
 
+    rebuildSlider(model: IModel, options: any): void {
+        let lenghtChanged: Boolean = false;
+        let rangeChangedToVal: Boolean = false;
+        let valChangedToRange: Boolean = false;
+        let tooltipMaskChanged: Boolean = false;
+
+        // ориентация
+        if ( options.vertical && !this._vertical ) {
+            this._vertical = true;
+            this._lenght = options.height ? this.lenghtValidation(options.height) : this._lenght;
+            this._slider.style.width = null;
+            this._slider.style.height = this._lenght;
+            lenghtChanged = true;
+        }
+        if ( options.vertical === false && this._vertical ) {
+            this._vertical = false;
+            this._lenght = options.width ? this.lenghtValidation(options.width) : this._lenght;
+            this._slider.style.height = null;
+            this._slider.style.width = this._lenght;
+            lenghtChanged = true
+        }
+
+        // ширина / длина
+        if ( (options.width || lenghtChanged) && !this._vertical ) {
+            this._lenght = options.width;
+            this._slider.style.width = this._lenght;
+        }
+        if ( (options.height || lenghtChanged) && this._vertical ) {
+            this._lenght = options.height;
+            this._slider.style.height = this._lenght;
+        }
+
+        // количество бегунков
+        let pos: number;
+        if ( options.range && this.getThumb() ) {
+            this.getSlider().querySelector('.slider__thumb').remove();
+            this._thumb = undefined;
+
+            this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
+            this.setThumbPosition( this._thumbLeft, pos);
+
+            this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
+            this.setThumbPosition( this._thumbRight, pos);
+
+            valChangedToRange = true;
+        }
+        if ( options.initialVal && this.getThumb(1) ) {
+            this.getSlider().querySelector('.slider__thumb_left').remove();
+            this.getSlider().querySelector('.slider__thumb_right').remove();
+            this._thumbLeft = undefined;
+            this._thumbRight = undefined;
+
+            this._thumb = this.buildThumb(this._slider);
+            pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
+            this.setThumbPosition( this._thumb, pos);
+
+            rangeChangedToVal = true;
+        }
+
+        // подсказка маска
+        if ( options.tooltipMask ) {
+            this._tooltipMask = options.tooltipMask;
+            tooltipMaskChanged = true;
+        }
+        // подсказка
+        if ( ( options.tooltip === false || rangeChangedToVal || valChangedToRange ) && ( this._tooltip || this._tooltipLeft ) ) {
+
+            if (this._tooltip) {
+
+            }
+
+        }
+
+        this._tooltipMask = options.tooltipMask;
+
+        if ( options.tooltip ) {
+            let val: number | string;
+
+            if (!this._range) { 
+                val = model.getCustomValues() ? model.getCustomValues()[model.getVal()] : model.getVal();  
+                this._tooltip = this.buildTooltip(this._thumb);
+                this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
+
+            } else {
+                val = model.getCustomValues() ? model.getCustomValues()[model.getRange()[0]] : model.getRange()[0];    
+                this._tooltipLeft = this.buildTooltip(this._thumbLeft, 'slider__tooltip_left');
+                this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
+
+                val = model.getCustomValues() ? model.getCustomValues()[model.getRange()[1]] : model.getRange()[1];   
+                this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
+                this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
+            }
+        }
+
+
+
+    }
+
     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
         let thumb: HTMLDivElement = document.createElement('div');     
         thumb.classList.add('slider__thumb');
@@ -273,7 +374,7 @@ export default class View {
         return scale;
     }
     
-    private widthValidation(str: any) {
+    private lenghtValidation(str: any) {
         if ( typeof ('' + str) == 'string' ) {
             let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%)?$/i);
             if ( r && this.isNumeric(r[0]) ) { 
