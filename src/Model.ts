@@ -35,7 +35,7 @@ export interface IModelOptions {
     initialVal: number | null;
     minVal: number;
     maxVal: number;
-    step: number;    
+    step: number;
     reverse: boolean;
     range: [number, number] | null; 
     customValues?: string[];
@@ -97,7 +97,6 @@ export default class Model {
     getRange(): [number, number] {
         return this._range;
     }
-    // расширить
     setRange(newRange: [number, number]): void {
         this.areNumeric(newRange[0], newRange[1])
         this.rangeValidation(this._minVal, this._maxVal, newRange, this._step);
@@ -180,8 +179,13 @@ export default class Model {
 
     getTranslatedVal(step: number): number | string | Date {
         if (this._dataFormat == 'custom') {
-            return this.getCustomValues()[step];
-
+            if ( !this._reverse ) {
+                return this._customValues[step];
+            } else {
+                console.log()
+                return this._customValues[this._customValues.length - step - 1];
+            }
+            
         } else {
             let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
             let r: number = !this._reverse ? 1 : -1;

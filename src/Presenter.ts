@@ -21,14 +21,14 @@ export default class Presenter {
 
         this.sliderOnMouseClick = this.sliderOnMouseClick.bind(this);
         
-        if ( !this._model.getRange() ) {
+        if ( !model.getRange() ) {
             this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
         } else {
-            this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
-            this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+            view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
+            view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
         }        
 
-        this._view.getSlider().addEventListener("click", this.sliderOnMouseClick);
+        view.getSlider().addEventListener("click", this.sliderOnMouseClick);
     }
 
     thumbOnMouseDown(event) {
@@ -103,7 +103,7 @@ export default class Presenter {
             rightPoint = sliderLenght;
         }
     
-        console.log(newVal);
+        //console.log(newVal);
         if ( thumbPosition <= leftPoint) {
             thumbPosition = leftPoint;
             newVal = minVal;
@@ -138,7 +138,7 @@ export default class Presenter {
         }
         this._view.setThumbPosition(this._activeThumb, thumbPosition);
 
-
+        console.log('я тут 4' + this._view.getTooltip());
         if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
             let val: number | string;
             val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
@@ -192,7 +192,7 @@ export default class Presenter {
         }
 
         newVal = Math.round(thumbPosition / stepLenght);
-        console.log(newVal);
+        //console.log(newVal);
         
         leftPoint = 0;
         rightPoint = sliderLenght;
@@ -238,29 +238,214 @@ export default class Presenter {
         }
     
         if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
-            let val: number | string;
-            val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
+            let val: number | string | Date;
+            //val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
+            val = this._model.getTranslatedVal( this._model.getStepNumber( newVal ) );
 
             this._view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
+
+
+/*             if (!model.getRange()) { 
+    
+                val = model.getTranslatedVal( model.getStepNumber( model.getVal() ) );
+                view.setValToTooltip( view.getTooltip(), val as string, view.getTooltipMask() );   
+            } else {
+                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[0] ) );
+                view.setValToTooltip( view.getTooltip(1), val as string, view.getTooltipMask() ); 
+    
+                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[1] ) );
+                view.setValToTooltip( view.getTooltip(2), val as string, view.getTooltipMask() ); 
+            } */
+
+
+
         }
     }
 
     change(options: any): void {
-        let prevOptions: IModelOptions = this._model.getOptions();
-        let newOptions: IOptions = Object.assign({}, prevOptions, options);
 
-        this._model.change(newOptions);
-        prevOptions = this._model.getOptions();
+        let model = this._model;
+        let view = this._view;
 
-        this._view.rebuildSlider(this._model, newOptions);
+        let changeThumbPosition: boolean = false;
+        let changeTooltipVal: boolean = false;
+        let changeScaleDivision: boolean = false;
+        let changeValToRange: boolean = false;
+        let changeRangeToVal: boolean = false;
+        let rebuildScale: boolean = false;
+        let rebuildTooltip: boolean = false;
 
-/*         if ( !this._model.getRange() ) {
-            this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
-        } else {
-            this._view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
-            this._view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
-        }  */    
+        // 1. МОДЕЛЬ
+        // если меняется какой либо параметр в модели, запускаем проверки модели,
+        // присваиваем новые значения.
+        // запоминаем, что нужно изменить положения ползунков, значения в подсказках,
+        // делений шкалы (значения и left). 
+        // Если изменилось количество шагов - true на перерисовать шкалу.
+        // Если поменялось val на range, или наоборот - true на построить! бегунки.
+
+
+        let modelOptions = ['dataFormat', 'initialVal', 'minVal', 'maxVal', 'step', 'reverse', 'range', 'customValues', 'initialValInCustomValues', 'initialValNumInCustomValues', 'initialRangeInCustomValues', 'initialRangeNumInCustomValues'];
+
+        let test: boolean = false;
         
-    }
+        modelOptions.forEach(function(item) {
+            if ( options.hasOwnProperty(item) ) {
+                test = true;
+                return;
+            }
+        });
 
+        console.log(test);
+        
+        if ( test ) {
+            let prevNumOfSteps: number = model.numberOfSteps();
+            let prevOptions: IModelOptions = model.getOptions();
+            let newOptions: IOptions = Object.assign({}, prevOptions, options);
+
+            model.change(newOptions);
+
+            view.setNumberOfSteps( model.numberOfSteps() );
+            view.setScaleStep( view.scaleStepValidation( model, view.getScaleStep() ) );
+
+            changeThumbPosition = true;
+            changeTooltipVal = true;
+            changeScaleDivision = true;
+            if ( prevNumOfSteps != model.numberOfSteps() ) {
+                rebuildScale = true;
+            }
+            if ( view.getRange() && !model.getRange() ) {
+                changeRangeToVal = true;
+                rebuildTooltip = true;
+            }
+            if ( !view.getRange() && model.getRange() ) {
+                changeValToRange = true;
+                rebuildTooltip = true;
+            }
+        }
+
+        // 2. ВИД
+        // Перерисовываем вид от самых глобальных изменений к самым незначительным.
+        
+        // 2.1 Самое большое изменение - это вид основы шкалы.
+        // Ее изменение вызывает: изменить положения ползунков, делений шкалы
+
+        if ( options.hasOwnProperty('vertical') || options.hasOwnProperty('width') || options.hasOwnProperty('height')) {
+            view.changeSliderBase(options);
+            changeThumbPosition = true;
+            changeScaleDivision = true;
+        }
+
+        // 2.2 Меняем количество бегунков, если нужно
+        // Если такое изменение было, значит везде,
+        // где надо, уже стоит true
+
+        if ( changeRangeToVal ) {
+            view.changeRangeToVal(model);
+            view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+        }
+        if ( changeValToRange ) {
+            view.changeValToRange(model);
+            view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
+            view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+        }   
+
+        // 2.3 Шкала. Удаляем, строим или перестраиваем. Изменяем деления.
+
+        if ( options.hasOwnProperty('scaleStep') && options.scaleStep != view.getScaleStep() ) {
+            view.setScaleStep( view.scaleStepValidation(model, options.scaleStep) );
+            rebuildScale = true;
+            changeScaleDivision = true;
+        }
+        if ( options.hasOwnProperty('scaleMask') && options.scaleMask != view.getScaleMask() ) {
+            view.setScaleMask( options.scaleMask );
+            changeScaleDivision = true;
+        }
+        // удаляем
+        if ( options.hasOwnProperty('scale') && options.scale == false && view.getScale() ) {
+            view.setScale( view.removeNode( view.getScale() ) );
+            changeScaleDivision = false;
+            rebuildScale = false;
+        }
+        // строим
+        if ( options.hasOwnProperty('scale') && options.scale == true && !view.getScale() ) {
+            let scale: HTMLDivElement;
+            scale = view.buildScale(view.getSlider(), view.getScaleStep(), model, view.getScaleMask() );
+            view.setScale(scale);
+
+            rebuildScale = false;
+            changeScaleDivision = false;
+        }
+        // перестраиваем
+        if ( rebuildScale && view.getScale() ) {
+            console.log('я тут 2');
+            view.rebuildScale(model);
+            changeScaleDivision = true;
+        }
+        // изменяем деления. значение и left
+        if ( changeScaleDivision && view.getScale() ) {
+            view.changeScaleDivision(model);
+        }
+
+
+        // 2.4 Подсказки. Удаляем. Строим. Меняем значения
+
+        if ( options.hasOwnProperty('tooltipMask') && options.tooltipMask != view.getTooltipMask() ) {
+            view.setTooltipMask( options.tooltipMask );
+            changeTooltipVal = true;
+        }
+        // удаляем
+        if ( options.tooltip == false || rebuildTooltip ) {
+            if ( view.getTooltip() ) view.setTooltip( view.removeNode(view.getTooltip(0)), 0 );
+            if ( view.getTooltip(1) ) view.setTooltip( view.removeNode(view.getTooltip(1)), 1 );
+            if ( view.getTooltip(2) ) view.setTooltip( view.removeNode(view.getTooltip(2)), 2 );
+
+            if ( options.tooltip == false ) {
+                rebuildTooltip = false;
+            }
+            changeTooltipVal = false;
+        }
+        // перестраиваем
+        if ( options.tooltip || rebuildTooltip ) {
+            view.buildValidTooltips(model);
+
+            changeTooltipVal = false;
+        }
+        // меняем значения
+        if ( changeTooltipVal && (view.getTooltip() || view.getTooltip(1)) ) {
+            let val: number | string | Date;
+
+            if (!model.getRange()) { 
+    
+                val = model.getTranslatedVal( model.getStepNumber( model.getVal() ) );
+                view.setValToTooltip( view.getTooltip(), val as string, view.getTooltipMask() );   
+            } else {
+                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[0] ) );
+                view.setValToTooltip( view.getTooltip(1), val as string, view.getTooltipMask() ); 
+    
+                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[1] ) );
+                view.setValToTooltip( view.getTooltip(2), val as string, view.getTooltipMask() ); 
+            }
+        } 
+
+
+        // 2.5 Положения бегунков
+
+        if ( changeThumbPosition ) {
+            let pos: number;
+
+            if ( !model.getRange() ) {
+
+                pos = view.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
+                view.setThumbPosition( view.getThumb(), pos);
+
+            } else {     
+    
+                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
+                view.setThumbPosition( view.getThumb(1), pos);
+    
+                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
+                view.setThumbPosition( view.getThumb(2), pos);
+            }
+        }
+    }
 }

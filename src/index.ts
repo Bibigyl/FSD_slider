@@ -45,8 +45,7 @@ import {defaultOptions} from './defaultOptions';
     change: function( options ) {
       return this.each( function() {
 
-        let $this = $(this);
-        let presenter = $this.data('sliderData').presenter;
+        let presenter = $(this).data('sliderData').presenter;
         presenter.change(options);
 
       });
@@ -64,11 +63,9 @@ import {defaultOptions} from './defaultOptions';
         
       });
     }
-
   }
-  // Когда при вызове метода передаешь два аргумента, появляется предупреждение
-  // Добавление ...args не решает проблемы
-  // ?????
+
+  
   jQuery.fn.slider = function( method ) {
 
     // логика вызова метода
@@ -76,6 +73,7 @@ import {defaultOptions} from './defaultOptions';
       return methods[ method as string ].apply( this, Array.prototype.slice.call( arguments, 1 ));
     } else if ( typeof method === 'object' || ! method ) {
 
+      // ????
       // @ts-ignore
       return methods.init.apply( this, arguments );
     } else {
@@ -89,26 +87,46 @@ import {defaultOptions} from './defaultOptions';
 
 console.log(0.7*100*0.7/100);
 $('.test').slider({
-  minVal: -0.7,
-  maxVal: 3.3
+  tooltip: true,
+  scale: false,
+  reverse: true,
+  //scaleMask: "'1 ' + val",
+  //dataFormat: 'custom',
+  //customValues: ['1', '2', '3'],
+
 });
   // @ts-ignore
-$('.test').slider('test', 'opop');
+//$('.test').slider('test', 'opop');
 
-  // @ts-ignore
 $('.test').slider('change', {
-  width: '400px',
-  //vertical: true,
-  //height: "400px",
-  range: [-0.7, 1.3],
+  dataFormat: 'custom',
+  customValues: ['a', 'b', 'c'],
+  //width: '400px',
+  vertical: false,
+  height: "400px",
+  //tooltip: false,
+  initialVal: 1,
+  //range: [5, 10],
+  //range: [-0.7, 1.3],
+  scale: true,
+  reverse: true,
+  maxVal: 20,
+  minVal: -30,
+  step: 5,
+  scaleStep: 10,
+  initialRangeInCustomValues: ['b', 'a'],
+  //scaleMask: "'val ' + val",
+  //tooltipMask: "'v' + val",
+  tooltip: true,
+});
+// @ts-ignore
+$('.test').slider('change', {
+  dataFormat: 'date',
+  minVal: '22.05.2019',
+  maxVal: '28/05/2019',
+  range: false,
 });
 
-
-
-//$('.test').slider();
-//$('.test').slider('change');
-/* console.log('1 = ' + $('.test').slider().data('sliderData').model.setVal(5));
-console.log('1 = ' + $('.test').slider().data('sliderData').model.getVal());
 
 
 

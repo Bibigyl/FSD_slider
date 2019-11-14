@@ -41,7 +41,7 @@ var defaultOptions: IOptions = {
     vertical: false,
     tooltip: false,
     tooltipMask: "val",
-    scale: true,
+    scale: false,
     scaleStep: null,
     scaleMask: "val",
 }
