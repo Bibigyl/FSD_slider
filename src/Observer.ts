@@ -1,50 +1,44 @@
-
 /**
  * Интферфейс издателя объявляет набор методов для управлениями подпискичами.
  */
-interface Subject {
+interface ISubject {
     // Присоединяет наблюдателя к издателю.
-    attach(observer: Observer): void;
-  
+    attach(observer: IObserver): void;
+
     // Отсоединяет наблюдателя от издателя.
-    detach(observer: Observer): void;
-  
+    detach(observer: IObserver): void;
+
     // Уведомляет всех наблюдателей о событии.
     notify(): void;
-  }
-  
-  /**
-  * Издатель владеет некоторым важным состоянием и оповещает наблюдателей о его
-  * изменениях.
-  */
-  class ConcreteSubject implements Subject {
-    /**
-     * @type {number} Для удобства в этой переменной хранится состояние
-     * Издателя, необходимое всем подписчикам.
-     */
-    public state: number;
-  
+}
+
+/**
+ * Издатель владеет некоторым важным состоянием и оповещает наблюдателей о его
+ * изменениях.
+ */
+export default class Subject implements ISubject {
+
     /**
      * @type {Observer[]} Список подписчиков. В реальной жизни список
      * подписчиков может храниться в более подробном виде (классифицируется по
      * типу события и т.д.)
      */
-    private observers: Observer[] = [];
-  
+    private observers: IObserver[] = [];
+
     /**
      * Методы управления подпиской.
      */
-    public attach(observer: Observer): void {
-        console.log('Subject: Attached an observer.');
+    public attach(observer: IObserver): void {
+        //console.log('Subject: Attached an observer.');
         this.observers.push(observer);
     }
-  
-    public detach(observer: Observer): void {
+
+    public detach(observer: IObserver): void {
         const observerIndex = this.observers.indexOf(observer);
         this.observers.splice(observerIndex, 1);
-        console.log('Subject: Detached an observer.');
+        //console.log('Subject: Detached an observer.');
     }
-  
+
     /**
      * Запуск обновления в каждом подписчике.
      */
@@ -54,49 +48,23 @@ interface Subject {
             observer.update(this);
         }
     }
-  
-    /**
-     * Обычно логика подписки – только часть того, что делает Издатель. Издатели
-     * часто содержат некоторую важную бизнес-логику, которая запускает метод
-     * уведомления всякий раз, когда должно произойти что-то важное (или после
-     * этого).
-     */
-    public someBusinessLogic(): void {
-        console.log('\nSubject: I\'m doing something important.');
-        this.state = Math.floor(Math.random() * (10 + 1));
-  
-        console.log(`Subject: My state has just changed to: ${this.state}`);
-        this.notify();
-    }
-  }
-  
-  /**
-  * Интерфейс Наблюдателя объявляет метод уведомления, который издатели
-  * используют для оповещения своих подписчиков.
-  */
-  interface Observer {
+}
+
+/**
+ * Интерфейс Наблюдателя объявляет метод уведомления, который издатели
+ * используют для оповещения своих подписчиков.
+ */
+export interface IObserver {
     // Получить обновление от субъекта.
     update(subject: Subject): void;
-  }
-  
-  /**
-  * Конкретные Наблюдатели реагируют на обновления, выпущенные Издателем, к
-  * которому они прикреплены.
-  */
-  class ConcreteObserverA implements Observer {
+}
+
+/**
+ * Конкретные Наблюдатели реагируют на обновления, выпущенные Издателем, к
+ * которому они прикреплены.
+ */
+export class Observer implements IObserver {
     public update(subject: Subject): void {
-        // @ts-ignore
-        if (subject.state < 3) {
-            console.log('ConcreteObserverA: Reacted to the event.');
-        }
+        console.log('ConcreteObserverA: Reacted to the event.');
     }
-  }
-  
-  class ConcreteObserverB implements Observer {
-    public update(subject: Subject): void {
-        // @ts-ignore
-        if (subject.state === 0 || subject.state >= 2) {
-            console.log('ConcreteObserverB: Reacted to the event.');
-        }
-    }
-  }
+}

@@ -3,6 +3,11 @@ import View, {IView} from './View';
 import Presenter from './Presenter';
 import {defaultOptions} from './defaultOptions';
 
+import {Observer} from './Observer';
+import {IObserver} from './Observer';
+import Subject  from './Observer';
+
+
 (function($){
 
   var methods: Object = {
@@ -11,7 +16,6 @@ import {defaultOptions} from './defaultOptions';
 
       return this.each(function(){
          
-        // ??? Правильно?
         let $this = $(this);
         let data = $this.data('sliderData');
         let slider = $this;
@@ -26,12 +30,14 @@ import {defaultOptions} from './defaultOptions';
           // корректных данных
           let view: IView = new View(model, options, this);
           let presenter = new Presenter(model, view);
+          let subject = new Subject();
 
           $(this).data('sliderData', {
             slider : slider,
             model: model,
             view: view,
-            presenter: presenter
+            presenter: presenter,
+            subject: subject
           });
           
         }
@@ -42,11 +48,14 @@ import {defaultOptions} from './defaultOptions';
       console.log('its test:  ' + content);
     },
 
-    change: function( options ) {
+    change: function( options: any ) {
       return this.each( function() {
 
         let presenter = $(this).data('sliderData').presenter;
         presenter.change(options);
+
+        let subject = $(this).data('sliderData').subject;
+        subject.notify();
 
       });
     },
@@ -87,68 +96,10 @@ import {defaultOptions} from './defaultOptions';
 
 $('.test').slider();
 
-/* 
-class EventObserver {
-  constructor () {
-    // @ts-ignore
-    this.observers = []
-  }
 
-  subscribe (fn) {
-    // @ts-ignore
-    this.observers.push(fn)
-  }
+let obs = new Observer();
+$('.test').slider().data('sliderData').subject.attach(obs);
 
-  unsubscribe (fn) {
-    // @ts-ignore
-    this.observers = this.observers.filter(
-      subscriber => subscriber !== fn
-    )
-  }
+$('.test').slider('change', {});
 
-  broadcast (data) {
-    // @ts-ignore
-    this.observers.forEach(subscriber => subscriber(data))
-  }
-}
-
-const blogObserver = new EventObserver()
-
-const textField = document.querySelector('.textField')
-const countField = document.querySelector('.countField')
-
-const getWordsCount = text =>
-  text ? text.trim().split(/\s+/).length : 0
-
-blogObserver.subscribe(text => {
-  countField.innerHTML = getWordsCount(text)
-})
-
-textField.addEventListener('keyup', () => {
-  // @ts-ignore
-  blogObserver.broadcast(textField.value)
-}) */
-
-
-
-
-
-
-/**
- * Клиентский код.
- */
-
-const subject = new ConcreteSubject();
-
-const observer1 = new ConcreteObserverA();
-subject.attach(observer1);
-
-const observer2 = new ConcreteObserverB();
-subject.attach(observer2);
-
-subject.someBusinessLogic();
-subject.someBusinessLogic();
-
-subject.detach(observer2);
-
-subject.someBusinessLogic();
+console.log( $('.test').slider().data('sliderData').subject );
