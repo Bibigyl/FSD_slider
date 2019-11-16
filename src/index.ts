@@ -85,115 +85,70 @@ import {defaultOptions} from './defaultOptions';
 
 
 
-console.log(0.7*100*0.7/100);
-$('.test').slider({
-  tooltip: true,
-  scale: false,
-  reverse: true,
-  //scaleMask: "'1 ' + val",
-  //dataFormat: 'custom',
-  //customValues: ['1', '2', '3'],
+$('.test').slider();
 
-});
+/* 
+class EventObserver {
+  constructor () {
+    // @ts-ignore
+    this.observers = []
+  }
+
+  subscribe (fn) {
+    // @ts-ignore
+    this.observers.push(fn)
+  }
+
+  unsubscribe (fn) {
+    // @ts-ignore
+    this.observers = this.observers.filter(
+      subscriber => subscriber !== fn
+    )
+  }
+
+  broadcast (data) {
+    // @ts-ignore
+    this.observers.forEach(subscriber => subscriber(data))
+  }
+}
+
+const blogObserver = new EventObserver()
+
+const textField = document.querySelector('.textField')
+const countField = document.querySelector('.countField')
+
+const getWordsCount = text =>
+  text ? text.trim().split(/\s+/).length : 0
+
+blogObserver.subscribe(text => {
+  countField.innerHTML = getWordsCount(text)
+})
+
+textField.addEventListener('keyup', () => {
   // @ts-ignore
-//$('.test').slider('test', 'opop');
-
-$('.test').slider('change', {
-  dataFormat: 'custom',
-  customValues: ['a', 'b', 'c'],
-  //width: '400px',
-  vertical: false,
-  height: "400px",
-  //tooltip: false,
-  initialVal: 1,
-  //range: [5, 10],
-  //range: [-0.7, 1.3],
-  scale: true,
-  reverse: true,
-  maxVal: 20,
-  minVal: -30,
-  step: 5,
-  scaleStep: 10,
-  initialRangeInCustomValues: ['b', 'a'],
-  //scaleMask: "'val ' + val",
-  //tooltipMask: "'v' + val",
-  tooltip: true,
-});
-// @ts-ignore
-$('.test').slider('change', {
-  dataFormat: 'date',
-  minVal: '22.05.2019',
-  maxVal: '28/05/2019',
-  range: false,
-});
+  blogObserver.broadcast(textField.value)
+}) */
 
 
 
 
-  
-// теперь можно задавать плагин с настройками по умолчанию:
-/* $('.test').slider({
-  initialVal: 1.6,
-  minVal: 1.6,
-  maxVal: -3.6,
-  //reverse: true,
-  step: 0.1,
-  initialValNumInCustomValues: 5,
-  range: [-0.4, 1.6],
-  tooltip: true,
-  scaleStep: 0.4,
-  scale: true,
-  vertical: true,
-}); */
-
-/* $('.test').slider({
-  initialVal: 2,
-  minVal: 0,
-  maxVal: 12,
-  reverse: false,
-  step: 2,
-  tooltip: true,
-  scaleStep: 4,
-  //scaleMask: 'val',
-  vertical:true
-}); */
-
-/* $('.test').slider({
-  tooltip: true,
-  minVal: -0.2,
-  maxVal: 2.2,
-  step: 0.2,
-  scale: true,
-  scaleStep: 0.4,
-  vertical: true,
-}); */
 
 
+/**
+ * Клиентский код.
+ */
 
-/* $('.test').slider({
-  dataFormat: 'date',
-  minVal: '01.11.2019',
-  maxVal: '13.11.2019',
-  //scale: true,
-  scaleStep: 4,
-  tooltip: true,
-  scaleMask: "val.getDate()",
-  vertical: true
-}); */
+const subject = new ConcreteSubject();
 
+const observer1 = new ConcreteObserverA();
+subject.attach(observer1);
 
+const observer2 = new ConcreteObserverB();
+subject.attach(observer2);
 
-/* $('.test').slider({
-  //dataFormat: 'custom',
-  width: '500px',
-  //initialVal: 1,
-  step: .25,
-  scaleStep: .5,
-  //initialRangeInCustomValues: [1, 'fsd'],
-  range: [0.5 , 5 ],
-  customValues: ['kjk', 1, 0, 'fsd', 'sf'],
-  tooltip: true,
-  tooltipMaskWithCalc: "val",
-  vertical: true,
-}); */
+subject.someBusinessLogic();
+subject.someBusinessLogic();
 
+subject.detach(observer2);
+
+subject.someBusinessLogic();

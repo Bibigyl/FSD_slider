@@ -213,3 +213,32 @@ describe('Click on slider', function() {
         expect(view.getThumb(1).style.left).toBe('50px');
     });
 });
+
+describe('Method change changes model if there are any model options, changes view', function() {
+    it('changes model data, changes view', function() {
+        let test: any = {
+            minVal: -5,
+            maxVal: 5,
+            reverse: true,
+            scale: true,
+            scaleStep: 2,
+            tooltip: true,
+            vertical: true
+        }
+
+        presenter.change(test);
+
+        expect(model.getVal()).toBe(0);
+        expect(model.getMaxVal()).toBe(-5);
+        expect(model.getReverse()).toBeTruthy();
+
+        expect(view.getThumb().style.top).toBe("140px");
+        expect(view.getTooltip()).toBeDefined();
+        setTimeout(() => {
+            expect(document.querySelector('.slider__scale')).toBeDefined();
+            expect(document.querySelector('.slider__tooltip')).toBeDefined();
+            expect(view.getScale().querySelectorAll('slider__scale-division').length).toBe(10)
+            expect(document.querySelector('.slider').clientHeight).toBe(300);
+        }, 2000);
+    });
+});

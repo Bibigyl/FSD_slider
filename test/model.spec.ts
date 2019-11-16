@@ -1,4 +1,4 @@
-import Model, { IModel } from '../src/Model';
+/* import Model, { IModel } from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -186,6 +186,28 @@ describe('Model has private functions and methods: ', function() {
             });
             model = new Model(testOptions);
             expect(model.numberOfSteps()).toBe(2);
+        });
+    });
+
+    describe('change', function() {
+        it('changes data in model, calls all validations. It is called in presenter method change', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                step: 2,
+                maxVal: 14,
+                range: [2, 8],
+            });
+
+            expect(model.getMaxVal()).toBe(10);
+            expect(model.getVal()).toBe(0);
+            expect(model.getRange()).toBeNull();
+            expect(model.getStep()).toBe(1);
+
+            model.change(testOptions);
+
+            expect(model.getMaxVal()).toBe(14);
+            expect(model.getVal()).toBeNull();
+            expect(model.getRange()[0]).toBe(2);
+            expect(model.getStep()).toBe(2);
         });
     });
 
@@ -765,4 +787,4 @@ describe('When Model has custom format,', function() {
             expect( model.getRange()[1] ).toBe(2);
         });
     });
-}); 
+});  */

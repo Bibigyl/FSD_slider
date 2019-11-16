@@ -43,6 +43,9 @@ export default class Presenter {
 
     thumbOnMouseMove(event) {
 
+        let model: IModel = this._model;
+        let view: IView = this._view;
+
         let sliderNode: HTMLDivElement = this._view.getSlider();
       
         let minVal: number = this._model.getMinVal();
@@ -63,7 +66,7 @@ export default class Presenter {
         // Вначале newVal вычисляется как количество шагов от начала (от 0),
         // (то есть значения min, max, reverse не имеют значения).
 
-        if ( !this._view.getVertical() ) {
+        if ( !view.getVertical() ) {
 
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
             eventPos = event.clientX;         
@@ -79,31 +82,30 @@ export default class Presenter {
  
         newVal = Math.round(thumbPosition / stepLenght);
         
-        if ( this._model.getRange() ) {
+        if ( model.getRange() ) {
             if ( this._activeThumb.classList.contains('slider__thumb_right') ) {
                 // если промежуток, то левая граница - это левый бегунок
                 // здесь рассчитывается количество шагов от начала (от 0), 
                 // затем расстояние в px от начала слайдера.
 
                 // Ошибки в вычислениях с float здесь можно проигнорировать
-                leftPoint = (this._model.getRange()[0] - minVal) * reverse / step;
+                leftPoint = (model.getRange()[0] - minVal) * reverse / step;
                 leftPoint = leftPoint * stepLenght;
                 rightPoint = sliderLenght;
 
-                minVal = this._model.getRange()[0];
+                minVal = model.getRange()[0];
             } else {
-                rightPoint = (this._model.getRange()[1] - minVal) * reverse / step;
+                rightPoint = (model.getRange()[1] - minVal) * reverse / step;
                 rightPoint = rightPoint * stepLenght;
                 leftPoint = 0;
 
-                maxVal = this._model.getRange()[1];
+                maxVal = model.getRange()[1];
             }
         } else {
             leftPoint = 0;
             rightPoint = sliderLenght;
         }
     
-        //console.log(newVal);
         if ( thumbPosition <= leftPoint) {
             thumbPosition = leftPoint;
             newVal = minVal;
@@ -123,27 +125,25 @@ export default class Presenter {
 
             n = Math.max( f(step), f(minVal) );
             newVal = +(newVal.toFixed(n));
-            newVal = this._model.getMinVal() + newVal;
+            newVal = model.getMinVal() + newVal;
             newVal = +(newVal.toFixed(n));
         }
     
-        if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
-            this._model.setRange( [newVal, this._model.getRange()[1]] );
+        if ( model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
+            model.setRange( [newVal, model.getRange()[1]] );
             
-        } else if ( this._model.getRange() && this._activeThumb.classList.contains('slider__thumb_right')) {
-            this._model.setRange( [this._model.getRange()[0], newVal] );
+        } else if ( model.getRange() && this._activeThumb.classList.contains('slider__thumb_right')) {
+            model.setRange( [model.getRange()[0], newVal] );
 
         } else {
-            this._model.setVal(newVal);
+            model.setVal(newVal);
         }
-        this._view.setThumbPosition(this._activeThumb, thumbPosition);
+        view.setThumbPosition(this._activeThumb, thumbPosition);
 
-        console.log('я тут 4' + this._view.getTooltip());
-        if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
-            let val: number | string;
-            val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
-
-            this._view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
+        if ( view.getTooltip() || view.getTooltip(1) ) {
+            let val: number | string | Date;
+            val = model.getTranslatedVal( model.getStepNumber( newVal ) );
+            view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), val, view.getTooltipMask() ); 
         }
     }
     
@@ -155,6 +155,9 @@ export default class Presenter {
     }
 
     sliderOnMouseClick(event) {
+
+        let model: IModel = this._model;
+        let view: IView = this._view;
 
         let sliderNode: HTMLDivElement = this._view.getSlider();
         let changingThumb: HTMLDivElement;
@@ -182,17 +185,14 @@ export default class Presenter {
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
             eventPos = event.clientX;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
-
         } else {
 
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
             eventPos = event.clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
-
         }
 
         newVal = Math.round(thumbPosition / stepLenght);
-        //console.log(newVal);
         
         leftPoint = 0;
         rightPoint = sliderLenght;
@@ -216,49 +216,32 @@ export default class Presenter {
 
             n = Math.max( f(step), f(minVal) );
             newVal = +(newVal.toFixed(n));
-            newVal = this._model.getMinVal() + newVal;
+            newVal = model.getMinVal() + newVal;
             newVal = +(newVal.toFixed(n));
         }
 
-        if ( !this._model.getRange() ) {
-            this._model.setVal(newVal);
-            changingThumb = this._view.getThumb();
-            this._view.setThumbPosition(changingThumb, thumbPosition);
+        if ( !model.getRange() ) {
+            model.setVal(newVal);
+            changingThumb = view.getThumb();
+            view.setThumbPosition(changingThumb, thumbPosition);
 
         } else {
-            if ( Math.abs(newVal - this._model.getRange()[0]) < Math.abs(newVal - this._model.getRange()[1]) ) {
-                this._model.setRange([ newVal, this._model.getRange()[1] ]);
-                changingThumb = this._view.getThumb(1);
-                this._view.setThumbPosition(changingThumb, thumbPosition);
+            if ( Math.abs(newVal - model.getRange()[0]) < Math.abs(newVal - model.getRange()[1]) ) {
+                model.setRange([ newVal, model.getRange()[1] ]);
+                changingThumb = view.getThumb(1);
+                view.setThumbPosition(changingThumb, thumbPosition);
             } else {
-                this._model.setRange([ this._model.getRange()[0], newVal ]);
-                changingThumb = this._view.getThumb(2);
-                this._view.setThumbPosition(changingThumb, thumbPosition);
+                model.setRange([ model.getRange()[0], newVal ]);
+                changingThumb = view.getThumb(2);
+                view.setThumbPosition(changingThumb, thumbPosition);
             }
         }
     
-        if ( this._view.getTooltip() || this._view.getTooltip(1) ) {
+        if ( view.getTooltip() || view.getTooltip(1) ) {
             let val: number | string | Date;
-            //val = this._model.getCustomValues() ? this._model.getCustomValues()[newVal] : newVal;
-            val = this._model.getTranslatedVal( this._model.getStepNumber( newVal ) );
 
-            this._view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, this._view.getTooltipMask() ); 
-
-
-/*             if (!model.getRange()) { 
-    
-                val = model.getTranslatedVal( model.getStepNumber( model.getVal() ) );
-                view.setValToTooltip( view.getTooltip(), val as string, view.getTooltipMask() );   
-            } else {
-                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[0] ) );
-                view.setValToTooltip( view.getTooltip(1), val as string, view.getTooltipMask() ); 
-    
-                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[1] ) );
-                view.setValToTooltip( view.getTooltip(2), val as string, view.getTooltipMask() ); 
-            } */
-
-
-
+            val = model.getTranslatedVal( model.getStepNumber( newVal ) );
+            view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, view.getTooltipMask() ); 
         }
     }
 
@@ -294,14 +277,12 @@ export default class Presenter {
                 return;
             }
         });
-
-        console.log(test);
         
         if ( test ) {
             let prevNumOfSteps: number = model.numberOfSteps();
             let prevOptions: IModelOptions = model.getOptions();
             let newOptions: IOptions = Object.assign({}, prevOptions, options);
-
+            
             model.change(newOptions);
 
             view.setNumberOfSteps( model.numberOfSteps() );
@@ -327,7 +308,7 @@ export default class Presenter {
         // Перерисовываем вид от самых глобальных изменений к самым незначительным.
         
         // 2.1 Самое большое изменение - это вид основы шкалы.
-        // Ее изменение вызывает: изменить положения ползунков, делений шкалы
+        // Ее изменение вызывает: изменить положения бегунков, делений шкалы
 
         if ( options.hasOwnProperty('vertical') || options.hasOwnProperty('width') || options.hasOwnProperty('height')) {
             view.changeSliderBase(options);
@@ -377,7 +358,6 @@ export default class Presenter {
         }
         // перестраиваем
         if ( rebuildScale && view.getScale() ) {
-            console.log('я тут 2');
             view.rebuildScale(model);
             changeScaleDivision = true;
         }

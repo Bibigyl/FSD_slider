@@ -1,4 +1,4 @@
-import View, { IView } from '../src/View';
+/* import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 import Model, { IModel } from '../src/Model';
@@ -41,9 +41,40 @@ describe('View is created with default options and has methods', function() {
     it('getVertical returns vertical as boolean', function() {
         expect(view.getVertical()).toBeFalsy();
     });
+    it('getRange returns false', function() {
+        expect(view.getRange()).toBeFalsy();
+    })
     it('getTooltipMask returns "val"', function() {
         expect(view.getTooltipMask()).toBe("val");
     })
+    it('setTooltipMask changes tooltip mask', function() {
+        view.setTooltipMask('1');
+        expect(view.getTooltipMask()).toBe('1');
+    });
+    it('getScaleStep returns undefined, when slider is builded first without scale', function() {
+        expect(view.getScaleStep()).toBeUndefined();
+    });
+    it('setScaleStep sets scale step', function() {
+        view.setScaleStep(1);
+        expect(view.getScaleStep()).toBe(1);
+    });
+    it('getScaleMask returns "val"', function() {
+        expect(view.getScaleMask()).toBe(defaultOptions.scaleMask);
+    });
+    it('setScaleMask sets scale step', function() {
+        view.setScaleMask('1');
+        expect(view.getScaleMask()).toBe('1');
+    });
+    it('getNumberOfSteps returns number of steps', function() {
+        expect(view.getNumberOfSteps()).toBe(10);
+    });
+    it('setNumberOfSteps, has no validations of step', function() {
+        view.setNumberOfSteps(6);
+        expect(view.getNumberOfSteps()).toBe(6);
+    });
+
+
+
     it('getSlider returns slider node', function() {
         expect(view.getSlider()).toBeDefined();
     });
@@ -53,42 +84,83 @@ describe('View is created with default options and has methods', function() {
     it('getTooltip returns undefined', function() {
         expect(view.getTooltip()).toBeUndefined();
     });
-    it('setThumbPosition sets thumb position', function() {
-        view.setThumbPosition(view.getThumb(), 0);
-        expect(view.getThumb().style.left).toBe('-10px');
+    it('setTooltip changes _tooltip, has no validation', function() {
+        testNode = document.createElement('div');
+        view.setTooltip(testNode);
+        expect(view.getTooltip()).toBeDefined();
     });
-    it('findThumbPosition returns position in px', function() {
-        expect(view.findThumbPosition(3, 10)).toBe(90);
+    it('getScale returns undefined', function() {
+        expect(view.getScale()).toBeUndefined();
     });
-    it('oneStepLenght returns lenght of one step', function() {
-        expect(view.oneStepLenght()).toBe(30);
+    it('setScale changes _scale, has no validation', function() {
+        testNode = document.createElement('div');
+        view.setScale(testNode);
+        expect(view.getScale()).toBeDefined();
     });
 });
 
-describe('View has private functions:', function() {
+describe('View has methods for build and rebuild', function() {
 
-    describe('buildThumb - function for constructor,', function() {
+    describe('changeSliderBase', function() {
 
-        it('creates thumbNode, adds classes', function() {
-            // @ts-ignore
-            testNode = view.buildThumb(sliderNode, 'testClass');
-            
-            expect(testNode.classList).toContain('slider__thumb');
-            expect(testNode.classList).toContain('testClass');
-            expect(sliderNode.querySelector('.slider__thumb')).toBeDefined();
+        it('changes orientation and width or height', function() {
+            view.changeSliderBase({
+                vertical: true,
+                width: '100px',
+                height: '400px',
+            });
+
+            expect(view.getLenght()).toBe(400);
+            expect(view.getVertical()).toBeTruthy();
         });
     });
 
-    describe('buildTooltip adds a tooltip with value', function() {
+    describe('changeRangeToVal', function() {
 
-        it('returns tooltip, adds classes', function() {
-            testNode = document.createElement('div');
+        it('removes one of two thumbs, makes _range false', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                range: [1, 2]
+            })
+            model = new Model(testOptions);
+            view = new View(model, testOptions, sliderNode);
+
+            expect(view.getRange()).toBeTruthy();
+            expect(view.getThumb(1)).toBeDefined();
+
+            model = new Model(defaultOptions);
+            view.changeRangeToVal(model);
+
+            expect(view.getRange()).toBeFalsy();
+            expect(view.getThumb(1)).toBeUndefined();
+            expect(view.getThumb()).toBeDefined();
+        });
+    });
+
+    describe('changeValToRange', function() {
+
+        it('adds second thumb, makes _range false', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                range: [1, 2]
+            })
+            model = new Model(testOptions);
+            view.changeValToRange(model);
+
+            expect(view.getRange()).toBeTruthy();
+            expect(view.getThumb()).toBeUndefined();
+            expect(view.getThumb(1)).toBeDefined();
+        });
+    });
+
+    describe('buildValidTooltips', function() {
+
+        it('builds tooltips accoding to model data, tooltip mask', function() {
+            view.buildValidTooltips(model);
+
+            expect(view.getTooltip()).toBeDefined();
+            expect(view.getTooltip(1)).toBeUndefined();
+            expect(view.getTooltip().innerHTML).toBe('0');
             // @ts-ignore
-            testNode = view.buildTooltip(testNode, 'testClass');
-
-            expect(testNode).toBeDefined();
-            expect(testNode.classList).toContain('slider__tooltip');
-            expect(testNode.classList).toContain('testClass');
+            expect(view._tooltip).toBeDefined();
         });
     });
 
@@ -152,24 +224,161 @@ describe('View has private functions:', function() {
             expect(testNode.querySelectorAll('.slider__scale-division span')[1].textContent).toBe('0.6');
         });
     });
+
+    describe('rebuildScale', function() {
+        it('removes excess scale divisions or adds scale divions if not enough, accoding to model', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                scale: true,
+                scaleStep: 1,
+            });
+            view = new View(model, testOptions, sliderNode);
+
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(11);
+
+            model = new Model(Object.assign({}, defaultOptions, {
+                maxVal: 20,
+            }));
+            view.rebuildScale(model);
+
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(21);
+        });
+        it('removes excess scale divisions or adds scale divions if not enough, accoding to scale step', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                scale: true,
+                scaleStep: 1,
+            });
+            view = new View(model, testOptions, sliderNode);
+
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(11);
+
+            view.setScaleStep(2);
+            view.rebuildScale(model);
+
+            expect(view.getScale().querySelectorAll('.slider__scale-division').length).toBe(6);
+        });
+    });
+
+    describe('changeScaleDivision', function() {
+        it('changes text in span and changes position of each division in scale', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                scale: true,
+                scaleStep: 1,
+            });
+            view = new View(model, testOptions, sliderNode);
+
+            let el: HTMLDivElement = view.getScale().querySelectorAll('.slider__scale-division')[1] as HTMLDivElement;
+            expect(el.style.left).toBe('30px');
+            expect(el.innerHTML).toBe('<span>1</span>');
+
+            view.setScaleStep(2);
+            view.rebuildScale(model);
+            view.changeScaleDivision(model); 
+            
+            el = view.getScale().querySelectorAll('.slider__scale-division')[1] as HTMLDivElement;
+            expect(el.style.left).toBe('60px');
+            expect(el.innerHTML).toBe('<span>2</span>');
+        });
+    });  
+});
+
+describe('View has auxiliary methods', function() {
+
+    describe('setThumbPosition', function() {
+        it('sets new left or top to thumb', function() {
+            view.setThumbPosition(view.getThumb(), 30);
+            expect(view.getThumb().style.left).toBe('20px');
+            // @ts-ignore
+            view._vertical = true;
+            view.setThumbPosition(view.getThumb(), 30);
+            expect(view.getThumb().style.left).toBe('');
+            expect(view.getThumb().style.top).toBe('20px');
+        });
+    });
+
+    describe('setValToTooltip', function() {
+        it('sets val with mask to span in division node', function() {
+            view.buildValidTooltips(model);
+            view.setValToTooltip(view.getTooltip(), 'abc', "'val = ' + val");
+            expect(view.getTooltip().innerText).toBe('val = abc');
+        });
+    });
+
+    describe('findThumbPosition', function() {
+        it('returns new position of thumb in pxs accoding to step', function() {
+            let n: number = view.findThumbPosition(1, 10);
+            expect(n).toBe(30);
+        });
+    });
+
+    describe('oneStepLength', function() {
+        it('returns lentgh of one step', function() {
+            expect(view.oneStepLenght()).toBe(30);
+        });
+    });
+
+    describe('removeNode', function() {
+        it('removes node, returns undefined', function() {
+            //@ts-ignore
+            view._thumb = view.removeNode(document.querySelector('.slider__thumb'));
+            expect(view.getThumb()).toBeUndefined();
+            setTimeout(function() {
+                expect(document.querySelector('.slider .slider__thumb')).toBeUndefined();
+            }, 2000); 
+        });
+    });
+
+    describe('scaleStepValidation', function() {
+        it('returns new scale step or model step, accoding to number of steps. Scale step should be multiple to step in model', function() {
+            let step: number = view.scaleStepValidation(model, 2);
+            expect(step).toBe(2);
+            step = view.scaleStepValidation(model, 3);
+            expect(step).toBe(1);
+        });
+    });
+});
+
+describe('View has private functions:', function() {
+
+    describe('buildThumb - function for constructor,', function() {
+        it('creates thumbNode, adds classes', function() {
+            // @ts-ignore
+            testNode = view.buildThumb(sliderNode, 'testClass');
+            
+            expect(testNode.classList).toContain('slider__thumb');
+            expect(testNode.classList).toContain('testClass');
+            expect(sliderNode.querySelector('.slider__thumb')).toBeDefined();
+        });
+    });
+
+    describe('buildTooltip adds a tooltip with value', function() {
+        it('returns tooltip, adds classes', function() {
+            testNode = document.createElement('div');
+            // @ts-ignore
+            testNode = view.buildTooltip(testNode, 'testClass');
+
+            expect(testNode).toBeDefined();
+            expect(testNode.classList).toContain('slider__tooltip');
+            expect(testNode.classList).toContain('testClass');
+        });
+    });
     
-    describe('widthValidation returns string if its valid', function() {
+    describe('lengthValidation returns string if its valid', function() {
 
         it('returns 10px if 10px', function() {
             // @ts-ignore
-            expect(view.widthValidation('10Px')).toBe('10px');
+            expect(view.lengthValidation('10Px')).toBe('10px');
         });
         it('returns 10px if 10', function() {
             // @ts-ignore
-            expect(view.widthValidation('10')).toBe('10px');
+            expect(view.lengthValidation('10')).toBe('10px');
         });
         it('returns 10.5% if 10,5%', function() {
             // @ts-ignore
-            expect(view.widthValidation('10,5%')).toBe('10.5%');
+            expect(view.lengthValidation('10,5%')).toBe('10.5%');
         });
         it('returns Error', function() {
             // @ts-ignore
-            expect(function() {view.widthValidation('10pxs')}).toThrow(new Error('Width (or height) should be valid to css'));
+            expect(function() {view.lengthValidation('10pxs')}).toThrow(new Error('Width (or height) should be valid to css'));
         });
     });
 
@@ -310,3 +519,4 @@ describe('View is created with different options:', function() {
         });
     });
 }); 
+ */

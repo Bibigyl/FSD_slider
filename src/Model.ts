@@ -182,7 +182,6 @@ export default class Model {
             if ( !this._reverse ) {
                 return this._customValues[step];
             } else {
-                console.log()
                 return this._customValues[this._customValues.length - step - 1];
             }
             
@@ -210,7 +209,7 @@ export default class Model {
         let prevOptions: IModelOptions = this._options;
         let options: any = Object.assign(prevOptions, newOptions);
 
-        options.initialVal = options.initialVal ? options.initialVal : options.minVal;
+        options.initialVal = options.initialVal != null ? options.initialVal : options.minVal;
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {

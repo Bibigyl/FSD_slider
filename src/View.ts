@@ -20,7 +20,7 @@ export interface IView {
     getSlider(): HTMLDivElement;
     getThumb(num?: number): HTMLDivElement;
     getTooltip(num?: number): HTMLDivElement;
-    setTooltip(tooltip: HTMLDivElement | undefined, num: number): void;
+    setTooltip(tooltip: HTMLDivElement | undefined, num?: number): void;
     getScale(): HTMLDivElement;
     setScale(scale: HTMLDivElement | undefined): void;
 
@@ -36,7 +36,7 @@ export interface IView {
 
     // вспомогательные методы
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void;
-    setValToTooltip(tooltipNode: HTMLDivElement, val: number | string, mask: string): void;
+    setValToTooltip(tooltipNode: HTMLDivElement, val: number | string | Date, mask: string): void;
     findThumbPosition(newStep, numOfSteps): number;
     oneStepLenght(): number;
     removeNode(node: HTMLDivElement): undefined;
@@ -72,12 +72,12 @@ export default class View {
 
         if ( !options.vertical ) {
             this._vertical = false;
-            this._lenght = this.lenghtValidation(options.width);
+            this._lenght = this.lengthValidation(options.width);
             this._slider.style.width = this._lenght;
             this._slider.classList.add('slider_horizontal');
         } else {
             this._vertical = true;
-            this._lenght = this.lenghtValidation(options.height);
+            this._lenght = this.lengthValidation(options.height);
             this._slider.style.height = this._lenght;
             this._slider.classList.add('slider_vertical');            
         }
@@ -110,7 +110,6 @@ export default class View {
         
         this._scaleMask = options.scaleMask;
 
-        console.log(options.scale);
         if ( options.scale ) {
             let step: number;
 
@@ -223,7 +222,7 @@ export default class View {
             this._slider.classList.remove('slider_horizontal')
             this._slider.classList.add('slider_vertical');
 
-            this._lenght = options.height ? this.lenghtValidation(options.height) : this._lenght;
+            this._lenght = options.height ? this.lengthValidation(options.height) : this._lenght;
             this._slider.style.width = null;
             this._slider.style.height = this._lenght;
             lenghtChanged = true;
@@ -233,7 +232,7 @@ export default class View {
             this._slider.classList.remove('slider_vertical')
             this._slider.classList.add('slider_horizontal');
 
-            this._lenght = options.width ? this.lenghtValidation(options.width) : this._lenght;
+            this._lenght = options.width ? this.lengthValidation(options.width) : this._lenght;
             this._slider.style.height = null;
             this._slider.style.width = this._lenght;
             lenghtChanged = true
@@ -355,16 +354,12 @@ export default class View {
                 scale.lastChild.remove();
             }
         }
-        console.log(newNumOfSteps);
-        console.log(prevNumOfSteps);
-        console.log('!!! ===' + (newNumOfSteps - prevNumOfSteps));
         if ( prevNumOfSteps < newNumOfSteps ) {
             for (let i: number = 0; i < (newNumOfSteps - prevNumOfSteps); i++) {
                 division = document.createElement('div');
                 division.classList.add('slider__scale-division');
                 division.innerHTML = '<span></span>';
                 scale.append(division);
-                console.log(i);
             }
         }
     }
@@ -495,7 +490,7 @@ export default class View {
         return tooltip;
     }
     
-    private lenghtValidation(str: any) {
+    private lengthValidation(str: any) {
         if ( typeof ('' + str) == 'string' ) {
             let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%)?$/i);
             if ( r && this.isNumeric(r[0]) ) { 
