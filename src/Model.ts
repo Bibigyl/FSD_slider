@@ -41,7 +41,7 @@ export interface IModelOptions {
     customValues?: string[];
 }
 
-export default class Model {
+export default class Model implements IModel {
 
     private _dataFormat: string;
     private _val: number | null;

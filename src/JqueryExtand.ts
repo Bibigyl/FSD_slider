@@ -1,3 +1,3 @@
 interface JQuery {
-    slider(options?: any, ...args: any[]): JQuery;
+    slider(...args: any): JQuery;
 }

@@ -29,8 +29,12 @@ import Subject  from './Observer';
           // передаем модель в представление для получения из нее 
           // корректных данных
           let view: IView = new View(model, options, this);
-          let presenter = new Presenter(model, view);
-          let subject = new Subject();
+
+          let val: any | [any, any];
+          val = model.getVal() || model.getRange(); 
+          let subject = new Subject(val);
+
+          let presenter = new Presenter(model, view, subject);
 
           $(this).data('sliderData', {
             slider : slider,
@@ -54,9 +58,6 @@ import Subject  from './Observer';
         let presenter = $(this).data('sliderData').presenter;
         presenter.change(options);
 
-        let subject = $(this).data('sliderData').subject;
-        subject.notify();
-
       });
     },
 
@@ -71,6 +72,15 @@ import Subject  from './Observer';
         $this.removeData('sliderData');
         
       });
+    },
+
+    observe: function( func ) {
+
+      let subject = $(this).data('sliderData').subject;
+      let observer: IObserver = new Observer( func );
+
+      subject.attach(observer);
+
     }
   }
 
@@ -88,6 +98,7 @@ import Subject  from './Observer';
     } else {
       $.error( 'Method called ' +  method + ' does not exist for JQuery.slider' );
     } 
+
   };
 
 })(jQuery);
@@ -97,9 +108,20 @@ import Subject  from './Observer';
 $('.test').slider();
 
 
-let obs = new Observer();
-$('.test').slider().data('sliderData').subject.attach(obs);
+//let obs = new Observer();
+//$('.test').slider().data('sliderData').subject.attach(obs);
 
-$('.test').slider('change', {});
+$('.test').slider('change', {
+  initialVal: 9,
+});
+
+//
 
 console.log( $('.test').slider().data('sliderData').subject );
+
+$('.test').slider('observe', function(val) {
+  $('#in').val( val );
+});
+$('.test').slider('change', {
+  initialVal: 9,
+});

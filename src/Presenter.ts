@@ -2,18 +2,21 @@ import IOptions, { defaultOptions } from './defaultOptions';
 import Model, {IModel} from './Model';
 import  {IModelOptions} from './Model';
 import View, {IView} from './View';
+import Subject, {ISubject}  from './Observer';
 
 export default class Presenter {
 
     private _model: IModel;
     private _view: IView;
+    private _subject: ISubject;
 
     private _activeThumb: HTMLDivElement;
 
-    constructor(model: IModel, view: IView) {
+    constructor(model: IModel, view: IView, subject: ISubject) {
 
         this._model = model;
         this._view = view;
+        this._subject = subject;
 
         this.thumbOnMouseDown = this.thumbOnMouseDown.bind(this);
         this.thumbOnMouseMove = this.thumbOnMouseMove.bind(this);
@@ -152,6 +155,10 @@ export default class Presenter {
         document.removeEventListener('mousemove', this.thumbOnMouseMove);
 
         this._activeThumb = undefined;
+        // наблюдатель
+        let model: IModel = this._model;
+        this._subject.val = model.getVal() != null ? model.getVal() : model.getRange();
+        this._subject.notify();
     }
 
     sliderOnMouseClick(event) {
@@ -243,6 +250,10 @@ export default class Presenter {
             val = model.getTranslatedVal( model.getStepNumber( newVal ) );
             view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, view.getTooltipMask() ); 
         }
+
+        // наблюдатель
+        this._subject.val = model.getVal() ? model.getVal() : model.getRange();
+        this._subject.notify();
     }
 
     change(options: any): void {
@@ -426,6 +437,12 @@ export default class Presenter {
                 pos = view.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
                 view.setThumbPosition( view.getThumb(2), pos);
             }
+
+            // наблюдатель
+            // вызываем если были изменения связанные с бегунками
+            // не затронет, например, добавление шкалы
+            this._subject.val = model.getVal() ? model.getVal() : model.getRange();
+            this._subject.notify();
         }
     }
 }

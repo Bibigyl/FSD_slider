@@ -2,6 +2,9 @@
  * Интферфейс издателя объявляет набор методов для управлениями подпискичами.
  */
 interface ISubject {
+
+    val: any | [any, any]; 
+
     // Присоединяет наблюдателя к издателю.
     attach(observer: IObserver): void;
 
@@ -17,6 +20,12 @@ interface ISubject {
  * изменениях.
  */
 export default class Subject implements ISubject {
+
+    val: any | [any, any]; 
+
+    constructor( val: any | [any, any] ) {
+        this.val = val;
+    }
 
     /**
      * @type {Observer[]} Список подписчиков. В реальной жизни список
@@ -55,6 +64,7 @@ export default class Subject implements ISubject {
  * используют для оповещения своих подписчиков.
  */
 export interface IObserver {
+    func: any;
     // Получить обновление от субъекта.
     update(subject: Subject): void;
 }
@@ -64,7 +74,16 @@ export interface IObserver {
  * которому они прикреплены.
  */
 export class Observer implements IObserver {
+
+    func: any;
+
+    constructor(func) {
+        this.func = func;
+    }
+
     public update(subject: Subject): void {
-        console.log('ConcreteObserverA: Reacted to the event.');
+        this.func( subject.val );
     }
 }
+
+export {ISubject};

@@ -43,7 +43,7 @@ export interface IView {
     scaleStepValidation(model: IModel, step: number): number;  
 }
 
-export default class View {
+export default class View implements IView {
 
     private _lenght: string;
     private _vertical: boolean;
