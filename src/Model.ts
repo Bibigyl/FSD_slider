@@ -25,7 +25,8 @@ export interface IModel {
     // вспомогательные методы
     findPositionInArr(val: any, arr?: any[]): number;
     getStepNumber(val: number): number;
-    getTranslatedVal(step: number): number | string | Date;
+    translateByStep(step: number): number | string | Date; // по шагу
+    translate(val): number | string | Date; // по валидному значению
     numberOfSteps(): number;
     change(newOptions: any): void;
 }
@@ -51,9 +52,10 @@ export default class Model implements IModel {
     private _reverse: boolean;
     private _range: [number, number] | null;
     private _customValues?: string[] | undefined;
-    private _options: IModelOptions;
+    private _options: IModelOptions | any;
 
     constructor(allOptions: IOptions) {
+
         let options: IOptions = allOptions;
         // если не указано начальное значение, указываем минимальное.
         // это необходимо чтобы пройти валидацию и поставить бегунок согласно шагу.
@@ -63,11 +65,16 @@ export default class Model implements IModel {
 
         if ( options.dataFormat == 'numeric' ) {
             validOptions = this.numericFormatValidation(options, defaultOptions);
+
         } else if ( options.dataFormat == 'date' ) {
+            this._options = Object.assign({}, allOptions);
+            //if ( !this._options.initialVal ) this._options.initialVal = this._options._minVal; 
             validOptions = this.dateFormatValidation(options, defaultOptions);
+
         } else if ( options.dataFormat == 'custom' ) {
             validOptions = this.customFormatValidation(options, defaultOptions);
             validOptions.customValues = options.customValues;
+
         } else {
             throw new Error('Unknown format of data');
         }
@@ -81,7 +88,15 @@ export default class Model implements IModel {
         this._range = validOptions.range;
         this._customValues = validOptions.customValues;      
         
-        this._options = validOptions;
+        if (this._dataFormat != 'date') this._options = validOptions;
+
+        // для дат сохраняем переданные опции
+        // потому что для валидации нужны даты вида 'dd/mm/yyyy'
+
+        /* if (this._dataFormat == 'date') {
+            this._options = allOptions;
+            console.log(this._options);
+        } */
     }
 
     // 1
@@ -138,7 +153,71 @@ export default class Model implements IModel {
         return this._dataFormat;
     }
     getOptions(): IModelOptions {
-        return this._options;
+/*         let opts: IModelOptions = this._options;
+        if ( this._val ) {
+            //opts.initialVal = this._val;
+            opts.range = null;
+        } else {
+            opts.initialVal = null;
+            //opts.range = this._range;
+        }
+        return opts; */
+
+        //console.log('v' + this._options._val);
+        //console.log('r' + this._options._range);
+
+        let opts: IModelOptions = this._options;
+        if ( !this._range ) {
+
+            let val: any;
+            //val = this.translate( this._val );
+
+            if (this._dataFormat == 'date') {
+                val = this.translate( this._val );
+
+                val = ('0' + val.getDate()).slice(-2) + 
+                '/' + ('0' + (1 + val.getMonth()) ).slice(-2) +
+                '/' + ( val.getFullYear() );
+            } else {
+                val = this._val;
+            }
+
+            opts.initialVal = val;
+            opts.range = null;
+
+        } else {
+
+            let val: any;
+            let arr: [any, any] = [null, null];
+            //val = this.translate( this._range[0] );
+
+            if (this._dataFormat != 'date') {
+
+                //arr = [this.translate( this._range[0] ), this.translate( this._range[1] )];
+                arr = this._range;
+            }
+            if (this._dataFormat == 'date') {
+
+                val = this.translate( this._range[0] );
+                val = ('0' + val.getDate()).slice(-2) + 
+                '/' + ('0' + (1 + val.getMonth()) ).slice(-2) +
+                '/' + val.getFullYear();
+
+                arr[0] = val;
+
+                val = this.translate( this._range[1] );
+                val = ('0' + val.getDate()).slice(-2) + 
+                '/' + ('0' + (1 + val.getMonth()) ).slice(-2) +
+                '/' + val.getFullYear();
+
+                arr[1] = val;
+            }
+
+            opts.initialVal = null;
+            opts.range = arr;
+        }
+
+        return opts;
     }
 
     // вспомогательные методы
@@ -177,8 +256,10 @@ export default class Model implements IModel {
         return stepNum;
     }
 
-    getTranslatedVal(step: number): number | string | Date {
+    translateByStep(step: number): number | string | Date {
+        
         if (this._dataFormat == 'custom') {
+
             if ( !this._reverse ) {
                 return this._customValues[step];
             } else {
@@ -188,13 +269,27 @@ export default class Model implements IModel {
         } else {
             let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
             let r: number = !this._reverse ? 1 : -1;
-            let val: number = +(this._minVal + this._step * step * r).toFixed(n);
+            let val: number = +( (+this._minVal) + (+this._step) * (+step) * (+r) ).toFixed(n);
 
             if (this._dataFormat == 'date') { 
                 return new Date(val); 
             } else {
                return val; 
             }
+        }
+    }
+
+    translate(val): number | string | Date {
+
+        
+        if (this._dataFormat == 'custom') {
+            return this._customValues[val];
+            
+        } else if (this._dataFormat == 'date') {
+            return new Date(val); 
+
+        } else {
+            return val; 
         }
     }
 
@@ -206,19 +301,31 @@ export default class Model implements IModel {
 
     change(newOptions: any): void {
 
+/*         console.log('mod' + this._options.range);
+        console.log('mod2' + newOptions.range); */
+
         let prevOptions: IModelOptions = this._options;
-        let options: any = Object.assign(prevOptions, newOptions);
+        let options: any = Object.assign({}, prevOptions, newOptions);
 
         options.initialVal = options.initialVal != null ? options.initialVal : options.minVal;
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {
             validOptions = this.numericFormatValidation(options, prevOptions as IOptions);
+
         } else if ( options.dataFormat == 'date' ) {
+            //this._options = Object.assign({}, prevOptions, newOptions);
+
             validOptions = this.dateFormatValidation(options, prevOptions as IOptions);
+
+            this._options = Object.assign({}, prevOptions, newOptions);
+
+            //this._options = Object.assign({}, allOptions);
+
         } else if ( options.dataFormat == 'custom' ) {
             validOptions = this.customFormatValidation(options, prevOptions as IOptions);
             validOptions.customValues = options.customValues;
+
         } else {
             throw new Error('Unknown format of data');
         }
@@ -232,7 +339,7 @@ export default class Model implements IModel {
         this._range = validOptions.range;
         this._customValues = validOptions.customValues;      
         
-        this._options = validOptions;
+        if (this._dataFormat != 'date') this._options = validOptions;
     }
 
     private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
@@ -288,11 +395,6 @@ export default class Model implements IModel {
             newOptions.initialVal = options.initialVal;
             newOptions.range = null;
         }
-
-        //предупреждаем пользователя о том, что некоторые его опции проигнорированы
-        if (options.dataFormat == 'numeric' || options.dataFormat == 'date') {
-            this.warningOfUnusefulValues(options.customValues, options.initialValInCustomValues, options.initialValNumInCustomValues, options.initialRangeInCustomValues, options.initialRangeInCustomValues); 
-        }
         
         return newOptions;
     }
@@ -331,7 +433,6 @@ export default class Model implements IModel {
             throw new Error('customValues should be a range with two or more items, like [1, 2, "a"]');
         }
 
-        this.warningOfUnusefulValues(options.step);
 
         options.minVal = 0;
         options.maxVal = options.customValues.length - 1;
@@ -342,20 +443,20 @@ export default class Model implements IModel {
         // 2. range в значениях
         // 3. initialVal как число
         // 4. initialVal как значение 
-        if ( options.initialRangeNumInCustomValues || options.initialRangeInCustomValues ) {
+        if ( options.rangeNumInCustomValues || options.rangeInCustomValues ) {
 
-            if ( Array.isArray(options.initialRangeNumInCustomValues) && options.initialRangeNumInCustomValues.length == 2 ) {
+            if ( Array.isArray(options.rangeNumInCustomValues) && options.rangeNumInCustomValues.length == 2 ) {
                 options.range = [];
-                options.range[0] = options.initialRangeNumInCustomValues[0];
-                options.range[1] = options.initialRangeNumInCustomValues[1];
+                options.range[0] = options.rangeNumInCustomValues[0];
+                options.range[1] = options.rangeNumInCustomValues[1];
 
-            } else if ( Array.isArray(options.initialRangeInCustomValues) && options.initialRangeInCustomValues.length == 2 ) {
+            } else if ( Array.isArray(options.rangeInCustomValues) && options.rangeInCustomValues.length == 2 ) {
                 // если пользователь ввел что то другое, а не range, на этом
                 // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
                 // (потому что range так и остается true)
                 options.range = [];
-                options.range[0] = this.findPositionInArr(options.initialRangeInCustomValues[0], options.customValues);
-                options.range[1] = this.findPositionInArr(options.initialRangeInCustomValues[1], options.customValues);
+                options.range[0] = this.findPositionInArr(options.rangeInCustomValues[0], options.customValues);
+                options.range[1] = this.findPositionInArr(options.rangeInCustomValues[1], options.customValues);
             }
 
         } else {
@@ -458,17 +559,6 @@ export default class Model implements IModel {
         return true;
     }
 
-
-    // внимение! нет теста!
-    private warningOfUnusefulValues(...vals: any): void {
-        for (let val of vals) {
-            if ( val ) {
-                console.warn('Some options are ignored');
-                return;
-            }
-        }
-    }
-
     private customDateValidation(...vals: any[]) {
         for ( let val of vals ) {
             if ( !('' + val).match(/^\d{2}[.\/-]\d{2}[.\/-]\d{4}$/) ) {
@@ -480,7 +570,7 @@ export default class Model implements IModel {
 
     private translateDateToNumber(str: string): number {
         let arr = str.split(str[2]);
-        let date = new Date(+arr[2], +arr[1], +arr[0]);
+        let date = new Date(+arr[2], +arr[1] - 1, +arr[0]);
         // Если пользователь вводит странные данные, он все равно получит результат.
         // Скорее всего, это говорит о том, что он перепутал порядок. Появится предупреждение
         if (+arr[0] > 31 || +arr[1] > 12) {

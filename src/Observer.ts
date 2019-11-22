@@ -38,21 +38,19 @@ export default class Subject implements ISubject {
      * Методы управления подпиской.
      */
     public attach(observer: IObserver): void {
-        //console.log('Subject: Attached an observer.');
         this.observers.push(observer);
     }
 
     public detach(observer: IObserver): void {
         const observerIndex = this.observers.indexOf(observer);
         this.observers.splice(observerIndex, 1);
-        //console.log('Subject: Detached an observer.');
     }
 
     /**
      * Запуск обновления в каждом подписчике.
      */
     public notify(): void {
-        console.log('Subject: Notifying observers...');
+
         for (const observer of this.observers) {
             observer.update(this);
         }

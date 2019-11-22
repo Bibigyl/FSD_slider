@@ -69,15 +69,14 @@ export default class View implements IView {
         this._slider.classList.add('slider');
         this._range = model.getRange() ? true : false;
         this._numberOfSteps = model.numberOfSteps();
+        this._lenght = this.lengthValidation(options.length);
 
         if ( !options.vertical ) {
             this._vertical = false;
-            this._lenght = this.lengthValidation(options.width);
             this._slider.style.width = this._lenght;
             this._slider.classList.add('slider_horizontal');
         } else {
             this._vertical = true;
-            this._lenght = this.lengthValidation(options.height);
             this._slider.style.height = this._lenght;
             this._slider.classList.add('slider_vertical');            
         }
@@ -110,15 +109,16 @@ export default class View implements IView {
         
         this._scaleMask = options.scaleMask;
 
-        if ( options.scale ) {
-            let step: number;
+        let step: number;
+        if ( options.scaleStep ) {
+            step = this.scaleStepValidation(model, options.scaleStep);
+        } else {
+            step = model.getStep();
+        }
+        this._scaleStep = step;
 
-            if ( options.scaleStep ) {
-                step = this.scaleStepValidation(model, options.scaleStep);
-            } else {
-                step = model.getStep();
-            }
-            this._scaleStep = step;
+
+        if ( options.scale ) {
             this._scale = this.buildScale(this._slider, step, model, this._scaleMask);
         }
     }
@@ -187,7 +187,7 @@ export default class View implements IView {
             if ( this._tooltipLeft && num == 1 ) {
                 return this._tooltipLeft;
             }
-            if ( this._tooltipLeft && num == 2 ) {
+            if ( this._tooltipRight && num == 2 ) {
                 return this._tooltipRight;
             }
         } else {
@@ -216,15 +216,19 @@ export default class View implements IView {
     changeSliderBase (options: any): void {
 
         let lenghtChanged: boolean = false;
+
+        // ширина / длина
+        if ( options.length && this._lenght != options.length ) {
+            this._lenght = options.length;
+            lenghtChanged = true;
+        }
+
         // ориентация
         if ( options.vertical && !this._vertical ) {
             this._vertical = true;
             this._slider.classList.remove('slider_horizontal')
             this._slider.classList.add('slider_vertical');
 
-            this._lenght = options.height ? this.lengthValidation(options.height) : this._lenght;
-            this._slider.style.width = null;
-            this._slider.style.height = this._lenght;
             lenghtChanged = true;
         }
         if ( options.vertical === false && this._vertical ) {
@@ -232,19 +236,15 @@ export default class View implements IView {
             this._slider.classList.remove('slider_vertical')
             this._slider.classList.add('slider_horizontal');
 
-            this._lenght = options.width ? this.lengthValidation(options.width) : this._lenght;
-            this._slider.style.height = null;
-            this._slider.style.width = this._lenght;
             lenghtChanged = true
         }
 
-        // ширина / длина
-        if ( (options.width || lenghtChanged) && !this._vertical ) {
-            this._lenght = options.width;
+        if (lenghtChanged && !this._vertical) {
+            this._slider.style.height = null;
             this._slider.style.width = this._lenght;
         }
-        if ( (options.height || lenghtChanged) && this._vertical ) {
-            this._lenght = options.height;
+        if (lenghtChanged && this._vertical) {
+            this._slider.style.width = null;
             this._slider.style.height = this._lenght;
         }
     }
@@ -284,18 +284,18 @@ export default class View implements IView {
         if (!this._range) { 
 
             if ( this._tooltip ) this._tooltip = this.removeNode( this._tooltip );
-            val = model.getTranslatedVal( model.getStepNumber( model.getVal() ) );
+            val = model.translate( model.getVal() );
             this._tooltip = this.buildTooltip(this._thumb);
             this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
         } else {
             if ( this._tooltipLeft ) this._tooltipLeft = this.removeNode( this._tooltipLeft );
-            val = model.getTranslatedVal( model.getStepNumber( model.getRange()[0] ) ); 
+            val = model.translate( model.getRange()[0] );
             this._tooltipLeft = this.buildTooltip(this._thumbLeft, 'slider__tooltip_left');
             this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
 
             if ( this._tooltipRight ) this._tooltipRight = this.removeNode( this._tooltipRight );
-            val = model.getTranslatedVal( model.getStepNumber( model.getRange()[1] ) ); 
+            val = model.translate( model.getRange()[1] );
             this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
             this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
         }
@@ -312,13 +312,13 @@ export default class View implements IView {
         // множитель. во сколько раз шаг в моделе меньше шага шкалы
         let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(model.getStep()) );
         let mult: number = step / model.getStep();
-        mult = +mult.toFixed(n);
+        mult = +(+mult).toFixed(n);
         mult = Math.abs(mult);     
         
         for (let i: number = 0; i <= model.numberOfSteps(); i = i + mult) {
 
             // i + mult возвращает на какой шаг модели попадает шаг шкалы
-            val = model.getTranslatedVal(i);
+            val = model.translateByStep(i);
 
             division = document.createElement('div');
             division.classList.add('slider__scale-division');
@@ -375,12 +375,12 @@ export default class View implements IView {
         let n: number = Math.max( this.decimalPlaces(this._scaleStep), this.decimalPlaces(model.getStep()) );
         let mult: number = this._scaleStep / model.getStep();
         mult = +mult.toFixed(n);
-        mult = Math.abs(mult);     
+        mult = Math.abs(mult);   
         
         for (let i: number = 0; i <= model.numberOfSteps(); i = i + mult) {
 
             // i + mult возвращает на какой шаг модели попадает шаг шкалы
-            val = model.getTranslatedVal(i);
+            val = model.translateByStep(i);
 
             division = this.getScale().querySelectorAll('.slider__scale-division')[i / mult] as HTMLDivElement;
             division.querySelector('span').textContent = '' + eval(mask);
@@ -452,8 +452,9 @@ export default class View implements IView {
 
         stepIsValid = this.isNumeric(step);
 
-        step = model.getDataFormat() == 'date' ? step * 24 * 3600 * 1000 : step;
-
+        if ( model.getDataFormat() == 'date' && ( step % (24 * 3600 * 1000) != 0 )) {
+            step = step * 24 * 3600 * 1000;
+        }
         test = (step * Math.pow(10, n)) / (model.getStep() * Math.pow(10, n));
         test = Math.abs(test);
 

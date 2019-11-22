@@ -127,9 +127,9 @@ export default class Presenter {
             newVal = ( newVal * Math.pow(10, n) * step * reverse  ) / Math.pow(10, n);
 
             n = Math.max( f(step), f(minVal) );
-            newVal = +(newVal.toFixed(n));
-            newVal = model.getMinVal() + newVal;
-            newVal = +(newVal.toFixed(n));
+            newVal = +((+newVal).toFixed(n));
+            newVal = (+model.getMinVal()) + (+newVal);
+            newVal = +((+newVal).toFixed(n));
         }
     
         if ( model.getRange() && this._activeThumb.classList.contains('slider__thumb_left')) {
@@ -141,11 +141,13 @@ export default class Presenter {
         } else {
             model.setVal(newVal);
         }
+
         view.setThumbPosition(this._activeThumb, thumbPosition);
 
         if ( view.getTooltip() || view.getTooltip(1) ) {
             let val: number | string | Date;
-            val = model.getTranslatedVal( model.getStepNumber( newVal ) );
+            val = model.translate(newVal);
+
             view.setValToTooltip( this._activeThumb.querySelector('.slider__tooltip'), val, view.getTooltipMask() ); 
         }
     }
@@ -157,7 +159,22 @@ export default class Presenter {
         this._activeThumb = undefined;
         // наблюдатель
         let model: IModel = this._model;
-        this._subject.val = model.getVal() != null ? model.getVal() : model.getRange();
+
+        if ( model.getVal() != null ) {
+            let val: number | string | Date;
+            val = model.translate( model.getVal() );
+            this._subject.val = val;
+
+        } else {
+            let val: number | string | Date;
+            this._subject.val = [];
+
+            val = model.translate( model.getRange()[0] );
+            this._subject.val[0] = val;
+
+            val = model.translate( model.getRange()[1] );
+            this._subject.val[1] = val;
+        }
         this._subject.notify();
     }
 
@@ -222,9 +239,9 @@ export default class Presenter {
             newVal = ( newVal * Math.pow(10, n) * step * reverse  ) / Math.pow(10, n);
 
             n = Math.max( f(step), f(minVal) );
-            newVal = +(newVal.toFixed(n));
-            newVal = model.getMinVal() + newVal;
-            newVal = +(newVal.toFixed(n));
+            newVal = +((+newVal).toFixed(n));
+            newVal = (+model.getMinVal()) + (+newVal);
+            newVal = +((+newVal).toFixed(n));
         }
 
         if ( !model.getRange() ) {
@@ -246,13 +263,27 @@ export default class Presenter {
     
         if ( view.getTooltip() || view.getTooltip(1) ) {
             let val: number | string | Date;
+            val = model.translate(newVal);
 
-            val = model.getTranslatedVal( model.getStepNumber( newVal ) );
             view.setValToTooltip( changingThumb.querySelector('.slider__tooltip'), val, view.getTooltipMask() ); 
         }
 
         // наблюдатель
-        this._subject.val = model.getVal() ? model.getVal() : model.getRange();
+        if ( model.getVal() != null ) {
+            let val: number | string | Date;
+            val = model.translate( model.getVal() );
+            this._subject.val = val;
+
+        } else {
+            let val: number | string | Date;
+            this._subject.val = [];
+
+            val = model.translate( model.getRange()[0] );
+            this._subject.val[0] = val;
+
+            val = model.translate( model.getRange()[1] );
+            this._subject.val[1] = val;
+        }
         this._subject.notify();
     }
 
@@ -260,6 +291,7 @@ export default class Presenter {
 
         let model = this._model;
         let view = this._view;
+        console.log('111111   ' + model.getOptions());
 
         let changeThumbPosition: boolean = false;
         let changeTooltipVal: boolean = false;
@@ -278,7 +310,7 @@ export default class Presenter {
         // Если поменялось val на range, или наоборот - true на построить! бегунки.
 
 
-        let modelOptions = ['dataFormat', 'initialVal', 'minVal', 'maxVal', 'step', 'reverse', 'range', 'customValues', 'initialValInCustomValues', 'initialValNumInCustomValues', 'initialRangeInCustomValues', 'initialRangeNumInCustomValues'];
+        let modelOptions = ['dataFormat', 'initialVal', 'minVal', 'maxVal', 'step', 'reverse', 'range', 'customValues', 'initialValInCustomValues', 'initialValNumInCustomValues', 'rangeInCustomValues', 'rangeNumInCustomValues'];
 
         let test: boolean = false;
         
@@ -293,7 +325,7 @@ export default class Presenter {
             let prevNumOfSteps: number = model.numberOfSteps();
             let prevOptions: IModelOptions = model.getOptions();
             let newOptions: IOptions = Object.assign({}, prevOptions, options);
-            
+
             model.change(newOptions);
 
             view.setNumberOfSteps( model.numberOfSteps() );
@@ -302,6 +334,7 @@ export default class Presenter {
             changeThumbPosition = true;
             changeTooltipVal = true;
             changeScaleDivision = true;
+
             if ( prevNumOfSteps != model.numberOfSteps() ) {
                 rebuildScale = true;
             }
@@ -321,7 +354,7 @@ export default class Presenter {
         // 2.1 Самое большое изменение - это вид основы шкалы.
         // Ее изменение вызывает: изменить положения бегунков, делений шкалы
 
-        if ( options.hasOwnProperty('vertical') || options.hasOwnProperty('width') || options.hasOwnProperty('height')) {
+        if ( options.hasOwnProperty('vertical') || options.hasOwnProperty('length') ) {
             view.changeSliderBase(options);
             changeThumbPosition = true;
             changeScaleDivision = true;
@@ -384,11 +417,17 @@ export default class Presenter {
             view.setTooltipMask( options.tooltipMask );
             changeTooltipVal = true;
         }
+        if ( !view.getTooltip() && !view.getTooltip(1) && !options.hasOwnProperty('tooltip') ) {
+            rebuildTooltip = false;
+            changeTooltipVal = false;
+        }
         // удаляем
         if ( options.tooltip == false || rebuildTooltip ) {
-            if ( view.getTooltip() ) view.setTooltip( view.removeNode(view.getTooltip(0)), 0 );
-            if ( view.getTooltip(1) ) view.setTooltip( view.removeNode(view.getTooltip(1)), 1 );
+
+            // почему в другом порядке не работает
             if ( view.getTooltip(2) ) view.setTooltip( view.removeNode(view.getTooltip(2)), 2 );
+            if ( view.getTooltip(1) ) view.setTooltip( view.removeNode(view.getTooltip(1)), 1 );
+            if ( view.getTooltip() ) view.setTooltip( view.removeNode(view.getTooltip(0)), 0 );
 
             if ( options.tooltip == false ) {
                 rebuildTooltip = false;
@@ -398,7 +437,6 @@ export default class Presenter {
         // перестраиваем
         if ( options.tooltip || rebuildTooltip ) {
             view.buildValidTooltips(model);
-
             changeTooltipVal = false;
         }
         // меняем значения
@@ -407,13 +445,14 @@ export default class Presenter {
 
             if (!model.getRange()) { 
     
-                val = model.getTranslatedVal( model.getStepNumber( model.getVal() ) );
+                val = model.translate( model.getVal() );
                 view.setValToTooltip( view.getTooltip(), val as string, view.getTooltipMask() );   
             } else {
-                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[0] ) );
+
+                val = model.translate( model.getRange()[0] );
                 view.setValToTooltip( view.getTooltip(1), val as string, view.getTooltipMask() ); 
     
-                val = model.getTranslatedVal( model.getStepNumber( model.getRange()[1] ) );
+                val = model.translate( model.getRange()[1] );
                 view.setValToTooltip( view.getTooltip(2), val as string, view.getTooltipMask() ); 
             }
         } 
@@ -441,7 +480,21 @@ export default class Presenter {
             // наблюдатель
             // вызываем если были изменения связанные с бегунками
             // не затронет, например, добавление шкалы
-            this._subject.val = model.getVal() ? model.getVal() : model.getRange();
+            if ( model.getVal() != null ) {
+                let val: number | string | Date;
+                val = model.translate( model.getVal() );
+                this._subject.val = val;
+
+            } else {
+                let val: number | string | Date;
+                this._subject.val = [];
+
+                val = model.translate( model.getRange()[0] );
+                this._subject.val[0] = val;
+
+                val = model.translate( model.getRange()[1] );
+                this._subject.val[1] = val;
+            }
             this._subject.notify();
         }
     }

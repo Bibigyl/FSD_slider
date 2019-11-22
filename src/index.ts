@@ -23,13 +23,15 @@ import Subject  from './Observer';
         // Если плагин ещё не проинициализирован
         if ( ! data ) {
         
-          options = $.extend(defaultOptions, options);
+          options = $.extend({}, defaultOptions, options);
 
           let model: IModel = new Model(options);
           // передаем модель в представление для получения из нее 
           // корректных данных
           let view: IView = new View(model, options, this);
 
+          // субъект - это наблюдение
+          // он хранит значение val или промежуток
           let val: any | [any, any];
           val = model.getVal() || model.getRange(); 
           let subject = new Subject(val);
@@ -76,11 +78,12 @@ import Subject  from './Observer';
 
     observe: function( func ) {
 
+      // добавляем наблюдателя
+      // аргумент - эта функция которая будет обрабатывать изменения
       let subject = $(this).data('sliderData').subject;
       let observer: IObserver = new Observer( func );
 
       subject.attach(observer);
-
     }
   }
 
@@ -105,23 +108,65 @@ import Subject  from './Observer';
 
 
 
-$('.test').slider();
+/* $('.test').slider({
+  dataFormat: 'date',
+  minVal: '11/11/2019',
+  maxVal: '23/12/2019',
+  initialVal: '18/11/2019',
+  step: 1,
+  scaleStep: 7,
+  //scaleMask: 'val',
+  scaleMask: "('0'+val.getDate()).slice(-2) + '.' + ('0'+(1+val.getMonth())).slice(-2)",
+  scale: true,
+  vertical: true,
+  tooltip: true,
+  tooltipMask: "('0'+val.getDate()).slice(-2) + '.' + ('0'+(1+val.getMonth())).slice(-2)",
+  //tooltipMask: 'val',
+}); */
 
-
-//let obs = new Observer();
-//$('.test').slider().data('sliderData').subject.attach(obs);
+/*  $('.test').slider('change', {
+  range: ['18/11/2019', '25/11/2019'],
+});
 
 $('.test').slider('change', {
-  initialVal: 9,
+  step: 7,
 });
 
-//
-
-console.log( $('.test').slider().data('sliderData').subject );
-
-$('.test').slider('observe', function(val) {
-  $('#in').val( val );
-});
 $('.test').slider('change', {
-  initialVal: 9,
+  minVal: '18/11/2019',
 });
+
+$('.test').slider('change', {
+  step: 1,
+});
+
+$('.test').slider('change', {
+  range: null,
+  initialVal: '18/11/2019'
+});  */
+
+
+
+$('.test').slider({
+  dataFormat: 'custom',
+  customValues: ['a','b','c','d'],
+  initialVal: 1,
+  tooltip: true,
+})
+
+$('.test').slider('change', {
+  initialValInCustomValues: 'c',
+})
+
+/* $('.test').slider('change', {
+  customValues: ['a','b','c','d', 'r'],
+  range: [1,2],
+})
+$('.test').slider('change', {
+  reverse: true,
+  scale:true,
+})
+$('.test').slider('change', {
+  initialVal: 2,
+  range: false,
+}); */

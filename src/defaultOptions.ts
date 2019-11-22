@@ -10,13 +10,12 @@ export default interface IOptions {
     customValues?: any;
     initialValInCustomValues?: any;
     initialValNumInCustomValues?: any;
-    initialRangeInCustomValues?: any;
-    initialRangeNumInCustomValues?: any;
+    rangeInCustomValues?: any;
+    rangeNumInCustomValues?: any;
 
 
     // View options
-    width: any;
-    height: any; 
+    length: any;
     vertical: any;
     tooltip: any;
     tooltipMask: any;
@@ -36,8 +35,7 @@ var defaultOptions: IOptions = {
     reverse: false,
     range: null,
     
-    width: '300px',
-    height: '300px',
+    length: '300px',
     vertical: false,
     tooltip: false,
     tooltipMask: "val",

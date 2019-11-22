@@ -273,15 +273,15 @@ describe('Model has private functions and methods: ', function() {
     });
 
     describe('customDataValidation is used for custom format, returns numbers. CustomValue is required, is range of any values', function() {
-        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: initialRangeNumInCustomValues -> initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: rangeNumInCustomValues -> rangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [0, 1, 'k', 'n', 'p'],
                 initialValNumInCustomValues: 2,
                 initialValInCustomValues: 'n', 
-                initialRangeNumInCustomValues: [1, 3],
-                initialRangeInCustomValues: [1, 'p'],
+                rangeNumInCustomValues: [1, 3],
+                rangeInCustomValues: [1, 'p'],
                 range: [0, 4],
                 initialVal: 3,
                 reverse: true,
@@ -299,15 +299,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.step).toBe(1);
         });
 
-        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: initialRangeNumInCustomValues -> initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: rangeNumInCustomValues -> rangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [0, 1, 'k', 'n', 'p'],
                 initialValNumInCustomValues: 2,
                 initialValInCustomValues: 'n', 
-                initialRangeNumInCustomValues: [1, 3],
-                initialRangeInCustomValues: [1, 'p'],
+                rangeNumInCustomValues: [1, 3],
+                rangeInCustomValues: [1, 'p'],
                 range: [0, 4],
                 initialVal: 3,
                 reverse: true,
@@ -325,15 +325,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.step).toBe(1);
         });
 
-        it('returns initialRangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
+        it('returns rangeInCustomValues -> initialValNumInCustomValues -> initialValInCustomValues -> range -> initialVal', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [0, 1, 'k', 'n', true],
                 initialValNumInCustomValues: 2,
                 initialValInCustomValues: 'n', 
-                //initialRangeNumInCustomValues: [1, 3],
-                initialRangeInCustomValues: [1, true],
+                //rangeNumInCustomValues: [1, 3],
+                rangeInCustomValues: [1, true],
                 range: [0, 4],
                 initialVal: 3,
             });
@@ -350,8 +350,8 @@ describe('Model has private functions and methods: ', function() {
                 customValues: [0, 1, 'k', 'n', true],
                 initialValNumInCustomValues: 2,
                 initialValInCustomValues: 'n', 
-                //initialRangeNumInCustomValues: [1, 3],
-                //initialRangeInCustomValues: [1, true],
+                //rangeNumInCustomValues: [1, 3],
+                //rangeInCustomValues: [1, true],
                 range: [0, 4],
                 initialVal: 3,
             });
@@ -368,8 +368,8 @@ describe('Model has private functions and methods: ', function() {
                 customValues: [0, 1, 'k', 'n', true],
                 //initialValNumInCustomValues: 2,
                 initialValInCustomValues: true, 
-                //initialRangeNumInCustomValues: [1, 3],
-                //initialRangeInCustomValues: [1, true],
+                //rangeNumInCustomValues: [1, 3],
+                //rangeInCustomValues: [1, true],
                 range: [0, 4],
                 initialVal: 3,
             });
@@ -386,8 +386,8 @@ describe('Model has private functions and methods: ', function() {
                 customValues: [0, 1, 'k', 'n', true],
                 //initialValNumInCustomValues: 2,
                 //initialValInCustomValues: true, 
-                //initialRangeNumInCustomValues: [1, 3],
-                //initialRangeInCustomValues: [1, true],
+                //rangeNumInCustomValues: [1, 3],
+                //rangeInCustomValues: [1, true],
                 range: [0, 4],
                 initialVal: 3,
             });
@@ -404,8 +404,8 @@ describe('Model has private functions and methods: ', function() {
                 customValues: [0, 1, 'k', 'n', true],
                 //initialValNumInCustomValues: 2,
                 //initialValInCustomValues: true, 
-                //initialRangeNumInCustomValues: [1, 3],
-                //initialRangeInCustomValues: [1, true],
+                //rangeNumInCustomValues: [1, 3],
+                //rangeInCustomValues: [1, true],
                 //range: [0, 4],
                 initialVal: 3,
             });
@@ -767,7 +767,7 @@ describe('When Model has custom format,', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [1, 2, 'gdfg', 5],
-                initialRangeInCustomValues: [1, 'gdfg']
+                rangeInCustomValues: [1, 'gdfg']
             });
     
             model = new Model(testOptions);
