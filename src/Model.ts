@@ -33,7 +33,7 @@ export interface IModel {
 
 export interface IModelOptions {
     dataFormat: string;
-    initialVal: number | null;
+    value: number | null;
     minVal: number;
     maxVal: number;
     step: number;
@@ -60,7 +60,7 @@ export default class Model implements IModel {
         // если не указано начальное значение, указываем минимальное.
         // это необходимо чтобы пройти валидацию и поставить бегунок согласно шагу.
         // если указан range, меняем начальное значение на null
-        options.initialVal = options.initialVal ? options.initialVal : options.minVal;
+        options.value = options.value ? options.value : options.minVal;
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {
@@ -68,7 +68,7 @@ export default class Model implements IModel {
 
         } else if ( options.dataFormat == 'date' ) {
             this._options = Object.assign({}, allOptions);
-            //if ( !this._options.initialVal ) this._options.initialVal = this._options._minVal; 
+            //if ( !this._options.value ) this._options.value = this._options._minVal; 
             validOptions = this.dateFormatValidation(options, defaultOptions);
 
         } else if ( options.dataFormat == 'custom' ) {
@@ -80,7 +80,7 @@ export default class Model implements IModel {
         }
 
         this._dataFormat = validOptions.dataFormat;
-        this._val = validOptions.initialVal;
+        this._val = validOptions.value;
         this._minVal = validOptions.minVal;
         this._maxVal = validOptions.maxVal;
         this._step = validOptions.step;
@@ -155,10 +155,10 @@ export default class Model implements IModel {
     getOptions(): IModelOptions {
 /*         let opts: IModelOptions = this._options;
         if ( this._val ) {
-            //opts.initialVal = this._val;
+            //opts.value = this._val;
             opts.range = null;
         } else {
-            opts.initialVal = null;
+            opts.value = null;
             //opts.range = this._range;
         }
         return opts; */
@@ -182,7 +182,7 @@ export default class Model implements IModel {
                 val = this._val;
             }
 
-            opts.initialVal = val;
+            opts.value = val;
             opts.range = null;
 
         } else {
@@ -213,7 +213,7 @@ export default class Model implements IModel {
                 arr[1] = val;
             }
 
-            opts.initialVal = null;
+            opts.value = null;
             opts.range = arr;
         }
 
@@ -301,13 +301,15 @@ export default class Model implements IModel {
 
     change(newOptions: any): void {
 
-/*         console.log('mod' + this._options.range);
-        console.log('mod2' + newOptions.range); */
+        console.log('mod ' + this._options.range);
+        console.log('mod2 ' + newOptions.range);
 
         let prevOptions: IModelOptions = this._options;
         let options: any = Object.assign({}, prevOptions, newOptions);
 
-        options.initialVal = options.initialVal != null ? options.initialVal : options.minVal;
+        console.log('mod3 ' + options.range);
+
+        options.value = options.value != null ? options.value : options.minVal;
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {
@@ -331,7 +333,7 @@ export default class Model implements IModel {
         }
 
         this._dataFormat = validOptions.dataFormat;
-        this._val = validOptions.initialVal;
+        this._val = validOptions.value;
         this._minVal = validOptions.minVal;
         this._maxVal = validOptions.maxVal;
         this._step = validOptions.step;
@@ -349,7 +351,7 @@ export default class Model implements IModel {
         // по мере прохождения валидации, меняем значения на пользовательские
         let newOptions: IModelOptions = {
             dataFormat: 'numeric',
-            initialVal: defaultOptions.minVal,
+            value: defaultOptions.minVal,
             minVal: defaultOptions.minVal,
             maxVal: defaultOptions.maxVal,
             step: defaultOptions.step,
@@ -385,14 +387,14 @@ export default class Model implements IModel {
             }
 
             // отменяем начальное значение, даже если оно введено пользователем
-            newOptions.initialVal = null;
+            newOptions.value = null;
             
         } else {
             // запускаем проверки для начального значения, только если не указан диапазон range
-            this.areNumeric(options.initialVal);
-            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.initialVal, newOptions.step);
+            this.areNumeric(options.value);
+            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.value, newOptions.step);
 
-            newOptions.initialVal = options.initialVal;
+            newOptions.value = options.value;
             newOptions.range = null;
         }
         
@@ -417,14 +419,15 @@ export default class Model implements IModel {
             options.range[1] = this.translateDateToNumber(options.range[1]);
 
         } else {
-            this.customDateValidation(options.initialVal);
-            options.initialVal = this.translateDateToNumber(options.initialVal);
+            this.customDateValidation(options.value);
+            options.value = this.translateDateToNumber(options.value);
         }
         return this.numericFormatValidation(options, defaultOptions);
     }
 
 
     private customFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
+        console.log('я тут' + allOptions.range);
         let options: IOptions = allOptions;
 
         if ( !options.customValues ) {
@@ -441,16 +444,11 @@ export default class Model implements IModel {
         // приоритеты опций:
         // 1. range в числах
         // 2. range в значениях
-        // 3. initialVal как число
-        // 4. initialVal как значение 
-        if ( options.rangeNumInCustomValues || options.rangeInCustomValues ) {
+        // 3. value как число
+        // 4. value как значение 
+        if ( options.range || options.rangeInCustomValues ) {
 
-            if ( Array.isArray(options.rangeNumInCustomValues) && options.rangeNumInCustomValues.length == 2 ) {
-                options.range = [];
-                options.range[0] = options.rangeNumInCustomValues[0];
-                options.range[1] = options.rangeNumInCustomValues[1];
-
-            } else if ( Array.isArray(options.rangeInCustomValues) && options.rangeInCustomValues.length == 2 ) {
+            if ( !options.range && Array.isArray(options.rangeInCustomValues) && options.rangeInCustomValues.length == 2 ) {
                 // если пользователь ввел что то другое, а не range, на этом
                 // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
                 // (потому что range так и остается true)
@@ -461,14 +459,9 @@ export default class Model implements IModel {
 
         } else {
             // если не введены val или range в custom values
-            // присваиваем простые initialVal или range, если они есть
-            if ( options.initialValNumInCustomValues ) {
-                options.range = null;
-                options.initialVal = options.initialValNumInCustomValues;
-                
-            } else if ( options.initialValInCustomValues ) {
-                options.range = null;
-                options.initialVal = this.findPositionInArr(options.initialValInCustomValues, options.customValues);
+            // присваиваем простые value или range, если они есть 
+            if ( !options.value && options.valueInCustomValues ) {
+                options.value = this.findPositionInArr(options.valueInCustomValues, options.customValues);
             }
         }
         return this.numericFormatValidation(options, defaultOptions);

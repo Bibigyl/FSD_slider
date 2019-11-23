@@ -1,17 +1,15 @@
 export default interface IOptions {
     // Model options
     dataFormat: any;
-    initialVal: any;
+    value: any;
     minVal: any;
     maxVal: any;
     step: any;    
     reverse: any;
     range: any; 
     customValues?: any;
-    initialValInCustomValues?: any;
-    initialValNumInCustomValues?: any;
+    valueInCustomValues?: any;
     rangeInCustomValues?: any;
-    rangeNumInCustomValues?: any;
 
 
     // View options
@@ -28,10 +26,10 @@ var defaultOptions: IOptions = {
     // Model options
     // в range и в min и max слева то, что слева на слайдере
     dataFormat: 'numeric',
-    initialVal: null, // внимание! в начальных настройках не определены
+    value: null, // внимание! в начальных настройках не определены
     minVal: 0,        // начальное значение или промежуток.
     maxVal: 10,       // если они не указаны пользователем, начальное значение 
-    step: 1,          // (initialVal) и позиция бегунка равны минимальному значению
+    step: 1,          // (value) и позиция бегунка равны минимальному значению
     reverse: false,
     range: null,
     

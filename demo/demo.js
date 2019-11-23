@@ -13,7 +13,7 @@ $(document).ready( function() {
         dataFormat: 'date',
         minVal: '11/11/2019',
         maxVal: '23/12/2019',
-        initialVal: '18/11/2019',
+        value: '18/11/2019',
         step: 1,
         scaleStep: 7,
         //scaleMask: 'val',
@@ -28,10 +28,11 @@ $(document).ready( function() {
     $('#slider3').slider({
         dataFormat: 'custom',
         customValues: ['yellow', 'orange', 'red', 'purple', 'blue', 'green'],
-        initialValNumInCustomValues: 4,
+        value: 4,
         scale: true,
         tooltipMask: "'color: ' + val",
     })
+
 
     $('.demo').each(function() {
         let demo = $(this);
@@ -39,39 +40,37 @@ $(document).ready( function() {
         let options = {};
         let instantChange = true;
         let timeout;
-        
+       
 
         demo.find('.radio-thumbs').change(function() {
-            demo.find('input[name="initialVal"]').toggleAttr('disabled');
-            demo.find('input[name="initialValInCustomValues"]').toggleAttr('disabled');
-            demo.find('input[name="initialValNumInCustomValues"]').toggleAttr('disabled');
-            
-            demo.find('input[name="range"]').toggleAttr('disabled');
-            demo.find('input[name="rangeInCustomValues"]').toggleAttr('disabled');
-            demo.find('input[name="rangeNumInCustomValues"]').toggleAttr('disabled');
 
             let val;
             if ( $(this).attr('value') == 'one' ) {
-                val = demo.find('input[name="initialVal"]').val() || demo.find('input[name="initialValNumInCustomValues"]').val();
-                options.initialVal = val;
-                //options.initialValNumInCustomValues = val;
+                val = demo.find('input[name="value"]').val();
+                options.value = val;
                 options.range = null;
                 options.rangeInCustomValues = null;
-                options.rangeNumInCustomValues = null;
 
             } else {
-                val = demo.find('input[name="range"]').val() || demo.find('input[name="rangeNumInCustomValues"]').val();
+                val = demo.find('input[name="range"]').val();
                 val = val.split('-', 2);
                 options.range = val;
-                //options.initialValInCustomValues = null;
-                //options.initialValNumInCustomValues = null;
+                options.value = null;
+                options.valueInCustomValues = null;
             }
 
             if (instantChange) {
+                console.log(options.value)
+                console.log(options.range)
                 timeout = tryToChange(demo, options, timeout);
                 options = {};
             }
 
+            demo.find('input[name="value"]').toggleAttr('disabled');
+            demo.find('input[name="valueInCustomValues"]').toggleAttr('disabled');
+            
+            demo.find('input[name="range"]').toggleAttr('disabled');
+            demo.find('input[name="rangeInCustomValues"]').toggleAttr('disabled');
         });
 
         demo.find('input[name="tooltip"]').change(function() {
@@ -98,9 +97,8 @@ $(document).ready( function() {
 
             $(this).on('click', function() {
                 temp = $(this).val()
-            })
+            });
 
-            
             $(this).change(function() {
 
                 let opt = $(this);
@@ -120,8 +118,8 @@ $(document).ready( function() {
 
                     console.log(options);
 
-                } else if ( opt.attr('name') == 'initialValInCustomValues' ) {
-                    options.initialValInCustomValues = opt.val();
+                } else if ( opt.attr('name') == 'valueInCustomValues' ) {
+                    options.valueInCustomValues = opt.val();
                 } else {
 
                     options[opt.attr('name')] = opt.val();
@@ -157,8 +155,12 @@ $(document).ready( function() {
                     '/' + ('0' + (1 + val.getMonth()) ).slice(-2) +
                     '/' + ( val.getFullYear() );
                 }
-                demo.find('input[name="initialVal"]').val(val);
-                demo.find('input[name="initialValInCustomValues"]').val(val);
+
+                if (demo.attr('id') == 'demo3') {
+                    demo.find('input[name="valueInCustomValues"]').val(val);
+                } else {
+                    demo.find('input[name="value"]').val(val);
+                }
 
             } else {
 
@@ -172,12 +174,16 @@ $(document).ready( function() {
                     '/' + ('0' + (1 + val[1].getMonth()) ).slice(-2) +
                     '/' + val[1].getFullYear();
                 }
-                demo.find('input[name="range"]').val(val.join('-'));
-                demo.find('input[name="rangeInCustomValues"]').val(val.join('-'));
+
+                if (demo.attr('id') == 'demo3') {
+                    demo.find('input[name="rangeInCustomValues"]').val(val.join('-'));
+
+                } else {
+                    demo.find('input[name="range"]').val(val.join('-'));
+                }
             }
         });
     });
-
 });
 
 
@@ -187,11 +193,11 @@ $.fn.toggleAttr = function(a, b) {
         if((c && !$(this).is("["+a+"]")) || (!c && b)) $(this).attr(a,a);
         else $(this).removeAttr(a);
     });
-};
+}
 
 $.fn.hasAttr = function(name) {  
     return this.attr(name) !== undefined;
-};
+}
 
 function tryToChange(block, options, timeout) {
     let slider = block.find('.slider');

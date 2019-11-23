@@ -112,7 +112,7 @@ import Subject  from './Observer';
   dataFormat: 'date',
   minVal: '11/11/2019',
   maxVal: '23/12/2019',
-  initialVal: '18/11/2019',
+  value: '18/11/2019',
   step: 1,
   scaleStep: 7,
   //scaleMask: 'val',
@@ -142,21 +142,21 @@ $('.test').slider('change', {
 
 $('.test').slider('change', {
   range: null,
-  initialVal: '18/11/2019'
+  value: '18/11/2019'
 });  */
 
 
 
-$('.test').slider({
+/* $('.test').slider({
   dataFormat: 'custom',
   customValues: ['a','b','c','d'],
-  initialVal: 1,
+  value: 1,
   tooltip: true,
 })
 
 $('.test').slider('change', {
-  initialValInCustomValues: 'c',
-})
+  valueInCustomValues: 'c',
+}) */
 
 /* $('.test').slider('change', {
   customValues: ['a','b','c','d', 'r'],
@@ -167,6 +167,6 @@ $('.test').slider('change', {
   scale:true,
 })
 $('.test').slider('change', {
-  initialVal: 2,
+  value: 2,
   range: false,
 }); */

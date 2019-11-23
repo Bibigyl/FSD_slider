@@ -310,7 +310,7 @@ export default class Presenter {
         // Если поменялось val на range, или наоборот - true на построить! бегунки.
 
 
-        let modelOptions = ['dataFormat', 'initialVal', 'minVal', 'maxVal', 'step', 'reverse', 'range', 'customValues', 'initialValInCustomValues', 'initialValNumInCustomValues', 'rangeInCustomValues', 'rangeNumInCustomValues'];
+        let modelOptions = ['dataFormat', 'value', 'minVal', 'maxVal', 'step', 'reverse', 'range', 'customValues', 'valueInCustomValues', 'rangeInCustomValues'];
 
         let test: boolean = false;
         
