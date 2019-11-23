@@ -111,8 +111,9 @@ $(document).ready( function() {
                     let bool = opt.hasAttr('checked');
                     options[opt.attr('name')] = bool; 
 
-                } else if ( opt.attr('name').match(/[Rr]ange/) != -1 ) {
+                } else if ( opt.attr('name').match(/[Rr]ange/) ) {
 
+                    console.log('pop')
                     let val;
                     val = opt.val().split('-', 2);
                     options[opt.attr('name')] = val;
@@ -124,6 +125,7 @@ $(document).ready( function() {
                 } else {
 
                     options[opt.attr('name')] = opt.val();
+                    console.log(opt.val());
     
                 }
 
