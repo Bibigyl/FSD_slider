@@ -1,4 +1,4 @@
-/* import Model, { IModel } from '../src/Model';
+import Model, { IModel } from '../src/Model';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 
@@ -29,7 +29,6 @@ describe('Model is created with default options,', function() {
     it('cant return range, returns null', function() {
         expect(model.getRange()).toBeNull();
     });
-    // расширить setrange
     it('can return step', function() {  
         expect(model.getStep()).toBe(defaultOptions.step);
     });
@@ -87,7 +86,7 @@ describe('Model has private functions and methods: ', function() {
         it('returns 3 if 3', function() {
             expect(model.getStepNumber(3)).toBe(3);
         });
-        it('returns 2 if "c"', function() {
+        it('returns 3 if 1.5', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 step: 0.5,
             });
@@ -103,7 +102,7 @@ describe('Model has private functions and methods: ', function() {
             model = new Model(testOptions);
             expect(model.getStepNumber(0.1)).toBe(1);
         });
-        it('returns 1 if 0.1', function() {
+        it('returns 1 if 0.9', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 step: 1,
                 minVal: -0.1,
@@ -114,9 +113,9 @@ describe('Model has private functions and methods: ', function() {
         });
     });
 
-    describe('getTranslatedVal return formated value accoding to step', function() {
+    describe('translateByStep return formated value accoding to step', function() {
         it('returns integer values', function() {
-            expect(model.getTranslatedVal(5)).toBe(5);
+            expect(model.translateByStep(5)).toBe(5);
         });
         it('returns value if reverse', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -124,7 +123,7 @@ describe('Model has private functions and methods: ', function() {
                 reverse: true
             });
             model = new Model(testOptions);
-            expect(model.getTranslatedVal(1)).toBe(9);
+            expect(model.translateByStep(1)).toBe(9);
         });
         it('returns float values', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -133,7 +132,7 @@ describe('Model has private functions and methods: ', function() {
                 maxVal: 2.5
             });
             model = new Model(testOptions);
-            expect(model.getTranslatedVal(2)).toBe(0.4);
+            expect(model.translateByStep(2)).toBe(0.4);
         });
         it('returns float when step is integer', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -143,7 +142,7 @@ describe('Model has private functions and methods: ', function() {
                 reverse: true,
             });
             model = new Model(testOptions);
-            expect(model.getTranslatedVal(1)).toBe(0.9);
+            expect(model.translateByStep(1)).toBe(0.9);
         });
         it('returns custom value', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -151,7 +150,7 @@ describe('Model has private functions and methods: ', function() {
                 customValues: ['a','b','c']
             });
             model = new Model(testOptions);
-            expect(model.getTranslatedVal(1)).toBe('b');
+            expect(model.translateByStep(1)).toBe('b');
         });
         it('returns object date', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -160,12 +159,38 @@ describe('Model has private functions and methods: ', function() {
                 maxVal: '20/11/2019',
             });
             model = new Model(testOptions);
-            let date: Date = model.getTranslatedVal(0) as Date;
+            let date: Date = model.translateByStep(0) as Date;
             expect(date.getDate()).toBe(1);
         });
     });
 
-    describe('nubberOfSteps returns number of steps', function() {
+    describe('translate', function() {
+        it('returns parametr val if numeric values', function() {
+            expect(model.translate(6)).toBe(6);
+        });
+        it('returns Date if date values', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'date',
+                minVal: '01/11/2019',
+                maxVal: '20/11/2019',
+            });
+            model = new Model(testOptions);
+            // @ts-ignore
+            expect(model.translate(1572652800000).getDate()).toBeDefined();
+            // @ts-ignore
+            expect(model.translate(1572652800000).getDate()).toBe(2);
+        });
+        it('returns custom value if custom data farmat', function() {
+            testOptions = Object.assign({}, defaultOptions, {
+                dataFormat: 'custom',
+                customValues: ['a','b','c']
+            });
+            model = new Model(testOptions);
+            expect(model.translate(0)).toBe('a');
+        })
+    })
+
+    describe('numberOfSteps returns number of steps', function() {
         it('returns 10 if default options', function() {
             expect(model.numberOfSteps()).toBe(10);
         })
@@ -263,27 +288,25 @@ describe('Model has private functions and methods: ', function() {
             newOptions = model.dateFormatValidation(testOptions, defaultOptions);
 
             expect(newOptions.dataFormat).toBe('date');
-            expect(newOptions.minVal).toBe(1571432400000);
-            expect(newOptions.maxVal).toBe(1569877200000);
-            expect(newOptions.value).toBe(1569877200000);
+            expect(newOptions.minVal).toBe(1568840400000);
+            expect(newOptions.maxVal).toBe(1567285200000);
+            expect(newOptions.value).toBe(1567285200000);
             expect(newOptions.range).toBeNull();
             expect(newOptions.reverse).toBeTruthy();
             expect(newOptions.step).toBe(172800000);
         });  
     });
 
-    describe('customDataValidation is used for custom format, returns numbers. CustomValue is required, is range of any values', function() {
-        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: rangeNumInCustomValues -> rangeInCustomValues -> valueNumInCustomValues -> valueInCustomValues -> range -> value', function() {
+    describe('customDataValidation is used for custom format, returns numbers. CustomValue is required, is array of any values', function() {
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: range -> rangeInCustomValues -> value -> valueInCustomValues', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [0, 1, 'k', 'n', 'p'],
-                valueNumInCustomValues: 2,
+                value: 2,
                 valueInCustomValues: 'n', 
-                rangeNumInCustomValues: [1, 3],
+                range: [1, 3],
                 rangeInCustomValues: [1, 'p'],
-                range: [0, 4],
-                value: 3,
                 reverse: true,
                 step: 2,
             });
@@ -299,17 +322,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.step).toBe(1);
         });
 
-        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: rangeNumInCustomValues -> rangeInCustomValues -> valueNumInCustomValues -> valueInCustomValues -> range -> value', function() {
+        it('returns an object, with valid options, test 4. All options are numeric, step always == 1. Raiting of options: range -> rangeInCustomValues -> value -> valueInCustomValues', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
                 customValues: [0, 1, 'k', 'n', 'p'],
-                valueNumInCustomValues: 2,
+                value: 2,
                 valueInCustomValues: 'n', 
-                rangeNumInCustomValues: [1, 3],
+                range: [1, 3],
                 rangeInCustomValues: [1, 'p'],
-                range: [0, 4],
-                value: 3,
                 reverse: true,
                 step: 2,
             });
@@ -325,17 +346,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.step).toBe(1);
         });
 
-        it('returns rangeInCustomValues -> valueNumInCustomValues -> valueInCustomValues -> range -> value', function() {
+        it('returns rangeInCustomValues -> value -> valueInCustomValues', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
-                customValues: [0, 1, 'k', 'n', true],
-                valueNumInCustomValues: 2,
+                customValues: [0, 1, 'k', 'n', 'p'],
+                value: 2,
                 valueInCustomValues: 'n', 
-                //rangeNumInCustomValues: [1, 3],
-                rangeInCustomValues: [1, true],
-                range: [0, 4],
-                value: 3,
+                //range: [1, 3],
+                rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
             newOptions = model.customFormatValidation(testOptions, defaultOptions);
@@ -343,17 +362,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.value).toBeNull();
             expect(newOptions.range).toEqual([1, 4]);
         });
-        it('returns valueNumInCustomValues -> valueInCustomValues -> range -> value', function() {
+        it('returns value -> valueInCustomValues', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
-                customValues: [0, 1, 'k', 'n', true],
-                valueNumInCustomValues: 2,
+                customValues: [0, 1, 'k', 'n', 'p'],
+                value: 2,
                 valueInCustomValues: 'n', 
-                //rangeNumInCustomValues: [1, 3],
-                //rangeInCustomValues: [1, true],
-                range: [0, 4],
-                value: 3,
+                //range: [1, 3],
+                //rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
             newOptions = model.customFormatValidation(testOptions, defaultOptions);
@@ -361,53 +378,15 @@ describe('Model has private functions and methods: ', function() {
             expect(newOptions.value).toBe(2);
             expect(newOptions.range).toBeNull();
         });
-            it('returns  valueInCustomValues -> range -> value', function() {
+            it('returns  valueInCustomValues', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 dataFormat: 'custom',
-                customValues: [0, 1, 'k', 'n', true],
-                //valueNumInCustomValues: 2,
-                valueInCustomValues: true, 
-                //rangeNumInCustomValues: [1, 3],
-                //rangeInCustomValues: [1, true],
-                range: [0, 4],
-                value: 3,
-            });
-            // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
-
-            expect(newOptions.value).toBe(4);
-            expect(newOptions.range).toBeNull();
-        });
-        it('returns range -> value', function() {
-
-            testOptions = Object.assign({}, defaultOptions, {
-                dataFormat: 'custom',
-                customValues: [0, 1, 'k', 'n', true],
-                //valueNumInCustomValues: 2,
-                //valueInCustomValues: true, 
-                //rangeNumInCustomValues: [1, 3],
-                //rangeInCustomValues: [1, true],
-                range: [0, 4],
-                value: 3,
-            });
-            // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
-
-            expect(newOptions.value).toBeNull();
-            expect(newOptions.range).toEqual([0, 4]);
-        });
-        it('returns value', function() {
-
-            testOptions = Object.assign({}, defaultOptions, {
-                dataFormat: 'custom',
-                customValues: [0, 1, 'k', 'n', true],
-                //valueNumInCustomValues: 2,
-                //valueInCustomValues: true, 
-                //rangeNumInCustomValues: [1, 3],
-                //rangeInCustomValues: [1, true],
-                //range: [0, 4],
-                value: 3,
+                customValues: [0, 1, 'k', 'n', 'p'],
+                //value: 2,
+                valueInCustomValues: 'n', 
+                //range: [1, 3],
+                //rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
             newOptions = model.customFormatValidation(testOptions, defaultOptions);
@@ -558,15 +537,15 @@ describe('Model has private functions and methods: ', function() {
     describe('translateDateToNumber translate string date in ms', function() {
         it('returns right ms', function() {
             // @ts-ignore
-            expect(model.translateDateToNumber('11.05.2013')).toBe(1370894400000);
+            expect(model.translateDateToNumber('11.05.2013')).toBe(1368216000000);
         });
         it('returns right ms, either if there are some mistakes', function() {
             // @ts-ignore
-            expect(model.translateDateToNumber('11.13.2013')).toBe(1392062400000);
+            expect(model.translateDateToNumber('11.13.2013')).toBe(1389384000000);
         });
         it('returns Error with incorrect data', function() {
             // @ts-ignore
-            expect(model.translateDateToNumber('00.00.0000')).toBe(-2209084217000);
+            expect(model.translateDateToNumber('00.00.0000')).toBe(-2211762617000);
         });            
     });
 
@@ -681,7 +660,7 @@ describe('When model has numeric values,', function() {
         });
     }); 
 });
- 
+
 describe('When Model has date format,', function() {
 
     describe('can create with defined range,', function() {
@@ -787,4 +766,4 @@ describe('When Model has custom format,', function() {
             expect( model.getRange()[1] ).toBe(2);
         });
     });
-});  */
+});

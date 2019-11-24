@@ -63,7 +63,10 @@ button {
 .slider_vertical .slider__scale-division::before {
     width: 9px;
 }
-#demo3.slider_vertical .slider__scale-division span {
+#demo3 .slider_vertical .slider__scale-division span {
     left: auto;
     right: 25px;
+}
+input[name='customValues'] {
+    width: 100%;
 }

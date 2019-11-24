@@ -26,7 +26,7 @@ export interface IModel {
     findPositionInArr(val: any, arr?: any[]): number;
     getStepNumber(val: number): number;
     translateByStep(step: number): number | string | Date; // по шагу
-    translate(val): number | string | Date; // по валидному значению
+    translate(val: number): number | string | Date; // по валидному значению
     numberOfSteps(): number;
     change(newOptions: any): void;
 }
@@ -67,8 +67,9 @@ export default class Model implements IModel {
             validOptions = this.numericFormatValidation(options, defaultOptions);
 
         } else if ( options.dataFormat == 'date' ) {
+            // сохраняем даты в начальном фотрмате, напр dd/mm/yyyy
+            // чтобы можно было использовать их для изменения модели
             this._options = Object.assign({}, allOptions);
-            //if ( !this._options.value ) this._options.value = this._options._minVal; 
             validOptions = this.dateFormatValidation(options, defaultOptions);
 
         } else if ( options.dataFormat == 'custom' ) {
@@ -89,14 +90,6 @@ export default class Model implements IModel {
         this._customValues = validOptions.customValues;      
         
         if (this._dataFormat != 'date') this._options = validOptions;
-
-        // для дат сохраняем переданные опции
-        // потому что для валидации нужны даты вида 'dd/mm/yyyy'
-
-        /* if (this._dataFormat == 'date') {
-            this._options = allOptions;
-            console.log(this._options);
-        } */
     }
 
     // 1
@@ -153,18 +146,6 @@ export default class Model implements IModel {
         return this._dataFormat;
     }
     getOptions(): IModelOptions {
-/*         let opts: IModelOptions = this._options;
-        if ( this._val ) {
-            //opts.value = this._val;
-            opts.range = null;
-        } else {
-            opts.value = null;
-            //opts.range = this._range;
-        }
-        return opts; */
-
-        //console.log('v' + this._options._val);
-        //console.log('r' + this._options._range);
 
         let opts: IModelOptions = this._options;
         if ( !this._range ) {
@@ -189,11 +170,9 @@ export default class Model implements IModel {
 
             let val: any;
             let arr: [any, any] = [null, null];
-            //val = this.translate( this._range[0] );
 
             if (this._dataFormat != 'date') {
 
-                //arr = [this.translate( this._range[0] ), this.translate( this._range[1] )];
                 arr = this._range;
             }
             if (this._dataFormat == 'date') {
@@ -281,7 +260,6 @@ export default class Model implements IModel {
 
     translate(val): number | string | Date {
 
-        
         if (this._dataFormat == 'custom') {
             return this._customValues[val];
             
@@ -301,13 +279,8 @@ export default class Model implements IModel {
 
     change(newOptions: any): void {
 
-        console.log('mod ' + this._options.range);
-        console.log('mod2 ' + newOptions.range);
-
         let prevOptions: IModelOptions = this._options;
         let options: any = Object.assign({}, prevOptions, newOptions);
-
-        console.log('mod3 ' + options.range);
 
         options.value = options.value != null ? options.value : options.minVal;
         let validOptions: IModelOptions;
@@ -316,13 +289,9 @@ export default class Model implements IModel {
             validOptions = this.numericFormatValidation(options, prevOptions as IOptions);
 
         } else if ( options.dataFormat == 'date' ) {
-            //this._options = Object.assign({}, prevOptions, newOptions);
-
             validOptions = this.dateFormatValidation(options, prevOptions as IOptions);
-
             this._options = Object.assign({}, prevOptions, newOptions);
 
-            //this._options = Object.assign({}, allOptions);
 
         } else if ( options.dataFormat == 'custom' ) {
             validOptions = this.customFormatValidation(options, prevOptions as IOptions);
@@ -427,7 +396,6 @@ export default class Model implements IModel {
 
 
     private customFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
-        console.log('я тут' + allOptions.range);
         let options: IOptions = allOptions;
 
         if ( !options.customValues ) {

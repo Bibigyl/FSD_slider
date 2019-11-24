@@ -1,4 +1,4 @@
-/* import View, { IView } from '../src/View';
+import View, { IView } from '../src/View';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
 import Model, { IModel } from '../src/Model';
@@ -32,8 +32,8 @@ describe('View is created with default options and has methods', function() {
     it('can create', function() {  
         expect(view).toBeDefined();
     });
-    it('has default width', function() {  
-        expect((view.getSlider().clientWidth) + 'px').toBe(defaultOptions.width);
+    it('has default length', function() {  
+        expect((view.getSlider().clientWidth) + 'px').toBe(defaultOptions.length);
     });
     it('getLenght returns lenght', function() {
         expect(view.getLenght()).toBeDefined();
@@ -51,8 +51,8 @@ describe('View is created with default options and has methods', function() {
         view.setTooltipMask('1');
         expect(view.getTooltipMask()).toBe('1');
     });
-    it('getScaleStep returns undefined, when slider is builded first without scale', function() {
-        expect(view.getScaleStep()).toBeUndefined();
+    it('getScaleStep returns step, either slider is builded first without scale', function() {
+        expect(view.getScaleStep()).toBe(1);
     });
     it('setScaleStep sets scale step', function() {
         view.setScaleStep(1);
@@ -103,11 +103,10 @@ describe('View has methods for build and rebuild', function() {
 
     describe('changeSliderBase', function() {
 
-        it('changes orientation and width or height', function() {
+        it('changes orientation and length', function() {
             view.changeSliderBase({
                 vertical: true,
-                width: '100px',
-                height: '400px',
+                length: '400px',
             });
 
             expect(view.getLenght()).toBe(400);
@@ -410,7 +409,7 @@ describe('View is created with different options:', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 vertical: true,
-                height: '200px',
+                length: '200px',
                 tooltip: true,
                 tooltipMask: "'val = ' + val",
             });
@@ -444,15 +443,14 @@ describe('View is created with different options:', function() {
 
             testOptions = Object.assign({}, defaultOptions, {
                 vertical: false,
-                height: '200px',
-                width: '500px',
+                length: '200px',
                 tooltip: true,
                 tooltipMask: "'val = ' + val",
             });
             view = new View(model, testOptions, sliderNode);
 
             expect(view).toBeDefined();
-            expect(view.getLenght()).toBe(500);
+            expect(view.getLenght()).toBe(200);
             expect(view.getVertical()).toBeFalsy();
             expect(view.getTooltipMask()).toBe("'val = ' + val");
             expect(view.getSlider()).toBeDefined();
@@ -519,4 +517,3 @@ describe('View is created with different options:', function() {
         });
     });
 }); 
- */

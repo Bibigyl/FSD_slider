@@ -50,10 +50,6 @@ import Subject  from './Observer';
       });
     },
 
-    test: function( content ) {
-      console.log('its test:  ' + content);
-    },
-
     change: function( options: any ) {
       return this.each( function() {
 
@@ -105,68 +101,3 @@ import Subject  from './Observer';
   };
 
 })(jQuery);
-
-
-
-/* $('.test').slider({
-  dataFormat: 'date',
-  minVal: '11/11/2019',
-  maxVal: '23/12/2019',
-  value: '18/11/2019',
-  step: 1,
-  scaleStep: 7,
-  //scaleMask: 'val',
-  scaleMask: "('0'+val.getDate()).slice(-2) + '.' + ('0'+(1+val.getMonth())).slice(-2)",
-  scale: true,
-  vertical: true,
-  tooltip: true,
-  tooltipMask: "('0'+val.getDate()).slice(-2) + '.' + ('0'+(1+val.getMonth())).slice(-2)",
-  //tooltipMask: 'val',
-}); */
-
-/*  $('.test').slider('change', {
-  range: ['18/11/2019', '25/11/2019'],
-});
-
-$('.test').slider('change', {
-  step: 7,
-});
-
-$('.test').slider('change', {
-  minVal: '18/11/2019',
-});
-
-$('.test').slider('change', {
-  step: 1,
-});
-
-$('.test').slider('change', {
-  range: null,
-  value: '18/11/2019'
-});  */
-
-
-
-/* $('.test').slider({
-  dataFormat: 'custom',
-  customValues: ['a','b','c','d'],
-  value: 1,
-  tooltip: true,
-})
-
-$('.test').slider('change', {
-  valueInCustomValues: 'c',
-}) */
-
-/* $('.test').slider('change', {
-  customValues: ['a','b','c','d', 'r'],
-  range: [1,2],
-})
-$('.test').slider('change', {
-  reverse: true,
-  scale:true,
-})
-$('.test').slider('change', {
-  value: 2,
-  range: false,
-}); */

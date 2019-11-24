@@ -16,13 +16,11 @@ $(document).ready( function() {
         value: '18/11/2019',
         step: 1,
         scaleStep: 7,
-        //scaleMask: 'val',
         scaleMask: "val",
         scale: true,
         vertical: true,
         tooltip: false,
         tooltipMask: "('0'+val.getDate()).slice(-2) + '.' + ('0'+(1+val.getMonth())).slice(-2)",
-        //tooltipMask: 'val',
     });
 
     $('#slider3').slider({
@@ -60,8 +58,6 @@ $(document).ready( function() {
             }
 
             if (instantChange) {
-                console.log(options.value)
-                console.log(options.range)
                 timeout = tryToChange(demo, options, timeout);
                 options = {};
             }
@@ -111,19 +107,26 @@ $(document).ready( function() {
 
                 } else if ( opt.attr('name').match(/[Rr]ange/) ) {
 
-                    console.log('pop')
                     let val;
                     val = opt.val().split('-', 2);
                     options[opt.attr('name')] = val;
 
-                    console.log(options);
+                } else if ( opt.attr('name') == 'customValues' ) {
+
+                    let attr;
+                    attr = opt.val().split(',');
+                    attr.forEach( function(elem, i, attr) {
+                        attr[i] = elem.trim();
+                    })
+                    options[opt.attr('name')] = attr;
 
                 } else if ( opt.attr('name') == 'valueInCustomValues' ) {
+
                     options.valueInCustomValues = opt.val();
+
                 } else {
 
                     options[opt.attr('name')] = opt.val();
-                    console.log(opt.val());
     
                 }
 

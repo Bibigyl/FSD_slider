@@ -1,8 +1,8 @@
 import IOptions, { defaultOptions } from './defaultOptions';
-import Model, {IModel} from './Model';
-import  {IModelOptions} from './Model';
-import View, {IView} from './View';
-import Subject, {ISubject}  from './Observer';
+import {IModel} from './Model';
+import {IModelOptions} from './Model';
+import {IView} from './View';
+import {ISubject}  from './Observer';
 
 export default class Presenter {
 
@@ -291,7 +291,6 @@ export default class Presenter {
 
         let model = this._model;
         let view = this._view;
-        console.log('111111   ' + model.getOptions());
 
         let changeThumbPosition: boolean = false;
         let changeTooltipVal: boolean = false;

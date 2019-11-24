@@ -75,7 +75,7 @@ export class Observer implements IObserver {
 
     func: any;
 
-    constructor(func) {
+    constructor(func: Function) {
         this.func = func;
     }
 
