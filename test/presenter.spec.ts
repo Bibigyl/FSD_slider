@@ -104,6 +104,10 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
 
         expect(model.getVal()).toBe(10);
         expect(view.getThumb().style.left).toBe('290px');
+        //@ts-ignore
+        expect(view._line.style.left).toBe('0px');
+        //@ts-ignore
+        expect(view._line.style.width).toBe('300px');
     });
 
     it('works with range - two thumbs, dont let thumbs to change positions min and max in range', function() {
@@ -174,6 +178,10 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
         expect(model.getRange()[0] == model.getRange()[1]).toBeTruthy();
         expect(view.getThumb(1).style.left == view.getThumb(2).style.left).toBeTruthy();
         expect(view.getThumb(1).style.left).toBe('140px');
+        //@ts-ignore
+        expect(view._line.style.left).toBe('150px');
+        //@ts-ignore
+        expect(view._line.style.width).toBe('0px');
     });
 });
 

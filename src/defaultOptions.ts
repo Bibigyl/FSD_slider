@@ -1,25 +1,25 @@
 export default interface IOptions {
     // Model options
-    dataFormat: any;
-    value: any;
-    minVal: any;
-    maxVal: any;
-    step: any;    
-    reverse: any;
-    range: any; 
-    customValues?: any;
-    valueInCustomValues?: any;
-    rangeInCustomValues?: any;
+    dataFormat: string;
+    value: number | string | null;
+    minVal: number | string;
+    maxVal: number | string;
+    step: number;    
+    reverse: boolean;
+    range: [number, number] | [string, string] | null; 
+    customValues?: string[];
+    valueInCustomValues?: string;
+    rangeInCustomValues?: string;
 
 
     // View options
-    length: any;
-    vertical: any;
-    tooltip: any;
-    tooltipMask: any;
-    scale: any;
-    scaleStep: any;
-    scaleMask: any;
+    length: string | number;
+    vertical: boolean;
+    tooltip: boolean;
+    tooltipMask: string;
+    scale: boolean;
+    scaleStep: number;
+    scaleMask: string;
 }
 
 var defaultOptions: IOptions = {

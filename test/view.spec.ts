@@ -349,6 +349,17 @@ describe('View has private functions:', function() {
         });
     });
 
+    describe('buildLine - function for constructor,', function() {
+        it('creates thumbNode, adds classes', function() {
+            // @ts-ignore
+            testNode = view.buildLine(sliderNode, 'testClass');
+            
+            expect(testNode.classList).toContain('slider__line');
+            expect(testNode.classList).toContain('testClass');
+            expect(sliderNode.querySelector('.slider__line')).toBeDefined();
+        });
+    });
+
     describe('buildTooltip adds a tooltip with value', function() {
         it('returns tooltip, adds classes', function() {
             testNode = document.createElement('div');

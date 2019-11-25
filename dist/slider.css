@@ -108,3 +108,9 @@
     height: 1.2px;
     width: 10px;
 }
+.slider__line {
+    position: absolute;
+    background-color: blue;
+    opacity: 0.1;
+    border-right: 5px;
+}

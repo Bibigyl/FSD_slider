@@ -320,12 +320,12 @@ export default class Model implements IModel {
         // по мере прохождения валидации, меняем значения на пользовательские
         let newOptions: IModelOptions = {
             dataFormat: 'numeric',
-            value: defaultOptions.minVal,
-            minVal: defaultOptions.minVal,
-            maxVal: defaultOptions.maxVal,
+            value: defaultOptions.minVal as number,
+            minVal: defaultOptions.minVal as number,
+            maxVal: defaultOptions.maxVal as number,
             step: defaultOptions.step,
             reverse: defaultOptions.reverse,
-            range: defaultOptions.range,
+            range: defaultOptions.range as [number, number],
         }
 
         this.areNumeric(options.maxVal, options.minVal, options.step);
@@ -334,25 +334,25 @@ export default class Model implements IModel {
         newOptions.reverse = options.reverse ? true : false;
         newOptions.dataFormat = options.dataFormat;
         
-        this.stepValidation(options.minVal, options.maxVal, newOptions.step);
+        this.stepValidation(options.minVal as number, options.maxVal as number, newOptions.step);
 
         // если мин и макс перепутаны пользователем, меняем порядок
         // подразумевается, что min - это то что слева на слайдере, max - справа
-        if ( this.minMaxValidation(options.minVal, options.maxVal, newOptions.reverse) ) {
-            newOptions.minVal = options.minVal;
-            newOptions.maxVal = options.maxVal;            
+        if ( this.minMaxValidation(options.minVal as number, options.maxVal as number, newOptions.reverse) ) {
+            newOptions.minVal = options.minVal as number;
+            newOptions.maxVal = options.maxVal as number;            
         } else {
-            newOptions.minVal = options.maxVal;
-            newOptions.maxVal = options.minVal;        
+            newOptions.minVal = options.maxVal as number;
+            newOptions.maxVal = options.minVal as number;        
         }
 
         if ( options.range ) {
-            this.rangeValidation(newOptions.minVal, newOptions.maxVal, options.range, newOptions.step);
+            this.rangeValidation(newOptions.minVal, newOptions.maxVal, options.range as [number, number], newOptions.step);
             // если мин и макс в диапазоне range перепутаны пользователем, меняем порядок
-            if ( this.minMaxValidation(options.range[0], options.range[1], newOptions.reverse) ) {
-                newOptions.range = options.range;
+            if ( this.minMaxValidation(options.range[0] as number, options.range[1] as number, newOptions.reverse) ) {
+                newOptions.range = options.range as [number, number];
             } else {
-                newOptions.range = [options.range[1], options.range[0]];
+                newOptions.range = [options.range[1] as number, options.range[0] as number];
             }
 
             // отменяем начальное значение, даже если оно введено пользователем
@@ -361,9 +361,9 @@ export default class Model implements IModel {
         } else {
             // запускаем проверки для начального значения, только если не указан диапазон range
             this.areNumeric(options.value);
-            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.value, newOptions.step);
+            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.value as number, newOptions.step);
 
-            newOptions.value = options.value;
+            newOptions.value = options.value as number;
             newOptions.range = null;
         }
         
@@ -375,8 +375,8 @@ export default class Model implements IModel {
         let options: IOptions = allOptions;
 
         this.customDateValidation(options.minVal, options.maxVal);
-        options.minVal = this.translateDateToNumber(options.minVal);
-        options.maxVal = this.translateDateToNumber(options.maxVal);
+        options.minVal = this.translateDateToNumber(options.minVal as string);
+        options.maxVal = this.translateDateToNumber(options.maxVal as string);
         options.step = this.tranlateStepToDateFormat(options.step);
 
         if ( Array.isArray(options.range) && options.range.length == 2 ) {
@@ -384,12 +384,12 @@ export default class Model implements IModel {
             // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
             // (потому что range так и остается true)
             this.customDateValidation(options.range[0], options.range[1]);
-            options.range[0] = this.translateDateToNumber(options.range[0]);
-            options.range[1] = this.translateDateToNumber(options.range[1]);
+            options.range[0] = this.translateDateToNumber(options.range[0] as string);
+            options.range[1] = this.translateDateToNumber(options.range[1] as string);
 
         } else {
             this.customDateValidation(options.value);
-            options.value = this.translateDateToNumber(options.value);
+            options.value = this.translateDateToNumber(options.value as string);
         }
         return this.numericFormatValidation(options, defaultOptions);
     }
@@ -420,7 +420,7 @@ export default class Model implements IModel {
                 // если пользователь ввел что то другое, а не range, на этом
                 // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
                 // (потому что range так и остается true)
-                options.range = [];
+                options.range = [0, 0];
                 options.range[0] = this.findPositionInArr(options.rangeInCustomValues[0], options.customValues);
                 options.range[1] = this.findPositionInArr(options.rangeInCustomValues[1], options.customValues);
             }
