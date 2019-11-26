@@ -20,7 +20,7 @@ describe('Model is created with default options,', function() {
         expect(model).toBeDefined();
     });
     it('can return default initial value = min value', function() {  
-        expect(model.getVal()).toBe(defaultOptions.minVal);
+        expect(model.getVal()).toBe(defaultOptions.minVal as number);
     });
     it('can set new value', function() {
         model.setVal(5);
@@ -33,10 +33,10 @@ describe('Model is created with default options,', function() {
         expect(model.getStep()).toBe(defaultOptions.step);
     });
     it('can return min value', function() {  
-        expect(model.getMinVal()).toBe(defaultOptions.minVal);
+        expect(model.getMinVal()).toBe(defaultOptions.minVal as number);
     });
     it('can return max value', function() {  
-        expect(model.getMaxVal()).toBe(defaultOptions.maxVal);
+        expect(model.getMaxVal()).toBe(defaultOptions.maxVal as number);
     });
     it('can return reverse as boolean', function() {
         expect(model.getReverse()).toBeFalsy();

@@ -33,7 +33,7 @@ describe('View is created with default options and has methods', function() {
         expect(view).toBeDefined();
     });
     it('has default length', function() {  
-        expect((view.getSlider().clientWidth) + 'px').toBe(defaultOptions.length);
+        expect((view.getSlider().clientWidth) + 'px').toBe(defaultOptions.length as string);
     });
     it('getLenght returns lenght', function() {
         expect(view.getLenght()).toBeDefined();
@@ -528,3 +528,4 @@ describe('View is created with different options:', function() {
         });
     });
 }); 
+
