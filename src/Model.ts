@@ -445,7 +445,7 @@ export default class Model implements IModel {
         return true;
     }
 
-    private minMaxValidation(minVal: number, maxVal: number, reverse: boolean) {
+    private minMaxValidation(minVal: number, maxVal: number, reverse: boolean): boolean {
         if ( !reverse && (minVal >= maxVal) ) {
             return false;
         } else if ( reverse && (minVal <= maxVal) ) {

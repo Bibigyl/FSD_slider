@@ -34,7 +34,7 @@ export default class Presenter {
         view.getSlider().addEventListener("click", this.sliderOnMouseClick);
     }
 
-    thumbOnMouseDown(event) {
+    private thumbOnMouseDown(event): void {
         // предотвратить запуск выделения (действие браузера)
         event.preventDefault();
 
@@ -44,7 +44,7 @@ export default class Presenter {
         document.addEventListener('mouseup', this.thumbOnMouseUp);
       }
 
-    thumbOnMouseMove(event) {
+    private thumbOnMouseMove(event): void {
 
         let model: IModel = this._model;
         let view: IView = this._view;
@@ -152,7 +152,7 @@ export default class Presenter {
         }
     }
     
-    thumbOnMouseUp(event) {
+    private thumbOnMouseUp(event): void {
         document.removeEventListener('mouseup', this.thumbOnMouseUp);
         document.removeEventListener('mousemove', this.thumbOnMouseMove);
 
@@ -178,7 +178,7 @@ export default class Presenter {
         this._subject.notify();
     }
 
-    sliderOnMouseClick(event) {
+    private sliderOnMouseClick(event): void {
 
         let model: IModel = this._model;
         let view: IView = this._view;
