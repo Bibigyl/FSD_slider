@@ -29,7 +29,7 @@ $(document).ready( function() {
         value: 4,
         scale: true,
         tooltipMask: "'color: ' + val",
-    })
+    });
 
 
     $('.demo').each(function() {
