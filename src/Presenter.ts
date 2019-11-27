@@ -53,7 +53,6 @@ export default class Presenter {
         this._activeThumb = event.currentTarget;
 
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-
             document.addEventListener('touchmove', this.thumbOnMove);
             document.addEventListener('touchend', this.thumbOnUp);
         } else {
@@ -173,19 +172,12 @@ export default class Presenter {
     private thumbOnUp(event): void {
 
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-
             document.removeEventListener('touchend', this.thumbOnUp);
             document.removeEventListener('touchmove', this.thumbOnMove);
         } else {
-
             document.removeEventListener('mouseup', this.thumbOnUp);
             document.removeEventListener('mousemove', this.thumbOnMove);
         }
-/*         document.removeEventListener('mouseup', this.thumbOnUp);
-        document.removeEventListener('mousemove', this.thumbOnMove);
-
-        document.removeEventListener('touchend', this.thumbOnUp);
-        document.removeEventListener('touchmove', this.thumbOnMove); */
 
         this._activeThumb = undefined;
         // наблюдатель
@@ -396,12 +388,26 @@ export default class Presenter {
 
         if ( changeRangeToVal ) {
             view.changeRangeToVal(model);
-            view.getThumb().addEventListener("mousedown", this.thumbOnDown);
+
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                view.getThumb().addEventListener("touchstart", this.thumbOnDown);
+            } else {
+                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
+                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
+            } 
         }
         if ( changeValToRange ) {
             view.changeValToRange(model);
             view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
             view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
+
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
+                view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
+            } else {
+                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
+                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
+            }  
         }   
 
         // 2.3 Шкала. Удаляем, строим или перестраиваем. Изменяем деления.
