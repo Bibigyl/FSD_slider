@@ -18,42 +18,51 @@ export default class Presenter {
         this._view = view;
         this._subject = subject;
 
-        this.thumbOnMouseDown = this.thumbOnMouseDown.bind(this);
-        this.thumbOnMouseMove = this.thumbOnMouseMove.bind(this);
-        this.thumbOnMouseUp = this.thumbOnMouseUp.bind(this);
+        this.thumbOnDown = this.thumbOnDown.bind(this);
+        this.thumbOnMove = this.thumbOnMove.bind(this);
+        this.thumbOnUp = this.thumbOnUp.bind(this);
 
-        this.sliderOnMouseClick = this.sliderOnMouseClick.bind(this);
-        
-        if ( !model.getRange() ) {
-            this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+        this.sliderOnClick = this.sliderOnClick.bind(this);
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             // Мобильный
-            this._view.getThumb().addEventListener("touchstart", this.thumbOnMouseDown);
+            if ( !model.getRange() ) {
+                view.getThumb().addEventListener("touchstart", this.thumbOnDown);
+            } else {
+                view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
+                view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
+            }  
         } else {
-            view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
-            view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+            if ( !model.getRange() ) {
+                view.getThumb().addEventListener("mousedown", this.thumbOnDown);
+            } else {
+                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
+                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
 
-            view.getThumb(1).addEventListener("touchstart", this.thumbOnMouseDown);
-            view.getThumb(2).addEventListener("touchstart", this.thumbOnMouseDown);
-        }        
+            } 
+        }    
 
-        view.getSlider().addEventListener("click", this.sliderOnMouseClick);
+        view.getSlider().addEventListener("click", this.sliderOnClick);
     }
 
-    private thumbOnMouseDown(event): void {
+    private thumbOnDown(event): void {
         // предотвратить запуск выделения (действие браузера)
         event.preventDefault();
+        event.stopPropagation();
 
         this._activeThumb = event.currentTarget;
 
-        document.addEventListener('mousemove', this.thumbOnMouseMove);
-        document.addEventListener('mouseup', this.thumbOnMouseUp);
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
 
-        // мобильный
-        document.addEventListener('touchmove', this.thumbOnMouseMove);
-        document.addEventListener('touchend', this.thumbOnMouseUp);
-      }
+            document.addEventListener('touchmove', this.thumbOnMove);
+            document.addEventListener('touchend', this.thumbOnUp);
+        } else {
+            document.addEventListener('mousemove', this.thumbOnMove);
+            document.addEventListener('mouseup', this.thumbOnUp);
+        }
+    }
 
-    private thumbOnMouseMove(event): void {
+    private thumbOnMove(event): void {
 
         let model: IModel = this._model;
         let view: IView = this._view;
@@ -81,13 +90,13 @@ export default class Presenter {
         if ( !view.getVertical() ) {
 
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX;         
+            eventPos = event.clientX || event.touches[0].pageX;         
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
 
         } else {
 
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
-            eventPos = event.clientY;            
+            eventPos = event.clientY || event.touches[0].pageY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
 
         }
@@ -161,9 +170,22 @@ export default class Presenter {
         }
     }
     
-    private thumbOnMouseUp(event): void {
-        document.removeEventListener('mouseup', this.thumbOnMouseUp);
-        document.removeEventListener('mousemove', this.thumbOnMouseMove);
+    private thumbOnUp(event): void {
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+
+            document.removeEventListener('touchend', this.thumbOnUp);
+            document.removeEventListener('touchmove', this.thumbOnMove);
+        } else {
+
+            document.removeEventListener('mouseup', this.thumbOnUp);
+            document.removeEventListener('mousemove', this.thumbOnMove);
+        }
+/*         document.removeEventListener('mouseup', this.thumbOnUp);
+        document.removeEventListener('mousemove', this.thumbOnMove);
+
+        document.removeEventListener('touchend', this.thumbOnUp);
+        document.removeEventListener('touchmove', this.thumbOnMove); */
 
         this._activeThumb = undefined;
         // наблюдатель
@@ -187,7 +209,7 @@ export default class Presenter {
         this._subject.notify();
     }
 
-    private sliderOnMouseClick(event): void {
+    private sliderOnClick(event): void {
 
         let model: IModel = this._model;
         let view: IView = this._view;
@@ -374,12 +396,12 @@ export default class Presenter {
 
         if ( changeRangeToVal ) {
             view.changeRangeToVal(model);
-            view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+            view.getThumb().addEventListener("mousedown", this.thumbOnDown);
         }
         if ( changeValToRange ) {
             view.changeValToRange(model);
-            view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
-            view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+            view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
+            view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
         }   
 
         // 2.3 Шкала. Удаляем, строим или перестраиваем. Изменяем деления.

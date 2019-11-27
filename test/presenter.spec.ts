@@ -22,9 +22,9 @@ let subject: ISubject;
 let presenter;
 let testOptions: IOptions;
 
-let thumbOnMouseDown: MouseEvent;
-let thumbOnMouseMove: MouseEvent;
-let thumbOnMouseUp: MouseEvent;
+let thumbOnDown: MouseEvent;
+let thumbOnMove: MouseEvent;
+let thumbOnUp: MouseEvent;
 let sliderOnClick: MouseEvent;
 
 
@@ -49,19 +49,19 @@ afterEach( function() {
 
 describe('Mousedown, mousemove, mouseup on thumb', function() {
     it('causes changing position of thumb, changes value in model', function() {
-        thumbOnMouseDown = new MouseEvent("mousedown", {
+        thumbOnDown = new MouseEvent("mousedown", {
             bubbles: true,
             cancelable: true,
             clientX: 50,
             clientY: 45
         });
-        thumbOnMouseMove = new MouseEvent("mousemove", {
+        thumbOnMove = new MouseEvent("mousemove", {
             bubbles: true,
             cancelable: true,
             clientX: 100,
             clientY: 45
         });
-        thumbOnMouseUp = new MouseEvent("mouseup", {
+        thumbOnUp = new MouseEvent("mouseup", {
             bubbles: true,
             cancelable: true,
             clientX: 100,
@@ -70,37 +70,37 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
 
         expect(model.getVal()).toBe(0);
 
-        view.getThumb().dispatchEvent(thumbOnMouseDown);
-        view.getThumb().dispatchEvent(thumbOnMouseMove);
-        view.getThumb().dispatchEvent(thumbOnMouseUp);
+        view.getThumb().dispatchEvent(thumbOnDown);
+        view.getThumb().dispatchEvent(thumbOnMove);
+        view.getThumb().dispatchEvent(thumbOnUp);
 
         expect(model.getVal()).toBe(2);
         expect(view.getThumb().style.left).toBe('50px');
     });
 
     it('sets thumb position in borders of slider', function() {
-        thumbOnMouseDown = new MouseEvent("mousedown", {
+        thumbOnDown = new MouseEvent("mousedown", {
             bubbles: true,
             cancelable: true,
             clientX: 50,
             clientY: 45
         });
-        thumbOnMouseMove = new MouseEvent("mousemove", {
+        thumbOnMove = new MouseEvent("mousemove", {
             bubbles: true,
             cancelable: true,
             clientX: 1000,
             clientY: 45
         });
-        thumbOnMouseUp = new MouseEvent("mouseup", {
+        thumbOnUp = new MouseEvent("mouseup", {
             bubbles: true,
             cancelable: true,
             clientX: 1000,
             clientY: 45
         });
 
-        view.getThumb().dispatchEvent(thumbOnMouseDown);
-        view.getThumb().dispatchEvent(thumbOnMouseMove);
-        view.getThumb().dispatchEvent(thumbOnMouseUp);
+        view.getThumb().dispatchEvent(thumbOnDown);
+        view.getThumb().dispatchEvent(thumbOnMove);
+        view.getThumb().dispatchEvent(thumbOnUp);
 
         expect(model.getVal()).toBe(10);
         expect(view.getThumb().style.left).toBe('290px');
@@ -123,19 +123,19 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
         presenter = new Presenter(model, view, subject);
 
     
-        thumbOnMouseDown = new MouseEvent("mousedown", {
+        thumbOnDown = new MouseEvent("mousedown", {
             bubbles: true,
             cancelable: true,
             clientX: 70,
             clientY: 45
         });
-        thumbOnMouseMove = new MouseEvent("mousemove", {
+        thumbOnMove = new MouseEvent("mousemove", {
             bubbles: true,
             cancelable: true,
             clientX: 130,
             clientY: 45
         });
-        thumbOnMouseUp = new MouseEvent("mouseup", {
+        thumbOnUp = new MouseEvent("mouseup", {
             bubbles: true,
             cancelable: true,
             clientX: 130,
@@ -144,36 +144,36 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
 
         expect(model.getRange()[0]).toBe(1);
 
-        view.getThumb(1).dispatchEvent(thumbOnMouseDown);
-        view.getThumb(1).dispatchEvent(thumbOnMouseMove);
-        view.getThumb(1).dispatchEvent(thumbOnMouseUp);
+        view.getThumb(1).dispatchEvent(thumbOnDown);
+        view.getThumb(1).dispatchEvent(thumbOnMove);
+        view.getThumb(1).dispatchEvent(thumbOnUp);
 
         expect(model.getRange()[0]).toBe(3);
         expect(view.getThumb(1).style.left).toBe('80px');
 
 
-        thumbOnMouseDown = new MouseEvent("mousedown", {
+        thumbOnDown = new MouseEvent("mousedown", {
             bubbles: true,
             cancelable: true,
             clientX: 80,
             clientY: 45
         });
-        thumbOnMouseMove = new MouseEvent("mousemove", {
+        thumbOnMove = new MouseEvent("mousemove", {
             bubbles: true,
             cancelable: true,
             clientX: 1300,
             clientY: 45
         });
-        thumbOnMouseUp = new MouseEvent("mouseup", {
+        thumbOnUp = new MouseEvent("mouseup", {
             bubbles: true,
             cancelable: true,
             clientX: 1300,
             clientY: 45
         });
 
-        view.getThumb(1).dispatchEvent(thumbOnMouseDown);
-        view.getThumb(1).dispatchEvent(thumbOnMouseMove);
-        view.getThumb(1).dispatchEvent(thumbOnMouseUp);
+        view.getThumb(1).dispatchEvent(thumbOnDown);
+        view.getThumb(1).dispatchEvent(thumbOnMove);
+        view.getThumb(1).dispatchEvent(thumbOnUp);
 
         expect(model.getRange()[0] == model.getRange()[1]).toBeTruthy();
         expect(view.getThumb(1).style.left == view.getThumb(2).style.left).toBeTruthy();

@@ -4,6 +4,7 @@
   "description": "Starter project w/ TypeScript, Webpack, Jasmine, Karma",
   "scripts": {
     "build": "webpack --config webpack.dev.config.js",
+    "temp": "webpack-dev-server --host 192.168.0.178 --config webpack.dev.config.js",
     "start": "webpack-dev-server --config webpack.dev.config.js",
     "test": "karma start karma.conf.js"
   },
