@@ -217,12 +217,12 @@ export default class Presenter {
         if ( !this._view.getVertical() ) {
 
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX || event.touches[0].clientX;        
+            eventPos = event.clientX;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
         } else {
 
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
-            eventPos = event.clientY || event.touches[0].clientY;         
+            eventPos = event.clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
         }
 
