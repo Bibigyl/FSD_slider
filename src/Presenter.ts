@@ -23,24 +23,17 @@ export default class Presenter {
         this.thumbOnUp = this.thumbOnUp.bind(this);
 
         this.sliderOnClick = this.sliderOnClick.bind(this);
-
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            // Мобильный
-            if ( !model.getRange() ) {
-                view.getThumb().addEventListener("touchstart", this.thumbOnDown);
-            } else {
-                view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
-                view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
-            }  
+      
+        if ( !model.getRange() ) {
+            view.getThumb().addEventListener("mousedown", this.thumbOnDown);
+            view.getThumb().addEventListener("touchstart", this.thumbOnDown);
         } else {
-            if ( !model.getRange() ) {
-                view.getThumb().addEventListener("mousedown", this.thumbOnDown);
-            } else {
-                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
-                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
+            view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
+            view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
 
-            } 
-        }    
+            view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
+            view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
+        }  
 
         view.getSlider().addEventListener("click", this.sliderOnClick);
     }
@@ -52,13 +45,10 @@ export default class Presenter {
 
         this._activeThumb = event.currentTarget;
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            document.addEventListener('touchmove', this.thumbOnMove);
-            document.addEventListener('touchend', this.thumbOnUp);
-        } else {
-            document.addEventListener('mousemove', this.thumbOnMove);
-            document.addEventListener('mouseup', this.thumbOnUp);
-        }
+        document.addEventListener('mousemove', this.thumbOnMove);
+        document.addEventListener('mouseup', this.thumbOnUp);
+        document.addEventListener('touchmove', this.thumbOnMove);
+        document.addEventListener('touchend', this.thumbOnUp);
     }
 
     private thumbOnMove(event): void {
@@ -89,13 +79,13 @@ export default class Presenter {
         if ( !view.getVertical() ) {
 
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX || event.touches[0].pageX;         
+            eventPos = event.clientX || event.touches[0].clientX;         
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
 
         } else {
 
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
-            eventPos = event.clientY || event.touches[0].pageY;            
+            eventPos = event.clientY || event.touches[0].clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
 
         }
@@ -171,13 +161,10 @@ export default class Presenter {
     
     private thumbOnUp(event): void {
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            document.removeEventListener('touchend', this.thumbOnUp);
-            document.removeEventListener('touchmove', this.thumbOnMove);
-        } else {
-            document.removeEventListener('mouseup', this.thumbOnUp);
-            document.removeEventListener('mousemove', this.thumbOnMove);
-        }
+        document.removeEventListener('mouseup', this.thumbOnUp);
+        document.removeEventListener('mousemove', this.thumbOnMove);
+        document.removeEventListener('touchend', this.thumbOnUp);
+        document.removeEventListener('touchmove', this.thumbOnMove);
 
         this._activeThumb = undefined;
         // наблюдатель
@@ -389,25 +376,15 @@ export default class Presenter {
         if ( changeRangeToVal ) {
             view.changeRangeToVal(model);
 
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                view.getThumb().addEventListener("touchstart", this.thumbOnDown);
-            } else {
-                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
-                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
-            } 
+            view.getThumb().addEventListener("mousedown", this.thumbOnDown);
+            view.getThumb().addEventListener("touchstart", this.thumbOnDown);
         }
         if ( changeValToRange ) {
             view.changeValToRange(model);
             view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
             view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
-
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
-                view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
-            } else {
-                view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
-                view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
-            }  
+            view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
+            view.getThumb(2).addEventListener("touchstart", this.thumbOnDown);
         }   
 
         // 2.3 Шкала. Удаляем, строим или перестраиваем. Изменяем деления.
