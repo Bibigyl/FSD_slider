@@ -26,9 +26,14 @@ export default class Presenter {
         
         if ( !model.getRange() ) {
             this._view.getThumb().addEventListener("mousedown", this.thumbOnMouseDown);
+            // Мобильный
+            this._view.getThumb().addEventListener("touchstart", this.thumbOnMouseDown);
         } else {
             view.getThumb(1).addEventListener("mousedown", this.thumbOnMouseDown);
             view.getThumb(2).addEventListener("mousedown", this.thumbOnMouseDown);
+
+            view.getThumb(1).addEventListener("touchstart", this.thumbOnMouseDown);
+            view.getThumb(2).addEventListener("touchstart", this.thumbOnMouseDown);
         }        
 
         view.getSlider().addEventListener("click", this.sliderOnMouseClick);
@@ -42,6 +47,10 @@ export default class Presenter {
 
         document.addEventListener('mousemove', this.thumbOnMouseMove);
         document.addEventListener('mouseup', this.thumbOnMouseUp);
+
+        // мобильный
+        document.addEventListener('touchmove', this.thumbOnMouseMove);
+        document.addEventListener('touchend', this.thumbOnMouseUp);
       }
 
     private thumbOnMouseMove(event): void {
