@@ -1,5 +1,5 @@
 import IOptions from './defaultOptions';
-import Model, {IModel} from './Model';
+import {IModel} from './Model';
 import { runInNewContext } from 'vm';
 
 interface IView {
@@ -162,10 +162,10 @@ class View implements IView {
     }
     getNumberOfSteps(): number {
         return this._numberOfSteps;
-    };
+    }
     setNumberOfSteps(num: number): void {
         this._numberOfSteps = num;
-    };
+    }
     
 
 

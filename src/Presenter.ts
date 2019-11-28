@@ -1,4 +1,4 @@
-import IOptions, { defaultOptions } from './defaultOptions';
+import IOptions from './defaultOptions';
 import {IModel} from './Model';
 import {IModelOptions} from './Model';
 import {IView} from './View';
