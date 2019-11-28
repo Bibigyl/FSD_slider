@@ -2,7 +2,7 @@ import IOptions from './defaultOptions';
 import Model, {IModel} from './Model';
 import { runInNewContext } from 'vm';
 
-export interface IView {
+interface IView {
 
     // геттеры и сеттеры
     getLenght(): number;
@@ -39,12 +39,12 @@ export interface IView {
     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void;
     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string | Date, mask: string): void;
     findThumbPosition(newStep, numOfSteps): number;
-    oneStepLenght(): number;
+    findOneStepLenght(): number;
     removeNode(node: HTMLDivElement): undefined;
-    scaleStepValidation(model: IModel, step: number): number;  
+    findValidScaleStep(model: IModel, step: number): number;  
 }
 
-export default class View implements IView {
+class View implements IView {
 
     private _lenght: string;
     private _vertical: boolean;
@@ -70,8 +70,8 @@ export default class View implements IView {
         this._slider = sliderNode;
         this._slider.classList.add('slider');
         this._range = model.getRange() ? true : false;
-        this._numberOfSteps = model.numberOfSteps();
-        this._lenght = this.lengthValidation(options.length);
+        this._numberOfSteps = model.getNumberOfSteps();
+        this._lenght = this.findValidLength(options.length);
 
         if ( !options.vertical ) {
             this._vertical = false;
@@ -89,17 +89,17 @@ export default class View implements IView {
         if ( !this._range ) {
 
             this._thumb = this.buildThumb(this._slider);
-            pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
             this.setThumbPosition( this._thumb, pos);
         } else {     
 
             this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left');
             this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
 
-            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
             this.setThumbPosition( this._thumbLeft, pos);
 
-            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
+            pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
             this.setThumbPosition( this._thumbRight, pos);
         }
  
@@ -116,7 +116,7 @@ export default class View implements IView {
 
         let step: number;
         if ( options.scaleStep ) {
-            step = this.scaleStepValidation(model, options.scaleStep);
+            step = this.findValidScaleStep(model, options.scaleStep);
         } else {
             step = model.getStep();
         }
@@ -263,7 +263,7 @@ export default class View implements IView {
         this._thumbLeft = this.removeNode(this._thumbLeft);
         this._thumbRight = this.removeNode(this._thumbRight);
 
-        pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
+        pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
         this.setThumbPosition( this._thumb, pos);
     }
 
@@ -276,10 +276,10 @@ export default class View implements IView {
         this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
         this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
         
-        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
+        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
         this.setThumbPosition( this._thumbLeft, pos);
 
-        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
+        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
         this.setThumbPosition( this._thumbRight, pos);
     }
 
@@ -315,12 +315,12 @@ export default class View implements IView {
         sliderNode.prepend(scale);
 
         // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(model.getStep()) );
+        let n: number = Math.max( this.findDecimalPlaces(step), this.findDecimalPlaces(model.getStep()) );
         let mult: number = step / model.getStep();
         mult = +(+mult).toFixed(n);
         mult = Math.abs(mult);     
         
-        for (let i: number = 0; i <= model.numberOfSteps(); i = i + mult) {
+        for (let i: number = 0; i <= model.getNumberOfSteps(); i = i + mult) {
 
             // i + mult возвращает на какой шаг модели попадает шаг шкалы
             val = model.translateByStep(i);
@@ -330,9 +330,9 @@ export default class View implements IView {
             division.innerHTML = '<span>' +  eval(mask) + '</span>';
 
             if (!this._vertical) {
-                division.style.left = this.oneStepLenght() * i + 'px';
+                division.style.left = this.findOneStepLenght() * i + 'px';
             } else {
-                division.style.top = this.oneStepLenght() * i + 'px';
+                division.style.top = this.findOneStepLenght() * i + 'px';
             }
 
             scale.append(division);
@@ -347,12 +347,12 @@ export default class View implements IView {
         let division: HTMLDivElement;
         
         // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.decimalPlaces(this._scaleStep), this.decimalPlaces(model.getStep()) );
+        let n: number = Math.max( this.findDecimalPlaces(this._scaleStep), this.findDecimalPlaces(model.getStep()) );
         let mult: number = this._scaleStep / model.getStep();
         mult = +mult.toFixed(n);
         mult = Math.abs(mult);
 
-        newNumOfSteps = model.numberOfSteps() / mult;
+        newNumOfSteps = model.getNumberOfSteps() / mult;
 
         if ( prevNumOfSteps > newNumOfSteps ) {
             for (let i: number = 0; i < (prevNumOfSteps - newNumOfSteps); i++) {
@@ -375,12 +375,12 @@ export default class View implements IView {
         let mask: string = this._scaleMask;
 
         // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.decimalPlaces(this._scaleStep), this.decimalPlaces(model.getStep()) );
+        let n: number = Math.max( this.findDecimalPlaces(this._scaleStep), this.findDecimalPlaces(model.getStep()) );
         let mult: number = this._scaleStep / model.getStep();
         mult = +mult.toFixed(n);
         mult = Math.abs(mult);   
         
-        for (let i: number = 0; i <= model.numberOfSteps(); i = i + mult) {
+        for (let i: number = 0; i <= model.getNumberOfSteps(); i = i + mult) {
 
             // i + mult возвращает на какой шаг модели попадает шаг шкалы
             val = model.translateByStep(i);
@@ -390,10 +390,10 @@ export default class View implements IView {
 
             if (!this._vertical) {
                 division.style.top = null;
-                division.style.left = this.oneStepLenght() * i + 'px';
+                division.style.left = this.findOneStepLenght() * i + 'px';
             } else {
                 division.style.left = null;
-                division.style.top = this.oneStepLenght() * i + 'px';
+                division.style.top = this.findOneStepLenght() * i + 'px';
             }
         }
     }
@@ -474,7 +474,7 @@ export default class View implements IView {
         return this.getLenght() / numOfSteps * newStep;
     }
 
-    oneStepLenght() {
+    findOneStepLenght() {
         return this.getLenght() / this._numberOfSteps;
     }
 
@@ -483,13 +483,13 @@ export default class View implements IView {
         return undefined;
     }
 
-    scaleStepValidation(model: IModel, step: number): number {
+    findValidScaleStep(model: IModel, step: number): number {
 
         let stepIsValid: boolean;
         let test: number
 
         // округляем, чтобы избежать проблем при вычислениях с плавающей точкой
-        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(model.getStep()) );
+        let n: number = Math.max( this.findDecimalPlaces(step), this.findDecimalPlaces(model.getStep()) );
 
         stepIsValid = this.isNumeric(step);
 
@@ -513,6 +513,15 @@ export default class View implements IView {
 
 
     // приватные функции
+
+/*     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
+        let thumb: HTMLDivElement = document.createElement('div');     
+        thumb.classList.add('slider__thumb');
+        thumbClass ? thumb.classList.add(thumbClass) : false;
+        sliderNode.append(thumb);
+
+        return thumb;
+    } */
 
     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
         let thumb: HTMLDivElement = document.createElement('div');     
@@ -541,7 +550,7 @@ export default class View implements IView {
         return tooltip;
     }
     
-    private lengthValidation(str: any) {
+    private findValidLength(str: any) {
         if ( typeof ('' + str) == 'string' ) {
             let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%)?$/i);
             if ( r && this.isNumeric(r[0]) ) { 
@@ -557,8 +566,12 @@ export default class View implements IView {
         return !isNaN(parseFloat(n)) && !isNaN(n - 0);
     }
 
-    private decimalPlaces(num: number): number {
+    private findDecimalPlaces(num: number): number {
         // количество знаков после запятой
         return ~(num + '').indexOf('.') ? (num + '').split('.')[1].length : 0;
     }
 }
+
+
+export { IView };
+export default View;

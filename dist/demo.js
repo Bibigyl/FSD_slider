@@ -33,61 +33,61 @@ $(document).ready( function() {
 
 
     $('.demo').each(function() {
-        let demo = $(this);
-        let slider = demo.find('.slider');
-        let options = {};
-        let instantChange = true;
-        let timeout;
+        let $demo = $(this);
+        let $slider = $demo.find('.slider');
+        let $options = {};
+        let $instantChange = true;
+        let $timeout;
        
 
-        demo.find('.radio-thumbs').change(function() {
+        $demo.find('.radio-thumbs').change(function() {
 
             let val;
             if ( $(this).attr('value') == 'one' ) {
-                val = demo.find('input[name="value"]').val();
-                options.value = val;
-                options.range = null;
-                options.rangeInCustomValues = null;
+                val = $demo.find('input[name="value"]').val();
+                $options.value = val;
+                $options.range = null;
+                $options.rangeInCustomValues = null;
 
             } else {
-                val = demo.find('input[name="range"]').val();
+                val = $demo.find('input[name="range"]').val();
                 val = val.split('-', 2);
-                options.range = val;
-                options.value = null;
-                options.valueInCustomValues = null;
+                $options.range = val;
+                $options.value = null;
+                $options.valueInCustomValues = null;
             }
 
-            if (instantChange) {
-                timeout = tryToChange(demo, options, timeout);
-                options = {};
+            if ($instantChange) {
+                $timeout = tryToChange($demo, $options, $timeout);
+                $options = {};
             }
 
-            demo.find('input[name="value"]').toggleAttr('disabled');
-            demo.find('input[name="valueInCustomValues"]').toggleAttr('disabled');
+            $demo.find('input[name="value"]').toggleAttr('disabled');
+            $demo.find('input[name="valueInCustomValues"]').toggleAttr('disabled');
             
-            demo.find('input[name="range"]').toggleAttr('disabled');
-            demo.find('input[name="rangeInCustomValues"]').toggleAttr('disabled');
+            $demo.find('input[name="range"]').toggleAttr('disabled');
+            $demo.find('input[name="rangeInCustomValues"]').toggleAttr('disabled');
         });
 
-        demo.find('input[name="tooltip"]').change(function() {
-            demo.find('input[name="tooltipMask"]').toggleAttr('disabled');
+        $demo.find('input[name="tooltip"]').change(function() {
+            $demo.find('input[name="tooltipMask"]').toggleAttr('disabled');
         });
 
-        demo.find('input[name="scale"]').change(function() {
-            demo.find('input[name="scaleStep"]').toggleAttr('disabled');
-            demo.find('input[name="scaleMask"]').toggleAttr('disabled');
+        $demo.find('input[name="scale"]').change(function() {
+            $demo.find('input[name="scaleStep"]').toggleAttr('disabled');
+            $demo.find('input[name="scaleMask"]').toggleAttr('disabled');
         });
 
-        demo.find('input[name="manyOptions"]').change(function() {
-            demo.find('button').toggleAttr('disabled');
-            instantChange = instantChange ? false : true;
+        $demo.find('input[name="manyOptions"]').change(function() {
+            $demo.find('button').toggleAttr('disabled');
+            $instantChange = $instantChange ? false : true;
         });
 
-        demo.find('button').on('click', function() {
-            timeout = tryToChange(demo, options, timeout);
+        $demo.find('button').on('click', function() {
+            $timeout = tryToChange($demo, $options, $timeout);
         });
 
-        demo.find('.option').each(function() {
+        $demo.find('.option').each(function() {
 
             let temp;
 
@@ -103,13 +103,13 @@ $(document).ready( function() {
 
                     opt.toggleAttr('checked');
                     let bool = opt.hasAttr('checked');
-                    options[opt.attr('name')] = bool; 
+                    $options[opt.attr('name')] = bool; 
 
                 } else if ( opt.attr('name').match(/[Rr]ange/) ) {
 
                     let val;
                     val = opt.val().split('-', 2);
-                    options[opt.attr('name')] = val;
+                    $options[opt.attr('name')] = val;
 
                 } else if ( opt.attr('name') == 'customValues' ) {
 
@@ -118,56 +118,56 @@ $(document).ready( function() {
                     attr.forEach( function(elem, i, attr) {
                         attr[i] = elem.trim();
                     })
-                    options[opt.attr('name')] = attr;
+                    $options[opt.attr('name')] = attr;
 
                 } else if ( opt.attr('name') == 'valueInCustomValues' ) {
 
-                    options.valueInCustomValues = opt.val();
+                    $options.valueInCustomValues = opt.val();
 
                 } else {
 
-                    options[opt.attr('name')] = opt.val();
+                    $options[opt.attr('name')] = opt.val();
     
                 }
 
-                if ( opt.attr('name') == 'reverse' && !options.hasOwnProperty('minVal') && !options.hasOwnProperty('maxVal') ) {
+                if ( opt.attr('name') == 'reverse' && !$options.hasOwnProperty('minVal') && !$options.hasOwnProperty('maxVal') ) {
                     let min, max;
-                    min = demo.find('input[name="minVal"]').val();
-                    max = demo.find('input[name="maxVal"]').val();
+                    min = $demo.find('input[name="minVal"]').val();
+                    max = $demo.find('input[name="maxVal"]').val();
 
-                    demo.find('input[name="minVal"]').val(max);
-                    demo.find('input[name="maxVal"]').val(min);
+                    $demo.find('input[name="minVal"]').val(max);
+                    $demo.find('input[name="maxVal"]').val(min);
                 }
 
-                if (instantChange) {
-                    timeout = tryToChange(demo, options, timeout);
-                    if (timeout) {
+                if ($instantChange) {
+                    $timeout = tryToChange($demo, $options, $timeout);
+                    if ($timeout) {
                         opt.val(temp);
                     } 
-                    options = {};
+                    $options = {};
                 }
             });
         });
 
-        slider.slider('observe', function(val) {
+        $slider.slider('observe', function(val) {
             if ( !Array.isArray(val) ) {
 
-                if (demo.attr('id') == 'demo2') {
+                if ($demo.attr('id') == 'demo2') {
 
                     val = ('0' + val.getDate()).slice(-2) + 
                     '/' + ('0' + (1 + val.getMonth()) ).slice(-2) +
                     '/' + ( val.getFullYear() );
                 }
 
-                if (demo.attr('id') == 'demo3') {
-                    demo.find('input[name="valueInCustomValues"]').val(val);
+                if ($demo.attr('id') == 'demo3') {
+                    $demo.find('input[name="valueInCustomValues"]').val(val);
                 } else {
-                    demo.find('input[name="value"]').val(val);
+                    $demo.find('input[name="value"]').val(val);
                 }
 
             } else {
 
-                if (demo.attr('id') == 'demo2') {
+                if ($demo.attr('id') == 'demo2') {
 
                     val[0] = ('0' + val[0].getDate()).slice(-2) + 
                     '/' + ('0' + (1 + val[0].getMonth()) ).slice(-2) +
@@ -178,11 +178,11 @@ $(document).ready( function() {
                     '/' + val[1].getFullYear();
                 }
 
-                if (demo.attr('id') == 'demo3') {
-                    demo.find('input[name="rangeInCustomValues"]').val(val.join('-'));
+                if ($demo.attr('id') == 'demo3') {
+                    $demo.find('input[name="rangeInCustomValues"]').val(val.join('-'));
 
                 } else {
-                    demo.find('input[name="range"]').val(val.join('-'));
+                    $demo.find('input[name="range"]').val(val.join('-'));
                 }
             }
         });
@@ -202,82 +202,28 @@ $.fn.hasAttr = function(name) {
     return this.attr(name) !== undefined;
 }
 
-function tryToChange(block, options, timeout) {
-    let slider = block.find('.slider');
+function tryToChange(block, $options, $timeout) {
+    let $slider = block.find('.slider');
 
     try {
-        slider.slider('change', options);
+        $slider.slider('change', $options);
 
         if ( !block.find('.mistake').hasAttr('hidden') ) {
 
             block.find('.mistake').attr('hidden', '');
-            clearTimeout(timeout);
+            clearTimeout($timeout);
         }
 
     } catch(e) {
-        clearTimeout(timeout);
+        clearTimeout($timeout);
 
         block.find('.mistake span').text(e);
         block.find('.mistake').removeAttr('hidden');
 
-        timeout = setTimeout(function() {
+        $timeout = setTimeout(function() {
             block.find('.mistake').attr('hidden', '');
         }, 4000);
 
-        return timeout;
+        return $timeout;
     }
 }
-
-/* function numericChange(opt, demo, options, timeout, instantChange) {
-
-    if ( opt.attr('type') == 'checkbox') {
-
-        //opt.toggleAttr('checked');
-        let bool = opt.hasAttr('checked');
-        options[opt.attr('name')] = bool; 
-
-    } else if ( opt.attr('name') == 'range' ) {
-
-        let val;
-        val = opt.val().split('-', 2);
-        opt.attr('value', opt.val());
-        options.range = val;
-
-    } else {
-
-        //opt.attr('value', opt.val());
-        options[opt.attr('name')] = opt.val();
-    }
-
-    if (instantChange) {
-        timeout = tryToChange(demo, options, timeout);
-        options = {};
-    }
-}
-
-function dateChange(opt, demo, options, timeout, instantChange) {
-
-    if ( opt.attr('type') == 'checkbox') {
-
-        //opt.toggleAttr('checked');
-        let bool = opt.hasAttr('checked');
-        options[opt.attr('name')] = bool; 
-
-    } else if ( opt.attr('name') == 'range' ) {
-
-        let val;
-        val = opt.val().split('-', 2);
-        //opt.attr('value', opt.val());
-        options.range = val;
-
-    } else {
-
-        opt.attr('value', opt.val());
-        options[opt.attr('name')] = opt.val();
-    }
-
-    if (instantChange) {
-        timeout = tryToChange(demo, options, timeout);
-        options = {};
-    }   
-} */

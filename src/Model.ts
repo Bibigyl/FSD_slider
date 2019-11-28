@@ -1,6 +1,6 @@
 import IOptions, { defaultOptions } from './defaultOptions';
 
-export interface IModel {
+interface IModel {
     // 1
     getVal(): number;
     setVal(newVal: number): void;
@@ -27,11 +27,11 @@ export interface IModel {
     getStepNumber(val: number): number;
     translateByStep(step: number): number | string | Date; // по шагу
     translate(val: number): number | string | Date; // по валидному значению
-    numberOfSteps(): number;
+    getNumberOfSteps(): number;
     change(newOptions: any): void;
 }
 
-export interface IModelOptions {
+interface IModelOptions {
     dataFormat: string;
     value: number | null;
     minVal: number;
@@ -42,7 +42,7 @@ export interface IModelOptions {
     customValues?: string[];
 }
 
-export default class Model implements IModel {
+class Model implements IModel {
 
     private _dataFormat: string;
     private _val: number | null;
@@ -64,16 +64,16 @@ export default class Model implements IModel {
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {
-            validOptions = this.numericFormatValidation(options, defaultOptions);
+            validOptions = this.validateNumericFormat(options, defaultOptions);
 
         } else if ( options.dataFormat == 'date' ) {
             // сохраняем даты в начальном фотрмате, напр dd/mm/yyyy
             // чтобы можно было использовать их для изменения модели
             this._options = Object.assign({}, allOptions);
-            validOptions = this.dateFormatValidation(options, defaultOptions);
+            validOptions = this.validateDateFormat(options, defaultOptions);
 
         } else if ( options.dataFormat == 'custom' ) {
-            validOptions = this.customFormatValidation(options, defaultOptions);
+            validOptions = this.validateCustomFormat(options, defaultOptions);
             validOptions.customValues = options.customValues;
 
         } else {
@@ -98,7 +98,7 @@ export default class Model implements IModel {
     }
     setVal(newVal: number): void {
         this.areNumeric(newVal);
-        this.oneValueValidation(this._minVal, this._maxVal, newVal, this._step);
+        this.isOneValueValid(this._minVal, this._maxVal, newVal, this._step);
         this._val = newVal;
     }
     // 2
@@ -107,9 +107,9 @@ export default class Model implements IModel {
     }
     setRange(newRange: [number, number]): void {
         this.areNumeric(newRange[0], newRange[1])
-        this.rangeValidation(this._minVal, this._maxVal, newRange, this._step);
+        this.isRangeValid(this._minVal, this._maxVal, newRange, this._step);
 
-        if ( this.minMaxValidation(newRange[0], newRange[1], this._reverse) ) {
+        if ( this.areMinMaxValid(newRange[0], newRange[1], this._reverse) ) {
             this._range = newRange;
         } else {
             this._range = [newRange[1], newRange[0]];
@@ -224,12 +224,12 @@ export default class Model implements IModel {
         // находит, на каком по счету шаге стоит val
         // применять только для нетрансформированных, правильных значений!
         let stepNum: number;
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
+        let n: number = Math.max( this.findDecimalPlaces(this._step), this.findDecimalPlaces(this._minVal) );
 
         let a: number = +(val - this._minVal).toFixed(n);
         let b: number = +(this._maxVal - this._minVal).toFixed(n)
         
-        stepNum = +( a * this.numberOfSteps() / b ).toFixed();
+        stepNum = +( a * this.getNumberOfSteps() / b ).toFixed();
         stepNum = Math.abs(stepNum);
 
         return stepNum;
@@ -246,7 +246,7 @@ export default class Model implements IModel {
             }
             
         } else {
-            let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
+            let n: number = Math.max( this.findDecimalPlaces(this._step), this.findDecimalPlaces(this._minVal) );
             let r: number = !this._reverse ? 1 : -1;
             let val: number = +( (+this._minVal) + (+this._step) * (+step) * (+r) ).toFixed(n);
 
@@ -271,8 +271,8 @@ export default class Model implements IModel {
         }
     }
 
-    numberOfSteps(): number {
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
+    getNumberOfSteps(): number {
+        let n: number = Math.max( this.findDecimalPlaces(this._step), this.findDecimalPlaces(this._minVal) );
         n = Math.pow(10, n);
         return ( Math.abs(this._maxVal - this._minVal) * n ) / ( this._step * n );
     }
@@ -286,15 +286,15 @@ export default class Model implements IModel {
         let validOptions: IModelOptions;
 
         if ( options.dataFormat == 'numeric' ) {
-            validOptions = this.numericFormatValidation(options, prevOptions as IOptions);
+            validOptions = this.validateNumericFormat(options, prevOptions as IOptions);
 
         } else if ( options.dataFormat == 'date' ) {
-            validOptions = this.dateFormatValidation(options, prevOptions as IOptions);
+            validOptions = this.validateDateFormat(options, prevOptions as IOptions);
             this._options = Object.assign({}, prevOptions, newOptions);
 
 
         } else if ( options.dataFormat == 'custom' ) {
-            validOptions = this.customFormatValidation(options, prevOptions as IOptions);
+            validOptions = this.validateCustomFormat(options, prevOptions as IOptions);
             validOptions.customValues = options.customValues;
 
         } else {
@@ -313,7 +313,7 @@ export default class Model implements IModel {
         if (this._dataFormat != 'date') this._options = validOptions;
     }
 
-    private numericFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
+    private validateNumericFormat(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
         let options: IOptions = allOptions;
         // присваиваем начальным опциям дефолтные значения из defaultOptions
         // начальному значению присваиваем минимальное
@@ -334,11 +334,11 @@ export default class Model implements IModel {
         newOptions.reverse = options.reverse ? true : false;
         newOptions.dataFormat = options.dataFormat;
         
-        this.stepValidation(options.minVal as number, options.maxVal as number, newOptions.step);
+        this.isStepValid(options.minVal as number, options.maxVal as number, newOptions.step);
 
         // если мин и макс перепутаны пользователем, меняем порядок
         // подразумевается, что min - это то что слева на слайдере, max - справа
-        if ( this.minMaxValidation(options.minVal as number, options.maxVal as number, newOptions.reverse) ) {
+        if ( this.areMinMaxValid(options.minVal as number, options.maxVal as number, newOptions.reverse) ) {
             newOptions.minVal = options.minVal as number;
             newOptions.maxVal = options.maxVal as number;            
         } else {
@@ -347,9 +347,9 @@ export default class Model implements IModel {
         }
 
         if ( options.range ) {
-            this.rangeValidation(newOptions.minVal, newOptions.maxVal, options.range as [number, number], newOptions.step);
+            this.isRangeValid(newOptions.minVal, newOptions.maxVal, options.range as [number, number], newOptions.step);
             // если мин и макс в диапазоне range перепутаны пользователем, меняем порядок
-            if ( this.minMaxValidation(options.range[0] as number, options.range[1] as number, newOptions.reverse) ) {
+            if ( this.areMinMaxValid(options.range[0] as number, options.range[1] as number, newOptions.reverse) ) {
                 newOptions.range = options.range as [number, number];
             } else {
                 newOptions.range = [options.range[1] as number, options.range[0] as number];
@@ -361,7 +361,7 @@ export default class Model implements IModel {
         } else {
             // запускаем проверки для начального значения, только если не указан диапазон range
             this.areNumeric(options.value);
-            this.oneValueValidation(newOptions.minVal, newOptions.maxVal, options.value as number, newOptions.step);
+            this.isOneValueValid(newOptions.minVal, newOptions.maxVal, options.value as number, newOptions.step);
 
             newOptions.value = options.value as number;
             newOptions.range = null;
@@ -371,31 +371,31 @@ export default class Model implements IModel {
     }
 
 
-    private dateFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
+    private validateDateFormat(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
         let options: IOptions = allOptions;
 
-        this.customDateValidation(options.minVal, options.maxVal);
+        this.isCustomDateValid(options.minVal, options.maxVal);
         options.minVal = this.translateDateToNumber(options.minVal as string);
         options.maxVal = this.translateDateToNumber(options.maxVal as string);
         options.step = this.tranlateStepToDateFormat(options.step);
 
         if ( Array.isArray(options.range) && options.range.length == 2 ) {
             // если пользователь ввел что то другое, а не range, на этом
-            // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
+            // этапе ошибки не будет. Она появится при проверке на validateNumericFormat
             // (потому что range так и остается true)
-            this.customDateValidation(options.range[0], options.range[1]);
+            this.isCustomDateValid(options.range[0], options.range[1]);
             options.range[0] = this.translateDateToNumber(options.range[0] as string);
             options.range[1] = this.translateDateToNumber(options.range[1] as string);
 
         } else {
-            this.customDateValidation(options.value);
+            this.isCustomDateValid(options.value);
             options.value = this.translateDateToNumber(options.value as string);
         }
-        return this.numericFormatValidation(options, defaultOptions);
+        return this.validateNumericFormat(options, defaultOptions);
     }
 
 
-    private customFormatValidation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
+    private validateCustomFormat(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
         let options: IOptions = allOptions;
 
         if ( !options.customValues ) {
@@ -418,7 +418,7 @@ export default class Model implements IModel {
 
             if ( !options.range && Array.isArray(options.rangeInCustomValues) && options.rangeInCustomValues.length == 2 ) {
                 // если пользователь ввел что то другое, а не range, на этом
-                // этапе ошибки не будет. Она появится при проверке на numericFormatValidation
+                // этапе ошибки не будет. Она появится при проверке на validateNumericFormat
                 // (потому что range так и остается true)
                 options.range = [0, 0];
                 options.range[0] = this.findPositionInArr(options.rangeInCustomValues[0], options.customValues);
@@ -432,7 +432,7 @@ export default class Model implements IModel {
                 options.value = this.findPositionInArr(options.valueInCustomValues, options.customValues);
             }
         }
-        return this.numericFormatValidation(options, defaultOptions);
+        return this.validateNumericFormat(options, defaultOptions);
     }
 
 
@@ -445,7 +445,7 @@ export default class Model implements IModel {
         return true;
     }
 
-    private minMaxValidation(minVal: number, maxVal: number, reverse: boolean): boolean {
+    private areMinMaxValid(minVal: number, maxVal: number, reverse: boolean): boolean {
         if ( !reverse && (minVal >= maxVal) ) {
             return false;
         } else if ( reverse && (minVal <= maxVal) ) {
@@ -455,7 +455,7 @@ export default class Model implements IModel {
         }
     }
 
-    private stepValidation(minVal: number, maxVal: number, step: number) {
+    private isStepValid(minVal: number, maxVal: number, step: number) {
         
         if ( !this.isNumeric(step) ) {
             throw new Error('Step should be a number');
@@ -464,7 +464,7 @@ export default class Model implements IModel {
             throw new Error('Step cant be equal to 0');
         }
 
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
+        let n: number = Math.max( this.findDecimalPlaces(this._step), this.findDecimalPlaces(this._minVal) );
         let test: number = +(maxVal - minVal).toFixed(n)
         test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );
         test = Math.abs(test);
@@ -476,9 +476,9 @@ export default class Model implements IModel {
         return true;
     }
 
-    private oneValueValidation(minVal: number, maxVal: number, val: number, step: number) {
+    private isOneValueValid(minVal: number, maxVal: number, val: number, step: number) {
 
-        let n: number = Math.max( this.decimalPlaces(step), this.decimalPlaces(minVal) );
+        let n: number = Math.max( this.findDecimalPlaces(step), this.findDecimalPlaces(minVal) );
 
         let test: number = +(val - minVal).toFixed(n)
         test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );
@@ -493,9 +493,9 @@ export default class Model implements IModel {
         return true;
     }
 
-    private rangeValidation(minVal: number, maxVal: number, range: [number, number], step: number) {
+    private isRangeValid(minVal: number, maxVal: number, range: [number, number], step: number) {
 
-        let n: number = Math.max( this.decimalPlaces(this._step), this.decimalPlaces(this._minVal) );
+        let n: number = Math.max( this.findDecimalPlaces(this._step), this.findDecimalPlaces(this._minVal) );
 
         let testLeft: number = (range[0] - minVal) / step;
         testLeft = +testLeft.toFixed(n);
@@ -520,7 +520,7 @@ export default class Model implements IModel {
         return true;
     }
 
-    private customDateValidation(...vals: any[]) {
+    private isCustomDateValid(...vals: any[]) {
         for ( let val of vals ) {
             if ( !('' + val).match(/^\d{2}[.\/-]\d{2}[.\/-]\d{4}$/) ) {
                 throw new Error('All values in date format should be dates, like dd.mm.yyyy or dd/mm/yyyy or dd-mm-yyyy'); 
@@ -554,10 +554,13 @@ export default class Model implements IModel {
         return !isNaN(parseFloat(n)) && !isNaN(n - 0);
     }
 
-    private decimalPlaces(num: number): number {
+    private findDecimalPlaces(num: number): number {
         // количество знаков после запятой
         return ~(num + '').indexOf('.') ? (num + '').split('.')[1].length : 0;
     }
 }
 
 
+export { IModel };
+export { IModelOptions };
+export default Model;

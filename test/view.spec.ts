@@ -311,7 +311,7 @@ describe('View has auxiliary methods', function() {
 
     describe('oneStepLength', function() {
         it('returns lentgh of one step', function() {
-            expect(view.oneStepLenght()).toBe(30);
+            expect(view.findOneStepLenght()).toBe(30);
         });
     });
 
@@ -326,11 +326,11 @@ describe('View has auxiliary methods', function() {
         });
     });
 
-    describe('scaleStepValidation', function() {
+    describe('findValidScaleStep', function() {
         it('returns new scale step or model step, accoding to number of steps. Scale step should be multiple to step in model', function() {
-            let step: number = view.scaleStepValidation(model, 2);
+            let step: number = view.findValidScaleStep(model, 2);
             expect(step).toBe(2);
-            step = view.scaleStepValidation(model, 3);
+            step = view.findValidScaleStep(model, 3);
             expect(step).toBe(1);
         });
     });
@@ -372,23 +372,23 @@ describe('View has private functions:', function() {
         });
     });
     
-    describe('lengthValidation returns string if its valid', function() {
+    describe('findValidLength returns string if its valid', function() {
 
         it('returns 10px if 10px', function() {
             // @ts-ignore
-            expect(view.lengthValidation('10Px')).toBe('10px');
+            expect(view.findValidLength('10Px')).toBe('10px');
         });
         it('returns 10px if 10', function() {
             // @ts-ignore
-            expect(view.lengthValidation('10')).toBe('10px');
+            expect(view.findValidLength('10')).toBe('10px');
         });
         it('returns 10.5% if 10,5%', function() {
             // @ts-ignore
-            expect(view.lengthValidation('10,5%')).toBe('10.5%');
+            expect(view.findValidLength('10,5%')).toBe('10.5%');
         });
         it('returns Error', function() {
             // @ts-ignore
-            expect(function() {view.lengthValidation('10pxs')}).toThrow(new Error('Width (or height) should be valid to css'));
+            expect(function() {view.findValidLength('10pxs')}).toThrow(new Error('Width (or height) should be valid to css'));
         });
     });
 

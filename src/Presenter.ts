@@ -4,7 +4,7 @@ import {IModelOptions} from './Model';
 import {IView} from './View';
 import {ISubject}  from './Observer';
 
-export default class Presenter {
+class Presenter {
 
     private _model: IModel;
     private _view: IView;
@@ -63,7 +63,7 @@ export default class Presenter {
         let step: number = this._model.getStep();
         let reverse: number = !this._model.getReverse() ? 1 : -1;
         let sliderLenght: number = this._view.getLenght();
-        let stepLenght: number = this._view.oneStepLenght();
+        let stepLenght: number = this._view.findOneStepLenght();
 
         let sliderBorder: number;
         let eventPos: number;
@@ -87,7 +87,6 @@ export default class Presenter {
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
             eventPos = event.clientY || event.touches[0].clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
-
         }
  
         newVal = Math.round(thumbPosition / stepLenght);
@@ -201,7 +200,7 @@ export default class Presenter {
         let step: number = this._model.getStep();
         let reverse: number = !this._model.getReverse() ? 1 : -1;
         let sliderLenght: number = this._view.getLenght();
-        let stepLenght: number = this._view.oneStepLenght();
+        let stepLenght: number = this._view.findOneStepLenght();
 
         let sliderBorder: number;
         let eventPos: number;
@@ -214,15 +213,16 @@ export default class Presenter {
         // Вначале newVal вычисляется как количество шагов от начала (от 0),
         // (то есть значения min, max, reverse не имеют значения).
 
-        if ( !this._view.getVertical() ) {
+        if ( !view.getVertical() ) {
 
             sliderBorder = (sliderNode.offsetWidth - sliderLenght) / 2;
-            eventPos = event.clientX;            
+            eventPos = event.clientX || event.touches[0].clientX;         
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().left - sliderBorder;
+
         } else {
 
             sliderBorder = (sliderNode.offsetHeight - sliderLenght) / 2;
-            eventPos = event.clientY;            
+            eventPos = event.clientY || event.touches[0].clientY;            
             thumbPosition = eventPos - sliderNode.getBoundingClientRect().top - sliderBorder;
         }
 
@@ -331,20 +331,20 @@ export default class Presenter {
         });
         
         if ( test ) {
-            let prevNumOfSteps: number = model.numberOfSteps();
+            let prevNumOfSteps: number = model.getNumberOfSteps();
             let prevOptions: IModelOptions = model.getOptions();
             let newOptions: IOptions = Object.assign({}, prevOptions, options);
 
             model.change(newOptions);
 
-            view.setNumberOfSteps( model.numberOfSteps() );
-            view.setScaleStep( view.scaleStepValidation( model, view.getScaleStep() ) );
+            view.setNumberOfSteps( model.getNumberOfSteps() );
+            view.setScaleStep( view.findValidScaleStep( model, view.getScaleStep() ) );
 
             changeThumbPosition = true;
             changeTooltipVal = true;
             changeScaleDivision = true;
 
-            if ( prevNumOfSteps != model.numberOfSteps() ) {
+            if ( prevNumOfSteps != model.getNumberOfSteps() ) {
                 rebuildScale = true;
             }
             if ( view.getRange() && !model.getRange() ) {
@@ -390,7 +390,7 @@ export default class Presenter {
         // 2.3 Шкала. Удаляем, строим или перестраиваем. Изменяем деления.
 
         if ( options.hasOwnProperty('scaleStep') && options.scaleStep != view.getScaleStep() ) {
-            view.setScaleStep( view.scaleStepValidation(model, options.scaleStep) );
+            view.setScaleStep( view.findValidScaleStep(model, options.scaleStep) );
             rebuildScale = true;
             changeScaleDivision = true;
         }
@@ -478,15 +478,15 @@ export default class Presenter {
 
             if ( !model.getRange() ) {
 
-                pos = view.findThumbPosition( model.getStepNumber(model.getVal()), model.numberOfSteps() );
+                pos = view.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
                 view.setThumbPosition( view.getThumb(), pos);
 
             } else {     
     
-                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.numberOfSteps() );
+                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
                 view.setThumbPosition( view.getThumb(1), pos);
     
-                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.numberOfSteps() );
+                pos = view.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
                 view.setThumbPosition( view.getThumb(2), pos);
             }
 
@@ -512,3 +512,5 @@ export default class Presenter {
         }
     }
 }
+
+export default Presenter

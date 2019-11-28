@@ -190,9 +190,9 @@ describe('Model has private functions and methods: ', function() {
         })
     })
 
-    describe('numberOfSteps returns number of steps', function() {
+    describe('getNumberOfSteps returns number of steps', function() {
         it('returns 10 if default options', function() {
-            expect(model.numberOfSteps()).toBe(10);
+            expect(model.getNumberOfSteps()).toBe(10);
         })
         it('works, when float', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -201,7 +201,7 @@ describe('Model has private functions and methods: ', function() {
                 maxVal: 2.5
             });
             model = new Model(testOptions);
-            expect(model.numberOfSteps()).toBe(9);
+            expect(model.getNumberOfSteps()).toBe(9);
         });
         it('works, when float and step == 1', function() {
             testOptions = Object.assign({}, defaultOptions, {
@@ -210,7 +210,7 @@ describe('Model has private functions and methods: ', function() {
                 maxVal: 1.9
             });
             model = new Model(testOptions);
-            expect(model.numberOfSteps()).toBe(2);
+            expect(model.getNumberOfSteps()).toBe(2);
         });
     });
 
@@ -236,7 +236,7 @@ describe('Model has private functions and methods: ', function() {
         });
     });
 
-    describe('numericFormatValidation calls all validation functions to options. Its the main function for model, its called even if custom or date format of data', function() {
+    describe('validateNumericFormat calls all validation functions to options. Its the main function for model, its called even if custom or date format of data', function() {
         it('returns an object, with valid options, test 1. Min and max change position, initian val == min', function() {
             testOptions = Object.assign({}, defaultOptions, {
                 minVal: 0,
@@ -245,7 +245,7 @@ describe('Model has private functions and methods: ', function() {
                 reverse: true,
             });
             // @ts-ignore
-            newOptions = model.numericFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateNumericFormat(testOptions, defaultOptions);
             expect(newOptions.dataFormat).toBe('numeric');
             expect(newOptions.minVal).toBe(20);
             expect(newOptions.maxVal).toBe(0);
@@ -263,7 +263,7 @@ describe('Model has private functions and methods: ', function() {
                 value: 10
             });
             // @ts-ignore
-            newOptions = model.numericFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateNumericFormat(testOptions, defaultOptions);
             expect(newOptions.dataFormat).toBe('numeric');
             expect(newOptions.minVal).toBe(-10);
             expect(newOptions.maxVal).toBe(20);
@@ -285,7 +285,7 @@ describe('Model has private functions and methods: ', function() {
                 reverse: true,
             });
             // @ts-ignore
-            newOptions = model.dateFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateDateFormat(testOptions, defaultOptions);
 
             expect(newOptions.dataFormat).toBe('date');
             expect(newOptions.minVal).toBe(1568840400000);
@@ -311,7 +311,7 @@ describe('Model has private functions and methods: ', function() {
                 step: 2,
             });
             // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateCustomFormat(testOptions, defaultOptions);
 
             expect(newOptions.dataFormat).toBe('custom');
             expect(newOptions.minVal).toBe(4);
@@ -335,7 +335,7 @@ describe('Model has private functions and methods: ', function() {
                 step: 2,
             });
             // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateCustomFormat(testOptions, defaultOptions);
 
             expect(newOptions.dataFormat).toBe('custom');
             expect(newOptions.minVal).toBe(4);
@@ -357,7 +357,7 @@ describe('Model has private functions and methods: ', function() {
                 rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateCustomFormat(testOptions, defaultOptions);
 
             expect(newOptions.value).toBeNull();
             expect(newOptions.range).toEqual([1, 4]);
@@ -373,7 +373,7 @@ describe('Model has private functions and methods: ', function() {
                 //rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateCustomFormat(testOptions, defaultOptions);
 
             expect(newOptions.value).toBe(2);
             expect(newOptions.range).toBeNull();
@@ -389,7 +389,7 @@ describe('Model has private functions and methods: ', function() {
                 //rangeInCustomValues: [1, 'p'],
             });
             // @ts-ignore
-            newOptions = model.customFormatValidation(testOptions, defaultOptions);
+            newOptions = model.validateCustomFormat(testOptions, defaultOptions);
 
             expect(newOptions.value).toBe(3);
             expect(newOptions.range).toBeNull();
@@ -411,126 +411,126 @@ describe('Model has private functions and methods: ', function() {
         }); 
     });
 
-    describe('minMaxValidation checks the right meaning of min and max values, considering to reverse option, returns boolean', function() {
+    describe('areMinMaxValid checks the right meaning of min and max values, considering to reverse option, returns boolean', function() {
         it('minVal=1 maxVal=2 return true', function() {
             // @ts-ignore
-            expect(model.minMaxValidation(1, 2, false)).toBeTruthy();
+            expect(model.areMinMaxValid(1, 2, false)).toBeTruthy();
         });
         it('minVal=2 maxVal=1 return false', function() {
             // @ts-ignore
-            expect(model.minMaxValidation(2, 1, false)).toBeFalsy();
+            expect(model.areMinMaxValid(2, 1, false)).toBeFalsy();
         }); 
         it('minVal=2 maxVal=1 and reverse return true', function() {
             // @ts-ignore
-            expect(model.minMaxValidation(2, 1, true)).toBeTruthy();
+            expect(model.areMinMaxValid(2, 1, true)).toBeTruthy();
         });
         it('minVal=1 maxVal=2 and reverse return false', function() {
             // @ts-ignore
-            expect(model.minMaxValidation(1, 2, true)).toBeFalsy();
+            expect(model.areMinMaxValid(1, 2, true)).toBeFalsy();
         });
     });
 
-    describe('stepValidation checks if (max val - min val) divided by step returns integer, returns true or Error', function() {
+    describe('isStepValid checks if (max val - min val) divided by step returns integer, returns true or Error', function() {
         it('minVal=0 maxVal=10 step=2 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(0, 10, 2)).toBeTruthy();
+            expect(model.isStepValid(0, 10, 2)).toBeTruthy();
         });
         it('minVal=0 maxVal=10 step=10 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(0, 10, 2)).toBeTruthy();
+            expect(model.isStepValid(0, 10, 2)).toBeTruthy();
         });
         it('minVal=10 maxVal=0 step=-2 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(0, 10, -2)).toBeTruthy();
+            expect(model.isStepValid(0, 10, -2)).toBeTruthy();
         });
         it('minVal=0.1 maxVal=0.9 step=0.1 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(0, 10, -2)).toBeTruthy();
+            expect(model.isStepValid(0, 10, -2)).toBeTruthy();
         });
         it('minVal=0.1 maxVal=0.9 step=0.1 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(0.1, 0.9, 0.1)).toBeTruthy();
+            expect(model.isStepValid(0.1, 0.9, 0.1)).toBeTruthy();
         });
         it('minVal=1 maxVal=10 step=9 return true', function() {
             // @ts-ignore
-            expect(model.stepValidation(1, 10, 9)).toBeTruthy();
+            expect(model.isStepValid(1, 10, 9)).toBeTruthy();
         });
         it('minVal=1 maxVal=10 step="a" return Error', function() {
             // @ts-ignore
-            expect(function() { model.stepValidation(1, 10, 'a') }).toThrow(new Error('Step should be a number'));
+            expect(function() { model.isStepValid(1, 10, 'a') }).toThrow(new Error('Step should be a number'));
         });
         it('minVal=1 maxVal=10 step=0 return Error', function() {
             // @ts-ignore
-            expect( function() { model.stepValidation(1, 10, 0) }).toThrow(new Error('Step cant be equal to 0'));
+            expect( function() { model.isStepValid(1, 10, 0) }).toThrow(new Error('Step cant be equal to 0'));
         });
         it('minVal=1 maxVal=10 step=2 return Error', function() {
             // @ts-ignore
-            expect(function() { model.stepValidation(1, 10, 2) }).toThrow(new Error('(Max value - min value) divided by step should return integer'));
+            expect(function() { model.isStepValid(1, 10, 2) }).toThrow(new Error('(Max value - min value) divided by step should return integer'));
         });
         it('minVal=1 maxVal=10 step=11 return Error', function() {
             // @ts-ignore
-            expect( function() { model.stepValidation(1, 10, 11) }).toThrow(new Error('(Max value - min value) divided by step should return integer'));
+            expect( function() { model.isStepValid(1, 10, 11) }).toThrow(new Error('(Max value - min value) divided by step should return integer'));
         });
     });
 
-    describe('oneValueValidation ckecks one value, return true or Error', function() {
+    describe('isOneValueValid ckecks one value, return true or Error', function() {
         it('minVal=1 maxVal=10 val=4 return true', function() {
             // @ts-ignore
-            expect(model.oneValueValidation(0, 10, 4, 2)).toBeTruthy();
+            expect(model.isOneValueValid(0, 10, 4, 2)).toBeTruthy();
         });
         it('minVal=10 maxVal=0 val=1.5 step 0.5  return true', function() {
             // @ts-ignore
-            expect(model.oneValueValidation(10, 0, 1.5, 0.5)).toBeTruthy();
+            expect(model.isOneValueValid(10, 0, 1.5, 0.5)).toBeTruthy();
         });
         it('minVal=0 maxVal=10 val=10.6 step 0.5 return true', function() {
             // @ts-ignore
-            expect(function() {model.oneValueValidation(0, 10, 10.6, 0.5)}).toThrow(new Error('The initial value should be within min and max values'));
+            expect(function() {model.isOneValueValid(0, 10, 10.6, 0.5)}).toThrow(new Error('The initial value should be within min and max values'));
         });
         it('minVal=0 maxVal=10 val=0.6 step 0.5 return true', function() {
             // @ts-ignore
-            expect(function() {model.oneValueValidation(0, 10, 0.6, 0.5)}).toThrow(new Error('Value should be set on step'));
+            expect(function() {model.isOneValueValid(0, 10, 0.6, 0.5)}).toThrow(new Error('Value should be set on step'));
         });    
     });
 
-    describe('rangeValidation checks the range, returns true or Error', function() {
+    describe('isRangeValid checks the range, returns true or Error', function() {
         it('minVal=1 maxVal=10 range=[2,3] return true', function() {
             // @ts-ignore
-            expect(model.rangeValidation(0, 10, [2, 6], 2)).toBeTruthy();
+            expect(model.isRangeValid(0, 10, [2, 6], 2)).toBeTruthy();
         });
         it('minVal=1 maxVal=10 range=["11", "2"] return true', function() {
             // @ts-ignore
-            expect(model.rangeValidation(1, 10, ["9", "2"], 1)).toBeTruthy();
+            expect(model.isRangeValid(1, 10, ["9", "2"], 1)).toBeTruthy();
         });
         it('minVal=1 maxVal=10 range=[2,3,4] return Error', function() {
             // @ts-ignore
-            expect(function() {model.rangeValidation(1, 10, [2, 3, 4])} ).toThrow(new Error('Range should contain two values'));
+            expect(function() {model.isRangeValid(1, 10, [2, 3, 4])} ).toThrow(new Error('Range should contain two values'));
         });
         it('minVal=1 maxVal=10 range=["a", 2] return Error', function() {
             // @ts-ignore
-            expect(function() {model.rangeValidation(1, 10, ["a", "2"], 1)} ).toThrow(new Error('Values in range should be numbers'));
+            expect(function() {model.isRangeValid(1, 10, ["a", "2"], 1)} ).toThrow(new Error('Values in range should be numbers'));
         });
         it('minVal=1 maxVal=10 range=[11, 2] return Error', function() {
             // @ts-ignore
-            expect(function() {model.rangeValidation(1, 10, [11, 2])} ).toThrow(new Error('The range should be within min and max values'));
+            expect(function() {model.isRangeValid(1, 10, [11, 2])} ).toThrow(new Error('The range should be within min and max values'));
         });
     });
 
-    describe('customDateValidation checks if date has right format,', function() {
+    describe('isCustomDateValid checks if date has right format,', function() {
         it('returns true if 22.05.2016', function() {
             // @ts-ignore
-            expect(model.customDateValidation('22.05.2016')).toBeTruthy();
+            expect(model.isCustomDateValid('22.05.2016')).toBeTruthy();
         });
         it('returns true if 22/05/2016', function() {
             // @ts-ignore
-            expect(model.customDateValidation('22/05/2016')).toBeTruthy();
+            expect(model.isCustomDateValid('22/05/2016')).toBeTruthy();
         });
         it('returns true if 22-05-2016', function() {
             // @ts-ignore
-            expect(model.customDateValidation('22-05-2016')).toBeTruthy();
+            expect(model.isCustomDateValid('22-05-2016')).toBeTruthy();
         });
         it('returns Error if 5', function() {
             // @ts-ignore
-            expect(function() { model.customDateValidation('5') }).toThrow(new Error('All values in date format should be dates, like dd.mm.yyyy or dd/mm/yyyy or dd-mm-yyyy'));
+            expect(function() { model.isCustomDateValid('5') }).toThrow(new Error('All values in date format should be dates, like dd.mm.yyyy or dd/mm/yyyy or dd-mm-yyyy'));
         });
     });
 
@@ -590,10 +590,10 @@ describe('Model has private functions and methods: ', function() {
             expect(model.isNumeric('a')).not.toBeTruthy();
         });
     });
-    describe('decimalPlaces returns number of decimal places', function() {
+    describe('findDecimalPlaces returns number of decimal places', function() {
         it('returns 5 if 1.12345', function(){
             // @ts-ignore
-            expect(model.decimalPlaces(1.12345)).toBe(5);
+            expect(model.findDecimalPlaces(1.12345)).toBe(5);
         });
     });
 });
