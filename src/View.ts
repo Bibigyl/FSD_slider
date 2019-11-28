@@ -83,18 +83,18 @@ class View implements IView {
             this._slider.classList.add('slider_vertical');            
         }
 
-        this._line = this.buildLine(this._slider);
+        this._line = this.buildNode(this._slider, 'slider__line');
 
         let pos: number;
         if ( !this._range ) {
 
-            this._thumb = this.buildThumb(this._slider);
+            this._thumb = this.buildNode(this._slider, 'slider__thumb');
             pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
             this.setThumbPosition( this._thumb, pos);
         } else {     
 
-            this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left');
-            this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
+            this._thumbLeft = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_left');
+            this._thumbRight = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_right');
 
             pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
             this.setThumbPosition( this._thumbLeft, pos);
@@ -259,7 +259,7 @@ class View implements IView {
 
         this._range = false;
         
-        this._thumb = this.buildThumb(this._slider);
+        this._thumb = this.buildNode(this._slider, 'slider__thumb');
         this._thumbLeft = this.removeNode(this._thumbLeft);
         this._thumbRight = this.removeNode(this._thumbRight);
 
@@ -273,8 +273,8 @@ class View implements IView {
         this._range = true;
 
         this._thumb = this.removeNode(this._thumb);
-        this._thumbLeft = this.buildThumb(this._slider, 'slider__thumb_left'); 
-        this._thumbRight = this.buildThumb(this._slider, 'slider__thumb_right');
+        this._thumbLeft = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_left'); 
+        this._thumbRight = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_right');
         
         pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
         this.setThumbPosition( this._thumbLeft, pos);
@@ -290,18 +290,18 @@ class View implements IView {
 
             if ( this._tooltip ) this._tooltip = this.removeNode( this._tooltip );
             val = model.translate( model.getVal() );
-            this._tooltip = this.buildTooltip(this._thumb);
+            this._tooltip = this.buildNode(this._thumb, 'slider__tooltip');
             this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
         } else {
             if ( this._tooltipLeft ) this._tooltipLeft = this.removeNode( this._tooltipLeft );
             val = model.translate( model.getRange()[0] );
-            this._tooltipLeft = this.buildTooltip(this._thumbLeft, 'slider__tooltip_left');
+            this._tooltipLeft = this.buildNode(this._thumbLeft, 'slider__tooltip_left');
             this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
 
             if ( this._tooltipRight ) this._tooltipRight = this.removeNode( this._tooltipRight );
             val = model.translate( model.getRange()[1] );
-            this._tooltipRight = this.buildTooltip(this._thumbRight, 'slider__tooltip_right');
+            this._tooltipRight = this.buildNode(this._thumbRight, 'slider__tooltip_right');
             this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
         }
     }
@@ -514,40 +514,14 @@ class View implements IView {
 
     // приватные функции
 
-/*     private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
-        let thumb: HTMLDivElement = document.createElement('div');     
-        thumb.classList.add('slider__thumb');
-        thumbClass ? thumb.classList.add(thumbClass) : false;
-        sliderNode.append(thumb);
+    private buildNode(parentNode: HTMLDivElement, ...classes: string[]): HTMLDivElement {
+        let node: HTMLDivElement = document.createElement('div');     
 
-        return thumb;
-    } */
-
-    private buildThumb(sliderNode: HTMLDivElement, thumbClass?: string): HTMLDivElement {
-        let thumb: HTMLDivElement = document.createElement('div');     
-        thumb.classList.add('slider__thumb');
-        thumbClass ? thumb.classList.add(thumbClass) : false;
-        sliderNode.append(thumb);
-
-        return thumb;
-    }
-
-    private buildLine(sliderNode: HTMLDivElement, lineClass?: string): HTMLDivElement {
-        let line: HTMLDivElement = document.createElement('div');     
-        line.classList.add('slider__line');
-        lineClass ? line.classList.add(lineClass) : false;
-        sliderNode.append(line);
-
-        return line;
-    }
-
-    private buildTooltip(thumbNode: HTMLDivElement, tooltipClass?: string): HTMLDivElement {
-        let tooltip: HTMLDivElement = document.createElement('div');
-        tooltip.classList.add('slider__tooltip');
-        tooltipClass ? tooltip.classList.add(tooltipClass) : false;
-        thumbNode.append(tooltip);
-
-        return tooltip;
+        for ( let i: number = 1; i < arguments.length; i++ ) {
+            node.classList.add(arguments[i]);
+        }
+        parentNode.append(node);
+        return node;
     }
     
     private findValidLength(str: any) {

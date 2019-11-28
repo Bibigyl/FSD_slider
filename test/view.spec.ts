@@ -338,37 +338,14 @@ describe('View has auxiliary methods', function() {
 
 describe('View has private functions:', function() {
 
-    describe('buildThumb - function for constructor,', function() {
+    describe('buildNode - function for constructor,', function() {
         it('creates thumbNode, adds classes', function() {
             // @ts-ignore
-            testNode = view.buildThumb(sliderNode, 'testClass');
+            testNode = view.buildNode(sliderNode, 'testClass', 'testClass2');
             
-            expect(testNode.classList).toContain('slider__thumb');
+            expect(sliderNode.querySelector('.testClass')).toBeDefined();
             expect(testNode.classList).toContain('testClass');
-            expect(sliderNode.querySelector('.slider__thumb')).toBeDefined();
-        });
-    });
-
-    describe('buildLine - function for constructor,', function() {
-        it('creates thumbNode, adds classes', function() {
-            // @ts-ignore
-            testNode = view.buildLine(sliderNode, 'testClass');
-            
-            expect(testNode.classList).toContain('slider__line');
-            expect(testNode.classList).toContain('testClass');
-            expect(sliderNode.querySelector('.slider__line')).toBeDefined();
-        });
-    });
-
-    describe('buildTooltip adds a tooltip with value', function() {
-        it('returns tooltip, adds classes', function() {
-            testNode = document.createElement('div');
-            // @ts-ignore
-            testNode = view.buildTooltip(testNode, 'testClass');
-
-            expect(testNode).toBeDefined();
-            expect(testNode.classList).toContain('slider__tooltip');
-            expect(testNode.classList).toContain('testClass');
+            expect(testNode.classList).toContain('testClass2');
         });
     });
     
