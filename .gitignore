@@ -1,5 +1,6 @@
-node_modules
-.vscode
-slider
-!slider/slider.css
-!slider/slider.js
+/node_modules
+/.vscode
+/slider/demo.css
+/slider/demo.js
+/slider/index.html
+/slider/index2.html
