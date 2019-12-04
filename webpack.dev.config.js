@@ -34,10 +34,10 @@ module.exports = {
   },
   output: {
     filename: 'slider.js',
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, './slider'),
   },
   devServer: {
-    contentBase: path.join(__dirname, './dist'),
+    contentBase: path.join(__dirname, './slider'),
     compress: true,
     hot: true,
   },
