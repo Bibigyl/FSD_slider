@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * sliderributed under the License is sliderributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -34,11 +34,13 @@ module.exports = {
   },
   output: {
     filename: 'slider.js',
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, './slider'),
   },
   devServer: {
-    contentBase: path.join(__dirname, './dist'),
+    contentBase: path.join(__dirname, './slider'),
     compress: true,
     hot: true,
+    index: 'slider/index.html',
+    open: true,
   },
 };
