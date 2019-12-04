@@ -1,0 +1,72 @@
+body {
+    margin: 70px auto;
+}
+h1 {
+    text-align: center;
+    margin: 40px auto;
+}
+h3 {
+    text-align: center;
+    margin: 30px auto;
+}
+h6 {
+    text-align: center;
+    margin: 10px auto 30px;
+}
+hr {
+    margin: 10px auto;
+}
+label {
+    margin-bottom: 0px;
+}
+input[type="number"], input[type="text"] {
+    margin-bottom: 10px;
+    display: block;
+    padding-left: 10px;
+}
+input[type="checkbox"] {
+    margin-bottom: 20px;
+}
+input.input-range {
+    display: inline-block;
+}
+.panel {
+    padding: 30px 10px;
+}
+button {
+    margin-left: 30px;
+}
+.slider-wrap {
+    margin: 70px auto;
+}
+.mistake {
+    border: double;
+    border-color: #eee;
+    margin-top: 50px;
+    padding: 10px 15px;
+    color: red;
+}
+.demo {
+    margin-bottom: 150px;
+}
+
+/*------------------*/
+.slider__tooltip {
+    border-radius: 5px;
+}
+.slider_horizontal .slider__tooltip {
+    margin-top: -38px;    
+}
+.slider_horizontal .slider__scale-division::before {
+    height: 9px;
+}
+.slider_vertical .slider__scale-division::before {
+    width: 9px;
+}
+#demo3 .slider_vertical .slider__scale-division span {
+    left: auto;
+    right: 25px;
+}
+input[name='customValues'] {
+    width: 100%;
+}
