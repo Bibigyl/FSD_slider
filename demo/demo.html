@@ -31,13 +31,15 @@
                         <div class='container'>
                             <div class='row'>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='one' checked>
-                                    <label for='value'>Одно значение</label>
+                                    <label>
+                                        <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='one' checked> Одно значение
+                                    </label>
                                     <input class='option' type='number' name='value' value='0'>
                                 </div>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='two'>
-                                    <label for='range'>Промежуток</label>
+                                    <label>
+                                        <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='two'> Промежуток
+                                    </label>
                                     <input class='option' type='text' name='range' value='10-20' disabled>
                                 </div>
                             </div>
@@ -47,18 +49,20 @@
                                     <h6>Данные модели</h6>
                                     <div class='row'>
                                         <div class='col-md-6'>
-                                            <label for='minVal'>Минимальное значение</label>
+                                            <span>Минимальное значение</span>    
                                             <input class='option' type='number' name='minVal' value='0'>
 
-                                            <label for='maxVal'>Максимальное значение</label>
+                                            Максимальное значение
                                             <input class='option' type='number' name='maxVal' value='30'>
                                         </div>
                                         <div class='col-md-6'>
-                                            <label for='step'>Шаг</label>
+                                            Шаг
                                             <input class='option' type='number' name='step' value='0.5'>
                                             <br>
-                                            <input class='option' type='checkbox' name='reverse'>
-                                            <label for='reverse'>В обратном порядке</label>
+
+                                            <label>
+                                                <input class='option' type='checkbox' name='reverse'> В обратном порядке
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -69,34 +73,42 @@
                                     <h6>Вид слайдера</h6>
                                     <div class='row'>
                                         <div class='col-md-6'>
-                                            <label for='length'>Ширина / Высота</label>
+                                            Ширина / Высота
                                             <input class='option' type='text' name='length' value="300px">
+    
+                                            <label>
+                                                <input class='option' type='checkbox' name='vertical'> Вертикальный вид
+                                            </label>
+                                            <br>
 
-                                            <input class='option' type='checkbox' name='vertical'>
-                                            <label for='vertical'>Вертикальный вид</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='tooltip'> Подсказки
+                                            </label>
+                                            <br>
 
-                                            <input class='option' type='checkbox' name='tooltip'>
-                                            <label for='tooltip'>Подсказки</label><br>
-
-                                            <label for='tooltipMask'>Маска подсказки</label>
+                                            Маска подсказки
                                             <input class='option' type='text' name='tooltipMask' value="'$' + (+val).toFixed(2)" disabled>
                                         </div>
                                         <div class='col-md-6'>
-                                            <input class='option' type='checkbox' name='scale'>
-                                            <label for='scale'>Шкала</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='scale'> Шкала
+                                            </label>
+                                            <br>
 
-                                            <label for='scaleStep'>Шаг на шкале</label>
+                                            Шаг на шкале
                                             <input class='option' type='number' name='scaleStep' value='5' disabled>
 
-                                            <label for='scaleMask'>Маска делениий шкалы</label>
+                                            Маска делениий шкалы
                                             <input class='option' type='text' name='scaleMask' value="'$' + val" disabled>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <hr>
-                            <input type='checkbox' name='manyOptions'>
-                            <b><label for='manyOptions'>Передать несколько опций</label></b>
+                            
+                            <b><label>
+                                <input type='checkbox' name='manyOptions'> Передать несколько опций
+                            </label></b>
                             <button disabled>Изменить слайдер</button>
                         </div>
                     </div>
@@ -122,13 +134,17 @@
                         <div class='container'>
                             <div class='row'>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='date-thumbs' value='one' checked>
-                                    <label for='value'>Одно значение</label>
+                                    <label>
+                                        <input class='radio radio-thumbs' type='radio' name='date-thumbs' value='one' checked> Одно значение
+                                    </label>
+
                                     <input class='option' type='text' name='value' value='18/11/2019'>
                                 </div>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='date-thumbs' value='two'>
-                                    <label for='range'>Промежуток</label>
+                                    <label>
+                                        <input class='radio radio-thumbs' type='radio' name='date-thumbs' value='two'> Промежуток
+                                    </label>
+
                                     <input class='option' type='text' name='range' value='18/11/2019-16/12/2019' disabled>
                                 </div>
                             </div>
@@ -138,18 +154,20 @@
                                     <h6>Данные модели</h6>
                                     <div class='row'>
                                         <div class='col-md-6'>
-                                            <label for='minVal'>Минимальное значение</label>
+                                            Минимальное значение
                                             <input class='option' type='text' name='minVal' value='11/11/2019'>
 
-                                            <label for='maxVal'>Максимальное значение</label>
+                                            Максимальное значение
                                             <input class='option' type='text' name='maxVal' value='23/12/2019'>
                                         </div>
                                         <div class='col-md-6'>
-                                            <label for='step'>Шаг</label>
+                                            Шаг
                                             <input class='option' type='number' name='step' value='1'>
                                             <br>
-                                            <input class='option' type='checkbox' name='reverse'>
-                                            <label for='reverse'>В обратном порядке</label>
+                                            
+                                            <label>
+                                                <input class='option' type='checkbox' name='reverse'> В обратном порядке
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -160,34 +178,38 @@
                                     <h6>Вид слайдера</h6>
                                     <div class='row'>
                                         <div class='col-md-6'>
-                                            <label for='length'>Ширина / Высота</label>
+                                            Ширина / Высота
                                             <input class='option' type='text' name='length' value="300px">
 
-                                            <input class='option' type='checkbox' name='vertical' checked>
-                                            <label for='vertical'>Вертикальный вид</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='vertical' checked> Вертикальный вид
+                                            </label><br>
 
-                                            <input class='option' type='checkbox' name='tooltip'>
-                                            <label for='tooltip'>Подсказки</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='tooltip'> Подсказки
+                                            </label><br>
 
-                                            <label for='tooltipMask'>Маска подсказки</label>
+                                            Маска подсказки
                                             <input class='option' type='text' name='tooltipMask' value="('0'+val.getDate()).slice(-2) + '.' + ('0'+val.getMonth()).slice(-2)" disabled>
                                         </div>
                                         <div class='col-md-6'>
-                                            <input class='option' type='checkbox' name='scale' checked>
-                                            <label for='scale'>Шкала</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='scale' checked> Шкала
+                                            </label><br>
 
-                                            <label for='scaleStep'>Шаг на шкале</label>
+                                            Шаг на шкале
                                             <input class='option' type='number' name='scaleStep' value='7'>
 
-                                            <label for='scaleMask'>Маска делениий шкалы</label>
+                                            Маска делениий шкалы
                                             <input class='option' type='text' name='scaleMask' value="val">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <hr>
-                            <input type='checkbox' name='manyOptions'>
-                            <b><label for='manyOptions'>Передать несколько опций</label></b>
+                            <b><label>
+                                <input type='checkbox' name='manyOptions'> Передать несколько опций
+                            </label></b>
                             <button disabled>Изменить слайдер</button>
                         </div>
                     </div>
@@ -213,19 +235,22 @@
                         <div class='container'>
                             <div class='row'>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='custom-thumbs' value='one' checked>
-                                    <label for='valueInCustomValues'>Одно значение (как значение)</label>
+                                    <label for='valueInCustomValues'>
+                                        <input class='radio radio-thumbs' type='radio' name='custom-thumbs' value='one' checked> Одно значение (как значение)
+                                    </label>
                                     <input class='option' type='text' name='valueInCustomValues' value='red'>
 
-                                    <label for='value'>Одно значение (как число)</label>
+                                    Одно значение (как число)
                                     <input class='option' type='number' name='value' value='3'>
                                 </div>
                                 <div class='col-lg-6'>
-                                    <input class='radio radio-thumbs' type='radio' name='custom-thumbs' value='two'>
-                                    <label for='rangeInCustomValues'>Промежуток (как значения)</label>
+                                    
+                                    <label>
+                                        <input class='radio radio-thumbs' type='radio' name='custom-thumbs' value='two'> Промежуток (как значения)
+                                    </label>
                                     <input class='option' type='text' name='rangeInCustomValues' value='red-blue' disabled>
 
-                                    <label for='range'>Промежуток (как числа)</label>
+                                    Промежуток (как числа)
                                     <input class='option' type='text' name='range' value='2-4' disabled>
                                 </div>
                             </div>
@@ -235,11 +260,12 @@
                                     <h6>Данные модели</h6>
                                     <div class='row'>
                                         <div class='col-12'>
-                                            <label for="customValues">Значения</label>
+                                            Значения
                                             <input class='option' type="text" name='customValues' value='yellow, orange, red, purple, blue, green'>
 
-                                            <input class='option' type='checkbox' name='reverse'>
-                                            <label for='reverse'>В обратном порядке</label>
+                                            <label>
+                                                <input class='option' type='checkbox' name='reverse'> В обратном порядке
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -250,31 +276,35 @@
                                     <h6>Вид слайдера</h6>
                                     <div class='row'>
                                         <div class='col-md-6'>
-                                            <label for='length'>Ширина / Высота</label>
+                                            Ширина / Высота
                                             <input class='option' type='text' name='length' value="300px">
 
-                                            <input class='option' type='checkbox' name='vertical'>
-                                            <label for='vertical'>Вертикальный вид</label><br>
+                                            <label for='vertical'>
+                                                <input class='option' type='checkbox' name='vertical'> Вертикальный вид
+                                            </label><br>
 
-                                            <input class='option' type='checkbox' name='tooltip'>
-                                            <label for='tooltip'>Подсказки</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='tooltip'> Подсказки
+                                            </label><br>
 
-                                            <label for='tooltipMask'>Маска подсказки</label>
+                                            Маска подсказки
                                             <input class='option' type='text' name='tooltipMask' value="'color: ' + val" disabled>
                                         </div>
                                         <div class='col-md-6'>
-                                            <input class='option' type='checkbox' name='scale' checked>
-                                            <label for='scale'>Шкала</label><br>
+                                            <label>
+                                                <input class='option' type='checkbox' name='scale' checked> Шкала
+                                            </label><br>
 
-                                            <label for='scaleMask'>Маска делениий шкалы</label>
+                                            Маска делениий шкалы
                                             <input class='option' type='text' name='scaleMask' value="val">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <hr>
-                            <input type='checkbox' name='manyOptions'>
-                            <b><label for='manyOptions'>Передать несколько опций</label></b>
+                            <b><label>
+                                <input type='checkbox' name='manyOptions'> Передать несколько опций
+                            </label></b>
                             <button disabled>Изменить слайдер</button>
                         </div>
                     </div>
