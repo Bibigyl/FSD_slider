@@ -288,20 +288,18 @@ class View implements IView {
 
         if (!this._range) { 
 
-            if ( this._tooltip ) this._tooltip = this.removeNode( this._tooltip );
             val = model.translate( model.getVal() );
             this._tooltip = this.buildNode(this._thumb, 'slider__tooltip');
             this.setValToTooltip( this._tooltip, val, this._tooltipMask );   
 
         } else {
-            if ( this._tooltipLeft ) this._tooltipLeft = this.removeNode( this._tooltipLeft );
+
             val = model.translate( model.getRange()[0] );
-            this._tooltipLeft = this.buildNode(this._thumbLeft, 'slider__tooltip_left');
+            this._tooltipLeft = this.buildNode(this._thumbLeft, 'slider__tooltip', 'slider__tooltip_left');
             this.setValToTooltip( this._tooltipLeft, val, this._tooltipMask );  
 
-            if ( this._tooltipRight ) this._tooltipRight = this.removeNode( this._tooltipRight );
             val = model.translate( model.getRange()[1] );
-            this._tooltipRight = this.buildNode(this._thumbRight, 'slider__tooltip_right');
+            this._tooltipRight = this.buildNode(this._thumbRight, 'slider__tooltip', 'slider__tooltip_right');
             this.setValToTooltip( this._tooltipRight, val, this._tooltipMask ); 
         }
     }

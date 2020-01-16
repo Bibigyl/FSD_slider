@@ -381,6 +381,7 @@ class Presenter {
         }
         if ( changeValToRange ) {
             view.changeValToRange(model);
+
             view.getThumb(1).addEventListener("mousedown", this.thumbOnDown);
             view.getThumb(2).addEventListener("mousedown", this.thumbOnDown);
             view.getThumb(1).addEventListener("touchstart", this.thumbOnDown);
@@ -434,14 +435,14 @@ class Presenter {
             rebuildTooltip = false;
             changeTooltipVal = false;
         }
+
         // удаляем
         if ( options.tooltip == false || rebuildTooltip ) {
 
-            // почему в другом порядке не работает
             if ( view.getTooltip(2) ) view.setTooltip( view.removeNode(view.getTooltip(2)), 2 );
             if ( view.getTooltip(1) ) view.setTooltip( view.removeNode(view.getTooltip(1)), 1 );
             if ( view.getTooltip() ) view.setTooltip( view.removeNode(view.getTooltip(0)), 0 );
-
+            
             if ( options.tooltip == false ) {
                 rebuildTooltip = false;
             }
