@@ -1,4 +1,7 @@
-import Model, {IModel} from './Model';
+import Model from "./Model";
+import {defaultOptions} from "./defaultOptions";
+
+/* import Model, {IModel} from './Model';
 import View, {IView} from './View';
 import Presenter from './Presenter';
 import {defaultOptions} from './defaultOptions';
@@ -6,8 +9,8 @@ import {defaultOptions} from './defaultOptions';
 import {Observer} from './Observer';
 import {IObserver} from './Observer';
 import Subject  from './Observer';
-
-
+ */
+/* 
 (function($){
 
   var methods: Object = {
@@ -101,3 +104,7 @@ import Subject  from './Observer';
   };
 
 })(jQuery);
+ */
+
+let mod = new Model(defaultOptions);
+console.log(mod);

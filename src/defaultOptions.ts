@@ -1,45 +1,45 @@
 export default interface IOptions {
     // Model options
-    dataFormat: string;
-    value: number | string | null;
-    minVal: number | string;
-    maxVal: number | string;
+    //dataFormat: string;
+    value: number | null;
+    minVal: number;
+    maxVal: number;
     step: number;    
-    reverse: boolean;
-    range: [number, number] | [string, string] | null; 
+    //reverse: boolean;
+    range: [number, number] | null; 
     customValues?: string[];
-    valueInCustomValues?: string;
-    rangeInCustomValues?: string;
+    //valueInCustomValues?: string;
+    //rangeInCustomValues?: string;
 
 
     // View options
     length: string | number;
     vertical: boolean;
     tooltip: boolean;
-    tooltipMask: string;
+    //tooltipMask: string;
     scale: boolean;
-    scaleStep: number;
-    scaleMask: string;
+    //scaleStep: number;
+    //scaleMask: string;
 }
 
 var defaultOptions: IOptions = {
     // Model options
     // в range и в min и max слева то, что слева на слайдере
-    dataFormat: 'numeric',
-    value: null,      // в начальных настройках не определены
-    minVal: 0,        // начальное значение или промежуток.
-    maxVal: 10,       // если они не указаны пользователем, начальное значение 
-    step: 1,          // (value) и позиция бегунка равны минимальному значению
-    reverse: false,
+    //dataFormat: 'numeric',
+    value: 7,      // в начальных настройках не определены
+    minVal: 10,        // начальное значение или промежуток.
+    maxVal: -10,       // если они не указаны пользователем, начальное значение 
+    step: 2,          // (value) и позиция бегунка равны минимальному значению
+    //reverse: false,
     range: null,
     
     length: '300px',
     vertical: false,
     tooltip: false,
-    tooltipMask: "val",
+    //tooltipMask: "val",
     scale: false,
-    scaleStep: null,
-    scaleMask: "val",
+    //scaleStep: null,
+    //scaleMask: "val",
 }
 
 export { defaultOptions };
