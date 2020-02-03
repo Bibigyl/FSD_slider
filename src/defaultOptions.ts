@@ -2,10 +2,10 @@ export default interface IOptions {
     // Model options
     //dataFormat: string;
     value: number | null;
-    minVal: number;
-    maxVal: number;
+    min: number;
+    max: number;
     step: number;    
-    //reverse: boolean;
+    reverse: boolean;
     range: [number, number] | null; 
     customValues?: string[];
     //valueInCustomValues?: string;
@@ -27,11 +27,11 @@ var defaultOptions: IOptions = {
     // в range и в min и max слева то, что слева на слайдере
     //dataFormat: 'numeric',
     value: 7,      // в начальных настройках не определены
-    minVal: 10,        // начальное значение или промежуток.
-    maxVal: -10,       // если они не указаны пользователем, начальное значение 
+    min: 10,        // начальное значение или промежуток.
+    max: -10,       // если они не указаны пользователем, начальное значение 
     step: 2,          // (value) и позиция бегунка равны минимальному значению
-    //reverse: false,
-    range: null,
+    reverse: false,
+    range: [2, 1],
     
     length: '300px',
     vertical: false,
