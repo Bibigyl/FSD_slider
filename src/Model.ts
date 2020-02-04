@@ -2,22 +2,36 @@ import IOptions, { defaultOptions } from './defaultOptions';
 import { isNumeric } from './commonFunctions';
 import { findDecimalPlaces } from './commonFunctions';
 
-interface IModel {
-
-}
-
 interface IModelOptions {
     value: number | null;
-    valueStep: number | null;
+    //valueStep: number | null;
     min: number;
     max: number;
     step: number;
     range: [number, number] | null;
-    rangeSteps: [number, number] | null;
+    //rangeSteps: [number, number] | null;
     customValues?: string[];
     reverse: boolean;
 }
 
+interface IModel {
+    value: number | null;
+    //valueStep: number | null;
+    min: number;
+    max: number;
+    step: number;
+    range: [number, number] | null;
+    //rangeSteps: [number, number] | null;
+    customValues?: string[];
+    reverse: boolean;
+
+    getNumberOfSteps(): number,
+    //getValueStep(value: number): number,
+    translate(value: number): number | string,
+    findClosestStep(value: number, options: IModelOptions): number,
+
+
+}
 class Model implements IModel {
 
     value: number | null;
@@ -79,7 +93,7 @@ class Model implements IModel {
 
         // проверили, что все, что должно быть целыми числами, таковыми являются
         // => меняем порядок, если он перепутан
-        // => преобразуем step i reverse
+        // => преобразуем step и reverse
         this.integerValidation(integerOptions);
         if (options.min > options.max) {
             [options.min, options.max] = [options.max, options.min];
@@ -99,6 +113,13 @@ class Model implements IModel {
 
         // находим value или range в шагах от 0
         //options = this.addValuesSteps(options);
+
+        if (options.range) {
+            options.range[0] = this.findClosestStep(options.range[0], options);
+            options.range[1] = this.findClosestStep(options.range[1], options);
+        } else {
+            options.value = this.findClosestStep(options.value, options)
+        }
 
         return options;
     }
@@ -141,6 +162,42 @@ class Model implements IModel {
 
 
 
+
+
+    getNumberOfSteps(): number {
+        let num: number = Math.ceil( (this.max - this.min) / this.step );
+        return num;
+    }
+
+/*     getValueStep(value: number): number {
+        let step: number = 
+    } */
+
+    translate(value: number): number | string {
+        if (this.customValues) {
+            return this.customValues[value];
+        } else {
+            return value;
+        }
+    }
+
+    findClosestStep(value: number, options: IModelOptions): number {
+        let step: number;
+        let sign: number = options.reverse ? -1 : 1;
+        let ceilSteps: number;
+        let restOfStep: number;
+
+        ceilSteps = Math.trunc( sign * (value - options.min) / options.step );
+        restOfStep = sign * (value - options.min) % options.step;
+
+        step = options.min + sign * ceilSteps * options.step;
+        step = restOfStep >= options.step/2 ? step + sign * options.step : step;
+
+        step = step > options.max ? options.max : step;
+        step = step < options.min ? options.min : step;
+
+        return step;
+    }
 
 }
 

@@ -107,4 +107,4 @@ import Subject  from './Observer';
  */
 
 let mod = new Model(defaultOptions);
-console.log(mod);
+console.log(mod.findClosestStep(3, mod));
