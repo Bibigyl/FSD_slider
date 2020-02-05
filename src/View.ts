@@ -12,25 +12,22 @@ class View implements IView {
 
     length: string;
     vertical: boolean;
-    hasRange: boolean;
     numberOfSteps: number;
 
     slider: HTMLDivElement;
     thumb?: HTMLDivElement | undefined;
-    thumbLeft?: HTMLDivElement | undefined;
-    thumbRight?: HTMLDivElement | undefined;
+    thumbFirst?: HTMLDivElement | undefined;
+    thumbLast?: HTMLDivElement | undefined;
     line: HTMLDivElement;
     tooltip?: HTMLDivElement | undefined;
-    tooltipLeft?: HTMLDivElement | undefined;
-    tooltipRight?: HTMLDivElement | undefined;
+    tooltipFirst?: HTMLDivElement | undefined;
+    tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
     
-
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
         this.slider = sliderNode;
         this.slider.classList.add('slider');
-        this.hasRange = !!options.range;
         this.length = this.findValidLength(options.length);
 
         if ( !options.vertical ) {
@@ -46,23 +43,22 @@ class View implements IView {
         this.line = this.buildNode(this.slider, 'slider__line');
 
         let pos: string;
-        if ( !this.hasRange ) {
-
+        if ( !options.range ) {
             this.thumb = this.buildNode(this.slider, 'slider__thumb');
             pos = this.findThumbPosition(options.value, options);
             this.setThumbPosition(this.thumb, pos);
-            console.log('shgsjdmvn')
         } else {     
-
-            this.thumbLeft = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_left');
-            this.thumbRight = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_right');
+            this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first');
+            this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
 
             pos = this.findThumbPosition(options.range[0], options);
-            this.setThumbPosition(this.thumbLeft, pos);
+            this.setThumbPosition(this.thumbFirst, pos);
 
             pos = this.findThumbPosition(options.range[1], options);
-            this.setThumbPosition(this.thumbRight, pos);
+            this.setThumbPosition(this.thumbLast, pos);
         }
+
+        this.setLinePosition();
 
         if ( options.tooltip ) {
             this.buildTooltips(options);
@@ -118,8 +114,8 @@ class View implements IView {
         this.hasRange = false;
         
         this.thumb = this.buildNode(this.slider, 'slider__thumb');
-        this.thumbLeft = this.removeNode(this.thumbLeft);
-        this.thumbRight = this.removeNode(this.thumbRight);
+        this.thumbFirst = this.removeNode(this.thumbFirst);
+        this.thumbLast = this.removeNode(this.thumbLast);
 
         pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
         this.setThumbPosition( this.thumb, pos);
@@ -131,34 +127,42 @@ class View implements IView {
         this.hasRange = true;
 
         this.thumb = this.removeNode(this.thumb);
-        this.thumbLeft = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_left'); 
-        this.thumbRight = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_right');
+        this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first'); 
+        this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
         
         pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
-        this.setThumbPosition( this.thumbLeft, pos);
+        this.setThumbPosition( this.thumbFirst, pos);
 
         pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
-        this.setThumbPosition( this.thumbRight, pos);
+        this.setThumbPosition( this.thumbLast, pos);
     } */
 
-    buildTooltips (options: IOptions): void {
-        let val: number | string;
+    setLinePosition(): void {
+        let start: number | string;
+        let length: number | string;
+        let topLeft: string = !this.vertical ? 'left' : 'top';
+        let widthHeight: string = !this.vertical ? 'width' : 'height';
+
+        start = this.thumbFirst ? this.thumbFirst.style[topLeft] : '0%';
+        length = this.thumbFirst ? 
+        this.thumbLast.style[topLeft].slice(0, -1) - this.thumbFirst.style[topLeft].slice(0, -1)  + '%' :
+        this.thumb.style[topLeft];
+
+        this.line.style[topLeft] = start;
+        this.line.style[widthHeight] = length;
+
+    }
+
+    buildTooltips(options: IOptions): void {
 
         if (!options.range) { 
-
-            val = options.customValues ? options.customValues[options.value] : options.value;
             this.tooltip = this.buildNode(this.thumb, 'slider__tooltip');
-            this.tooltip.textContent = val as string; 
         } else {
-
-            val = options.customValues ? options.customValues[options.range[0]] : options.range[0];
-            this.tooltipLeft = this.buildNode(this.thumbLeft, 'slider__tooltip', 'slider__tooltip_left');
-            this.tooltipLeft.textContent = val as string;
-
-            val = options.customValues ? options.customValues[options.range[1]] : options.range[1];
-            this.tooltipRight = this.buildNode(this.thumbRight, 'slider__tooltip', 'slider__tooltip_right');
-            this.tooltipLeft.textContent = val as string;
+            this.tooltipFirst = this.buildNode(this.thumbFirst, 'slider__tooltip', 'slider__tooltip_first');
+            this.tooltipLast = this.buildNode(this.thumbLast, 'slider__tooltip', 'slider__tooltip_last');
         }
+
+        this.setTooltipValues(options);
     }
 
     buildScale(options: IOptions): void {
@@ -180,7 +184,6 @@ class View implements IView {
             indent = indent / length * 100 + '%';
 
             val = options.customValues ? options.customValues[val] : val;
-            
 
             division = document.createElement('div');
             division.classList.add('slider__scale-division');
@@ -192,6 +195,21 @@ class View implements IView {
 
         this.slider.prepend(scale);        
         this.scale = scale;
+    }
+
+    private setTooltipValues(options) {
+        let val: number | string;
+
+        if (!options.range) { 
+            val = options.customValues ? options.customValues[options.value] : options.value;
+            this.tooltip.textContent = val as string; 
+        } else {
+            val = options.customValues ? options.customValues[options.range[0]] : options.range[0];
+            this.tooltipFirst.textContent = val as string;
+
+            val = options.customValues ? options.customValues[options.range[1]] : options.range[1];
+            this.tooltipLast.textContent = val as string;
+        }
     }
 
 
@@ -227,71 +245,6 @@ class View implements IView {
         }
     } */
 
-/*     changeScaleDivision(model: IModel): void {
-        let division: HTMLDivElement;
-        let val: number | string | Date;
-        let mask: string = this.scaleMask;
-
-        // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.findDecimalPlaces(this.scaleStep), this.findDecimalPlaces(model.getStep()) );
-        let mult: number = this.scaleStep / model.getStep();
-        mult = +mult.toFixed(n);
-        mult = Math.abs(mult);   
-        
-        for (let i: number = 0; i <= model.getNumberOfSteps(); i = i + mult) {
-
-            // i + mult возвращает на какой шаг модели попадает шаг шкалы
-            val = model.translateByStep(i);
-
-            division = this.getScale().querySelectorAll('.slider__scale-division')[i / mult] as HTMLDivElement;
-            division.querySelector('span').textContent = '' + eval(mask);
-
-            if (!this.vertical) {
-                division.style.top = null;
-                division.style.left = this.findOneSteplength() * i + 'px';
-            } else {
-                division.style.left = null;
-                division.style.top = this.findOneSteplength() * i + 'px';
-            }
-        }
-    } */
-
-/*     changeLine(): void {
-        this.line.style.left = null;
-        this.line.style.top = null;
-        this.line.style.width = null;
-        this.line.style.height = null;  
-
-        if (!this.hasRange) {
-
-            if (!this.vertical) {
-                this.line.style.height = '100%'
-                this.line.style.top = '0px'
-                this.line.style.left = '0px';
-                this.line.style.width = parseInt(this.thumb.style.left) + this.thumb.clientWidth/2 + 'px';
-            } else {
-                this.line.style.width = '100%'
-                this.line.style.left = '0px'
-                this.line.style.top = '0px';
-                this.line.style.height = parseInt(this.thumb.style.top) + this.thumb.clientHeight/2 + 'px';
-            }
-
-        } else {
-
-            if (!this.vertical) {
-                this.line.style.height = '100%'
-                this.line.style.top = '0px'
-                this.line.style.left = parseInt(this.thumbLeft.style.left) + this.thumbLeft.clientWidth/2 + 'px';
-                this.line.style.width = ( parseInt(this.thumbRight.style.left) - parseInt(this.thumbLeft.style.left) ) + 'px';
-            } else {
-                this.line.style.width = '100%'
-                this.line.style.left = '0px'
-                this.line.style.top = parseInt(this.thumbLeft.style.top)  + this.thumbLeft.clientHeight/2 + 'px';
-                this.line.style.height = ( parseInt(this.thumbRight.style.top) - parseInt(this.thumbLeft.style.top) ) + 'px';
-            }
-        }
-    } */
-
 
     // вспомогательные методы
 
@@ -305,17 +258,15 @@ class View implements IView {
         }
 
         // если оба бегунка справа(внизу), добавлем z index для нижнего
-        if ( this.thumbLeft ) {
+        if ( this.thumbFirst ) {
             if ( !this.vertical ) {
-                if ( (this.thumbLeft.style.left == '100%') || (this.thumbLeft.style.top == '100%') ) {
-                    this.thumbLeft.style.zIndex = '1';
+                if ( (this.thumbFirst.style.left == '100%') || (this.thumbFirst.style.top == '100%') ) {
+                    this.thumbFirst.style.zIndex = '1';
                 } else {
-                    this.thumbLeft.style.zIndex = null;
+                    this.thumbFirst.style.zIndex = null;
                 }  
             }
         }
-
-        //this.changeLine();
     }
 
 
