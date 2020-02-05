@@ -3,12 +3,29 @@ import {IModel} from './Model';
 import { runInNewContext } from 'vm';
 import { isNumeric } from './commonFunctions';
 import { getNumberOfSteps } from './commonFunctions';
+import { ISubject } from './Observer';
+import { IObserver } from './Observer';
 
-interface IView {
+interface IView extends ISubject {
+    length: string;
+    vertical: boolean;
+    numberOfSteps: number;
 
+    slider: HTMLDivElement;
+    thumb?: HTMLDivElement | undefined;
+    thumbFirst?: HTMLDivElement | undefined;
+    thumbLast?: HTMLDivElement | undefined;
+    line: HTMLDivElement;
+    tooltip?: HTMLDivElement | undefined;
+    tooltipFirst?: HTMLDivElement | undefined;
+    tooltipLast?: HTMLDivElement | undefined;
+    scale?: HTMLDivElement | undefined;
+
+    activeThumb: HTMLDivElement;
+    newThumbPosition: number;
 }
 
-class View implements IView {
+class View implements IView  {
 
     length: string;
     vertical: boolean;
@@ -23,8 +40,33 @@ class View implements IView {
     tooltipFirst?: HTMLDivElement | undefined;
     tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
+
+    activeThumb: HTMLDivElement;
+    newThumbPosition: number;
+    private observers: IObserver[] = [];
     
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
+
+        this.build(options, sliderNode)
+
+        // события
+        this.thumbOnDown = this.thumbOnDown.bind(this);
+        this.thumbOnMove = this.thumbOnMove.bind(this);
+        this.thumbOnUp = this.thumbOnUp.bind(this);
+
+        if ( !options.range ) {
+            this.thumb.addEventListener("mousedown", this.thumbOnDown);
+            this.thumb.addEventListener("touchstart", this.thumbOnDown);
+        } else {
+            this.thumbFirst.addEventListener("mousedown", this.thumbOnDown);
+            this.thumbFirst.addEventListener("touchstart", this.thumbOnDown);
+
+            this.thumbLast.addEventListener("mousedown", this.thumbOnDown);
+            this.thumbLast.addEventListener("touchstart", this.thumbOnDown);
+        }  
+    }
+
+    private build(options: IOptions, sliderNode: HTMLDivElement): void {
 
         this.slider = sliderNode;
         this.slider.classList.add('slider');
@@ -68,6 +110,54 @@ class View implements IView {
             this.buildScale(options);
         }
     }
+
+
+    private thumbOnDown(event): void {
+        // предотвратить запуск выделения (действие браузера)
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.activeThumb = event.currentTarget;
+
+        document.addEventListener('mousemove', this.thumbOnMove);
+        document.addEventListener('mouseup', this.thumbOnUp);
+        document.addEventListener('touchmove', this.thumbOnMove);
+        document.addEventListener('touchend', this.thumbOnUp);
+    }
+
+    private thumbOnMove(event): void {
+        let length: number = this.getLengthInPx();
+        let offset: number = this.getOffsetInPx();
+        let eventPos: number;
+
+        eventPos = !this.vertical ?
+        event.clientX || event.touches[0].clientX :
+        eventPos = event.clientY || event.touches[0].clientY;
+
+        this.newThumbPosition = (eventPos - offset) / length * 100;
+        this.notify();
+    }
+
+    private thumbOnUp(event): void {
+        document.removeEventListener('mouseup', this.thumbOnUp);
+        document.removeEventListener('mousemove', this.thumbOnMove);
+        document.removeEventListener('touchend', this.thumbOnUp);
+        document.removeEventListener('touchmove', this.thumbOnMove);
+
+        this.activeThumb = undefined;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // методы для создания и изменения view
@@ -305,6 +395,37 @@ class View implements IView {
         throw new Error('Width (or height) should be valid to css');
     }
 
+    private getLengthInPx(): number {
+        let length: number = !this.vertical ?
+        this.slider.offsetWidth :
+        this.slider.offsetHeight;
+
+        return length;
+    }
+
+    private getOffsetInPx(): number {
+        let offset: number = !this.vertical ?
+        this.slider.offsetLeft :
+        this.slider.offsetTop;
+
+        return offset;
+    }
+
+
+    // observer methods
+    attach(observer: IObserver): void {
+        this.observers.push(observer);
+    }
+
+    detach(observer: IObserver): void {
+        const observerIndex = this.observers.indexOf(observer);
+        this.observers.splice(observerIndex, 1);
+    }
+    notify(): void {
+        for (const observer of this.observers) {
+            observer.pushViewChanges(this);
+        }
+    }
 }
 
 

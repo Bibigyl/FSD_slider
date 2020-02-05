@@ -11,6 +11,6 @@ function getNumberOfSteps(min: number, max: number, step: number): number {
     return Math.ceil( (max - min) / step );
 }
 
-export {isNumeric};
-export {findDecimalPlaces};
-export {getNumberOfSteps};
+export { isNumeric };
+export { findDecimalPlaces };
+export { getNumberOfSteps };

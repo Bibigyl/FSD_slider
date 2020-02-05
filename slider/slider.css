@@ -51,7 +51,7 @@
     margin-top: -34px;
 }
 .slider_horizontal .slider__tooltip::after {
-    bottom: -20px;
+    bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
     border-color: #333 #ffffff00 #ffffff00 #ffffff00;

@@ -21,11 +21,11 @@ var defaultOptions: IOptions = {
     // в начальных настройках не определены начальное значение или промежуток.
     // если они не указаны пользователем, начальное значение value == min 
     value: null,
-    min: -20,
+    min: 3,
     max: 7,
-    step: 5,
+    step: 2,
     reverse: false,
-    range: [1, 4],
+    range: [3, 7],
     
     length: '540px',
     vertical: false,

@@ -1,6 +1,7 @@
 import Model from "./Model";
-import {defaultOptions} from "./defaultOptions";
+import IOptions, {defaultOptions} from "./defaultOptions";
 import View from "./View";
+import Presenter from "./Presenter";
 
 /* import Model, {IModel} from './Model';
 import View, {IView} from './View';
@@ -108,4 +109,20 @@ import Subject  from './Observer';
  */
 
 let test = document.querySelector('.test') as HTMLDivElement;
-let view = new View(defaultOptions, test);
+
+/* let mod = new Model(defaultOptions);
+
+let opts: IOptions | Object = {};
+for (let key in defaultOptions) {
+  opts[key] = mod[key] || defaultOptions[key];
+} */
+
+//console.log(opts);
+
+//let view = new View(opts as IOptions, test);
+
+let pres = new Presenter(defaultOptions, test);
+
+function func() {
+  console.log('10');
+}
