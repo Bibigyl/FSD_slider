@@ -7,5 +7,10 @@ function findDecimalPlaces(num: number): number {
     return ~(num + '').indexOf('.') ? (num + '').split('.')[1].length : 0;
 }
 
+function getNumberOfSteps(min: number, max: number, step: number): number {
+    return Math.ceil( (max - min) / step );
+}
+
 export {isNumeric};
 export {findDecimalPlaces};
+export {getNumberOfSteps};

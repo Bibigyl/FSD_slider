@@ -1,57 +1,18 @@
 import IOptions from './defaultOptions';
 import {IModel} from './Model';
 import { runInNewContext } from 'vm';
+import { isNumeric } from './commonFunctions';
+import { getNumberOfSteps } from './commonFunctions';
 
 interface IView {
 
-    // геттеры и сеттеры
-/*     getLenght(): number;
-    getVertical(): boolean;
-    getRange(): boolean;
-    getTooltipMask(): string;
-    setTooltipMask(mask: string): void;
-    getScaleStep(): number;
-    setScaleStep(step: number): void;
-    getScaleMask(): string;
-    setScaleMask(mask: string): void;
-    getNumberOfSteps(): number;
-    setNumberOfSteps(num: number): void;
-
-    getSlider(): HTMLDivElement;
-    getThumb(num?: number): HTMLDivElement;
-    getTooltip(num?: number): HTMLDivElement;
-    setTooltip(tooltip: HTMLDivElement | undefined, num?: number): void;
-    getScale(): HTMLDivElement;
-    setScale(scale: HTMLDivElement | undefined): void; */
-
-
-    // методы для создания и изменения view
-/*     changeSliderBase (options: any): void;
-    changeRangeToVal (model: IModel): void;
-    changeValToRange (model: IModel): void;
-    buildTooltips(model: IModel): void;
-    buildScale(sliderNode: HTMLDivElement, step: number, model: IModel, mask: string): HTMLDivElement;
-    rebuildScale(model: IModel): void;
-    changeScaleDivision(model: IModel): void;
-    changeLine(): void; */
-
-    // вспомогательные методы
-/*     setThumbPosition(thumbNode: HTMLDivElement, thumbPosition: number): void;
-    setValToTooltip(tooltipNode: HTMLDivElement, val: number | string | Date, mask: string): void;
-    findThumbPosition(newStep, numOfSteps): number;
-    findOneStepLenght(): number;
-    removeNode(node: HTMLDivElement): undefined;
-    findValidScaleStep(model: IModel, step: number): number;   */
 }
 
 class View implements IView {
 
-    lenght: string;
+    length: string;
     vertical: boolean;
     hasRange: boolean;
-    //tooltipMask: string;
-    //scaleMask?: string;
-    //scaleStep?: number;
     numberOfSteps: number;
 
     slider: HTMLDivElement;
@@ -65,21 +26,20 @@ class View implements IView {
     scale?: HTMLDivElement | undefined;
     
 
-    constructor(model: IModel, options: IOptions, sliderNode: HTMLDivElement) {
+    constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
         this.slider = sliderNode;
         this.slider.classList.add('slider');
-        this.hasRange = !!model.range;
-        this.numberOfSteps = model.getNumberOfSteps();
-        this.lenght = this.findValidLength(options.length);
+        this.hasRange = !!options.range;
+        this.length = this.findValidLength(options.length);
 
         if ( !options.vertical ) {
             this.vertical = false;
-            this.slider.style.width = this.lenght;
+            this.slider.style.width = this.length;
             this.slider.classList.add('slider_horizontal');
         } else {
             this.vertical = true;
-            this.slider.style.height = this.lenght;
+            this.slider.style.height = this.length;
             this.slider.classList.add('slider_vertical');            
         }
 
@@ -89,104 +49,41 @@ class View implements IView {
         if ( !this.hasRange ) {
 
             this.thumb = this.buildNode(this.slider, 'slider__thumb');
-            pos = this.findThumbPosition(model.value, model);
+            pos = this.findThumbPosition(options.value, options);
             this.setThumbPosition(this.thumb, pos);
+            console.log('shgsjdmvn')
         } else {     
 
             this.thumbLeft = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_left');
             this.thumbRight = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_right');
 
-            pos = this.findThumbPosition(model.range[0], model);
+            pos = this.findThumbPosition(options.range[0], options);
             this.setThumbPosition(this.thumbLeft, pos);
 
-            pos = this.findThumbPosition(model.range[1], model);
+            pos = this.findThumbPosition(options.range[1], options);
             this.setThumbPosition(this.thumbRight, pos);
         }
- 
-        // маска для подсказок
-        // если ее нет, применяется обычная, которая по дефолту возвращает просто val
-        // (в формате дат вернется объект дата)
-        //this.tooltipMask = options.tooltipMask;
 
         if ( options.tooltip ) {
-            this.buildTooltips(model);
+            this.buildTooltips(options);
         }
         
-        //this.scaleMask = options.scaleMask;
-
-/*         let step: number;
-        if ( options.scaleStep ) {
-            step = this.findValidScaleStep(model, options.scaleStep);
-        } else {
-            step = model.getStep();
-        }
-        this.scaleStep = step; */
-
         if ( options.scale ) {
-            this.scale = this.buildScale(this.slider, step, model, this.scaleMask);
+            this.buildScale(options);
         }
-    }
-
-
-
-
-    getSlider(): HTMLDivElement {
-        return this.slider;
-    }
-    getThumb(num: number = 0): HTMLDivElement {
-        if ( num == 0 ) {
-            return this.thumb;
-        }
-        if ( num == 1 ) {
-            return this.thumbLeft;
-        }
-        if ( num == 2 ) {
-            return this.thumbRight;
-        }
-        return this.thumb;
-    }
-    getTooltip(num: number = 0): HTMLDivElement | undefined {
-        if ( this.tooltip || this.tooltipLeft ) {
-            if ( this.tooltip && num == 0 ) {
-                return this.tooltip;
-            }
-            if ( this.tooltipLeft && num == 1 ) {
-                return this.tooltipLeft;
-            }
-            if ( this.tooltipRight && num == 2 ) {
-                return this.tooltipRight;
-            }
-        } else {
-            return undefined;
-        }
-    }
-    setTooltip(tooltip: HTMLDivElement | undefined, num: number = 0) {
-        if ( num == 0 ) {
-            this.tooltip = tooltip;
-        } else if ( num == 1 ) {
-            this.tooltipLeft = tooltip;
-        } else if ( num == 2 ) {
-            this.tooltipRight = tooltip;
-        }
-    }
-    getScale(): HTMLDivElement {
-        return this.scale;
-    }
-    setScale(scale: HTMLDivElement | undefined): void {
-        this.scale = scale;
     }
 
 
     // методы для создания и изменения view
 
-    changeSliderBase (options: any): void {
+/*     changeSliderBase (options: any): void {
 
-        let lenghtChanged: boolean = false;
+        let lengthChanged: boolean = false;
 
         // ширина / длина
-        if ( options.length && this.lenght != options.length ) {
-            this.lenght = options.length;
-            lenghtChanged = true;
+        if ( options.length && this.length != options.length ) {
+            this.length = options.length;
+            lengthChanged = true;
         }
 
         // ориентация
@@ -195,27 +92,27 @@ class View implements IView {
             this.slider.classList.remove('slider_horizontal')
             this.slider.classList.add('slider_vertical');
 
-            lenghtChanged = true;
+            lengthChanged = true;
         }
         if ( options.vertical === false && this.vertical ) {
             this.vertical = false;
             this.slider.classList.remove('slider_vertical')
             this.slider.classList.add('slider_horizontal');
 
-            lenghtChanged = true
+            lengthChanged = true
         }
 
-        if (lenghtChanged && !this.vertical) {
+        if (lengthChanged && !this.vertical) {
             this.slider.style.height = null;
-            this.slider.style.width = this.lenght;
+            this.slider.style.width = this.length;
         }
-        if (lenghtChanged && this.vertical) {
+        if (lengthChanged && this.vertical) {
             this.slider.style.width = null;
-            this.slider.style.height = this.lenght;
+            this.slider.style.height = this.length;
         }
-    }
+    } */
 
-    changeRangeToVal (model: IModel): void {
+/*     changeRangeToVal (model: IModel): void {
         let pos: number;
 
         this.hasRange = false;
@@ -226,9 +123,9 @@ class View implements IView {
 
         pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
         this.setThumbPosition( this.thumb, pos);
-    }
+    } */
 
-    changeValToRange (model: IModel): void {
+/*     changeValToRange (model: IModel): void {
         let pos: number;
 
         this.hasRange = true;
@@ -242,65 +139,66 @@ class View implements IView {
 
         pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
         this.setThumbPosition( this.thumbRight, pos);
-    }
+    } */
 
-    buildTooltips (model: IModel): void {
+    buildTooltips (options: IOptions): void {
         let val: number | string;
 
-        if (!model.range) { 
+        if (!options.range) { 
 
-            val = model.translate( model.value );
+            val = options.customValues ? options.customValues[options.value] : options.value;
             this.tooltip = this.buildNode(this.thumb, 'slider__tooltip');
             this.tooltip.textContent = val as string; 
         } else {
 
-            val = model.translate( model.range[0] );
+            val = options.customValues ? options.customValues[options.range[0]] : options.range[0];
             this.tooltipLeft = this.buildNode(this.thumbLeft, 'slider__tooltip', 'slider__tooltip_left');
             this.tooltipLeft.textContent = val as string;
 
-            val = model.translate( model.range[1] );
+            val = options.customValues ? options.customValues[options.range[1]] : options.range[1];
             this.tooltipRight = this.buildNode(this.thumbRight, 'slider__tooltip', 'slider__tooltip_right');
             this.tooltipLeft.textContent = val as string;
         }
     }
 
-    buildScale(model: IModel): HTMLDivElement {
-        let scale: HTMLDivElement = document.createElement('div');
-        //let division: HTMLDivElement;
-        //let val: number | string | Date;
+    buildScale(options: IOptions): void {
+        let scale: HTMLDivElement;
+        let division: HTMLDivElement;
+        let val: number | string;
+        let sign: number = options.reverse ? -1 : 1;
+        let indent: number | string;
+        let length: number = options.max - options.min;
 
+        scale = document.createElement('div');
         scale.classList.add('slider__scale');
-        this.slider.prepend(scale);
 
-        for (let i: number = 0; i <= model.getNumberOfSteps())
+        for ( let i: number = 0; i <= getNumberOfSteps(options.min, options.max, options.step); i++ ) {
+            val = options.min + sign * options.step * i;
+            val = val > options.max ? options.max : val;
 
-/*         // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.findDecimalPlaces(step), this.findDecimalPlaces(model.getStep()) );
-        let mult: number = step / model.getStep();
-        mult = +(+mult).toFixed(n);
-        mult = Math.abs(mult);     
-        
-        for (let i: number = 0; i <= model.getNumberOfSteps(); i = i + mult) {
+            indent = i * options.step < length ? i * options.step : length; 
+            indent = indent / length * 100 + '%';
 
-            // i + mult возвращает на какой шаг модели попадает шаг шкалы
-            val = model.translateByStep(i);
+            val = options.customValues ? options.customValues[val] : val;
+            
 
             division = document.createElement('div');
             division.classList.add('slider__scale-division');
-            division.innerHTML = '<span>' +  eval(mask) + '</span>';
-
-            if (!this.vertical) {
-                division.style.left = this.findOneStepLenght() * i + 'px';
-            } else {
-                division.style.top = this.findOneStepLenght() * i + 'px';
-            }
+            division.innerHTML = '<span class="slider__scale-division-text">' + val + '</span>';
+            options.vertical ? division.style.top = indent : division.style.left = indent;
 
             scale.append(division);
-        } */
-        return scale;
+        }
+
+        this.slider.prepend(scale);        
+        this.scale = scale;
     }
 
-    rebuildScale(model: IModel): void {
+
+
+
+
+/*     rebuildScale(model: IModel): void {
         let scale: HTMLDivElement = this.getScale();
         let prevNumOfSteps: number = scale.querySelectorAll('.slider__scale-division').length - 1;
         let newNumOfSteps: number;
@@ -327,9 +225,9 @@ class View implements IView {
                 scale.append(division);
             }
         }
-    }
+    } */
 
-    changeScaleDivision(model: IModel): void {
+/*     changeScaleDivision(model: IModel): void {
         let division: HTMLDivElement;
         let val: number | string | Date;
         let mask: string = this.scaleMask;
@@ -350,15 +248,15 @@ class View implements IView {
 
             if (!this.vertical) {
                 division.style.top = null;
-                division.style.left = this.findOneStepLenght() * i + 'px';
+                division.style.left = this.findOneSteplength() * i + 'px';
             } else {
                 division.style.left = null;
-                division.style.top = this.findOneStepLenght() * i + 'px';
+                division.style.top = this.findOneSteplength() * i + 'px';
             }
         }
-    }
+    } */
 
-    changeLine(): void {
+/*     changeLine(): void {
         this.line.style.left = null;
         this.line.style.top = null;
         this.line.style.width = null;
@@ -392,86 +290,43 @@ class View implements IView {
                 this.line.style.height = ( parseInt(this.thumbRight.style.top) - parseInt(this.thumbLeft.style.top) ) + 'px';
             }
         }
-    }
+    } */
 
 
     // вспомогательные методы
 
-    setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
+    private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
         if ( !this.vertical ) {
             thumbNode.style.top = null;
             thumbNode.style.left = position;
         } else {
             thumbNode.style.left = null;
-            thumbNode.style.top = position;    
+            thumbNode.style.top = position;
         }
 
-        // если оба бегунка справа, добавлем z index для нижнего
-        if ( this.getThumb(1) ) {
+        // если оба бегунка справа(внизу), добавлем z index для нижнего
+        if ( this.thumbLeft ) {
             if ( !this.vertical ) {
-                if ( (this.getThumb(1).style.left == (this.getLenght() - this.getThumb(1).clientWidth/2) + 'px') ) {
-                    this.getThumb(1).style.zIndex = '100';
+                if ( (this.thumbLeft.style.left == '100%') || (this.thumbLeft.style.top == '100%') ) {
+                    this.thumbLeft.style.zIndex = '1';
                 } else {
-                    this.getThumb(1).style.zIndex = null;
+                    this.thumbLeft.style.zIndex = null;
                 }  
-            } else {
-                if ( (this.getThumb(1).style.top == (this.getLenght() - this.getThumb(1).clientHeight/2) + 'px') ) {
-                    this.getThumb(1).style.zIndex = '100';
-                } else {
-                    this.getThumb(1).style.zIndex = null;
-                }      
-            }         
+            }
         }
 
-        this.changeLine();
+        //this.changeLine();
     }
 
-/*     setValToTooltip(tooltipNode: HTMLDivElement, val: number | string | Date, mask: string = 'val'): void {
-        tooltipNode.textContent = eval(mask);
-    } */
 
-/*     findThumbPosition(newStep, numOfSteps): number {
-        return this.getLenght() / numOfSteps * newStep;
-    } */
-    findThumbPosition(value: number, model: IModel): string {
-        return (value - model.min) / (model.max - model.min) + '%';
+
+    private findThumbPosition(value: number, options: IOptions): string {
+        return (value - options.min) / (options.max - options.min) * 100 + '%';
     }
 
-    findOneStepLenght() {
-        return this.getLenght() / this.numberOfSteps;
-    }
-
-    removeNode(node: HTMLDivElement): undefined {
+    private removeNode(node: HTMLDivElement): undefined {
         node.remove();
         return undefined;
-    }
-
-    findValidScaleStep(model: IModel, step: number): number {
-
-        let stepIsValid: boolean;
-        let test: number
-
-        // округляем, чтобы избежать проблем при вычислениях с плавающей точкой
-        let n: number = Math.max( this.findDecimalPlaces(step), this.findDecimalPlaces(model.getStep()) );
-
-        stepIsValid = this.isNumeric(step);
-
-        if ( model.getDataFormat() == 'date' && ( step % (24 * 3600 * 1000) != 0 )) {
-            step = step * 24 * 3600 * 1000;
-        }
-        test = (step * Math.pow(10, n)) / (model.getStep() * Math.pow(10, n));
-        test = Math.abs(test);
-
-        stepIsValid = stepIsValid && ( test % 1 == 0 );
-
-        test = +( model.getMaxVal() - model.getMinVal() ).toFixed(n);
-        test = ( test * Math.pow(10, n) ) / ( step * Math.pow(10, n) );
-        test = Math.abs(test);
-
-        stepIsValid = stepIsValid && ( test % 1 == 0 );
-
-        step = stepIsValid ? step : model.getStep();
-        return step;
     }
 
 
@@ -490,7 +345,7 @@ class View implements IView {
     private findValidLength(str: any): string {
         if ( typeof ('' + str) == 'string' ) {
             let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
-            if ( r && this.isNumeric(r[0]) ) { 
+            if ( r && isNumeric(r[0]) ) { 
                 return r[0].toLowerCase().replace(',', '.') + 'px';
             } else if ( r ) {
                 return r[0].toLowerCase().replace(',', '.');
@@ -499,14 +354,6 @@ class View implements IView {
         throw new Error('Width (or height) should be valid to css');
     }
 
-    private isNumeric(n: any): boolean {
-        return !isNaN(parseFloat(n)) && !isNaN(n - 0);
-    }
-
-    private findDecimalPlaces(num: number): number {
-        // количество знаков после запятой
-        return ~(num + '').indexOf('.') ? (num + '').split('.')[1].length : 0;
-    }
 }
 
 

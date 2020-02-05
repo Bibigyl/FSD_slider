@@ -1,5 +1,6 @@
 import Model from "./Model";
 import {defaultOptions} from "./defaultOptions";
+import View from "./View";
 
 /* import Model, {IModel} from './Model';
 import View, {IView} from './View';
@@ -106,5 +107,5 @@ import Subject  from './Observer';
 })(jQuery);
  */
 
-let mod = new Model(defaultOptions);
-console.log(mod.findClosestStep(3, mod));
+let test = document.querySelector('.test') as HTMLDivElement;
+let view = new View(defaultOptions, test);
