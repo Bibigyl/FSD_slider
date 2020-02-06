@@ -1,5 +1,5 @@
 import IOptions from './defaultOptions';
-import {IModel} from './Model';
+import {IModel, IModelOptions} from './Model';
 import { runInNewContext } from 'vm';
 import { isNumeric } from './commonFunctions';
 import { getNumberOfSteps } from './commonFunctions';
@@ -23,6 +23,10 @@ interface IView extends ISubject {
 
     activeThumb: HTMLDivElement;
     newThumbPosition: number;
+
+    setThumbs(options: IOptions): void;
+    setLinePosition(): void;
+    setTooltipValues(options: IModelOptions): void;
 }
 
 class View implements IView  {
@@ -84,21 +88,7 @@ class View implements IView  {
 
         this.line = this.buildNode(this.slider, 'slider__line');
 
-        let pos: string;
-        if ( !options.range ) {
-            this.thumb = this.buildNode(this.slider, 'slider__thumb');
-            pos = this.findThumbPosition(options.value, options);
-            this.setThumbPosition(this.thumb, pos);
-        } else {     
-            this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first');
-            this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
-
-            pos = this.findThumbPosition(options.range[0], options);
-            this.setThumbPosition(this.thumbFirst, pos);
-
-            pos = this.findThumbPosition(options.range[1], options);
-            this.setThumbPosition(this.thumbLast, pos);
-        }
+        this.buildThumbs(options);
 
         this.setLinePosition();
 
@@ -129,13 +119,15 @@ class View implements IView  {
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
-
-        eventPos = !this.vertical ?
-        event.clientX || event.touches[0].clientX :
-        eventPos = event.clientY || event.touches[0].clientY;
+        
+        if (event.touches) {
+            eventPos = !this.vertical ? event.touches[0].clientX : event.touches[0].clientY;
+        } else {
+            eventPos = !this.vertical ? event.clientX : event.clientY;
+        }
 
         this.newThumbPosition = (eventPos - offset) / length * 100;
-        this.notify();
+        this.notify('slimChanges');
     }
 
     private thumbOnUp(event): void {
@@ -147,6 +139,30 @@ class View implements IView  {
         this.activeThumb = undefined;
     }
 
+    private buildThumbs(options): void {
+        if ( !options.range ) {
+            this.thumb = this.buildNode(this.slider, 'slider__thumb');
+        } else {     
+            this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first');
+            this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
+        }
+
+        this.setThumbs(options);
+    }
+
+    setThumbs(options): void {
+        let pos: string;
+        if ( !options.range ) {
+            pos = this.findThumbPosition(options.value, options);
+            this.setThumbPosition(this.thumb, pos);
+        } else {     
+            pos = this.findThumbPosition(options.range[0], options);
+            this.setThumbPosition(this.thumbFirst, pos);
+
+            pos = this.findThumbPosition(options.range[1], options);
+            this.setThumbPosition(this.thumbLast, pos);
+        }
+    }
 
 
 
@@ -240,7 +256,6 @@ class View implements IView  {
 
         this.line.style[topLeft] = start;
         this.line.style[widthHeight] = length;
-
     }
 
     buildTooltips(options: IOptions): void {
@@ -287,7 +302,7 @@ class View implements IView  {
         this.scale = scale;
     }
 
-    private setTooltipValues(options) {
+    setTooltipValues(options: IOptions): void {
         let val: number | string;
 
         if (!options.range) { 
@@ -421,9 +436,24 @@ class View implements IView  {
         const observerIndex = this.observers.indexOf(observer);
         this.observers.splice(observerIndex, 1);
     }
-    notify(): void {
+
+    notify(type?: string): void {
+        if (type == 'slimChanges') {
+            this.notifySlimChanges();
+        } else if (type == 'fullChanges') {
+            this.notifyFullChanges();
+        }
+    }
+
+    notifySlimChanges(): void {
         for (const observer of this.observers) {
-            observer.pushViewChanges(this);
+            observer.pushSlimViewChanges(this);
+        }
+    }
+
+    notifyFullChanges(): void {
+        for (const observer of this.observers) {
+            observer.pushFullViewChanges(this);
         }
     }
 }

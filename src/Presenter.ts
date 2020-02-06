@@ -6,7 +6,6 @@ import { ISubject }  from './Observer';
 import { IObserver }  from './Observer';
 
 interface IPresenter {
-
 }
 
 class Presenter implements IObserver, IPresenter {
@@ -17,10 +16,7 @@ class Presenter implements IObserver, IPresenter {
     constructor(options: IOptions, node: HTMLDivElement) {
 
         this._model = new Model(options);
-
-        for (let key in options) {
-            options[key] = this._model[key] || options[key];
-        }
+        options = this.joinOptions(options);
 
         this._view = new View(options, node);
 
@@ -28,36 +24,55 @@ class Presenter implements IObserver, IPresenter {
         this._view.attach(this);
     }
 
-    pushViewChanges(subject) {
-        let key: string;
+    pushSlimViewChanges(subject: IView) {
+        let percent: number = subject.newThumbPosition;
+        let newValue: number;
+        let notify: boolean;
 
-/*         if ( subject.activeThumb.classList.has('slider__thumb_first') ) {
-            key = 'range[0]';
-        } else if ( subject.activeThumb.classList.has('slider__thumb_last') ) {
-            key = 'range[1]';
-        } else {
-            key = 'value'
-        } */
+        newValue = percent * (this._model.max - this._model.min) / 100;
+        newValue = !this._model.reverse ? 
+        this._model.min + newValue :
+        this._model.max - newValue;
+        newValue = this._model.findClosestStep(newValue, this._model);
+
 
         if ( subject.activeThumb == this._view.thumb ) {
-            key = 'value'
+            notify = this._model.value == newValue;
+            this._model.value = newValue;
+
         } else if ( subject.activeThumb == this._view.thumbFirst ) {
-            key = 'range[0]';
+            notify = this._model.range[0] == newValue;
+            this._model.range[0] = newValue;
+
         } else {
-            key = 'range[1]';
+            notify = this._model.range[1] == newValue;
+            this._model.range[1] = newValue;
         }
 
-        this._model.changeValues(key, subject.newThumbPosition);
+        if (notify) {
+            this._model.notify('slimChanges');
+        }
+    }
+
+    pushFullViewChanges(subject: IView) {
+
     }
 
     pushSlimModelChanges(subject) {
-        if (!this._model.range) {
-            this.view
-        }
+        this._view.setThumbs(subject);
+        this._view.setLinePosition();
+        this._view.setTooltipValues(this._model);
     }
 
     pushFullModelChanges(subject) {
 
+    }
+
+    private joinOptions(options: IOptions): IOptions {
+        for (let key in options) {
+            options[key] = this._model[key] || options[key];
+        }
+        return options;
     }
 }
 

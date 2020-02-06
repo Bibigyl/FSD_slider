@@ -20,12 +20,12 @@ var defaultOptions: IOptions = {
     // Model options
     // в начальных настройках не определены начальное значение или промежуток.
     // если они не указаны пользователем, начальное значение value == min 
-    value: null,
-    min: 3,
-    max: 7,
-    step: 2,
+    value: 2,
+    min: 0,
+    max: 32,
+    step: 3,
     reverse: false,
-    range: [3, 7],
+    range: null,
     
     length: '540px',
     vertical: false,

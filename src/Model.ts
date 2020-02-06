@@ -27,7 +27,8 @@ interface IModel extends ISubject {
     //translate(value: number): number | string,
     //findClosestStep(value: number, options: IModelOptions): number,
 
-    changeValues(key: string, percent: number): void;
+    //changeValues(key: string, percent: number): void;
+    findClosestStep(value: number, options: IModelOptions): number;
 
 }
 class Model implements IModel {
@@ -52,6 +53,13 @@ class Model implements IModel {
         this.range = validOptions.range;
         this.customValues = validOptions.customValues;      
         this.reverse = validOptions.reverse;
+
+/*         this.range[0] = 0;
+        console.log(this.range);
+        this.range[0] = 5;
+        console.log(this.range);
+        this.range[0] = 1;
+        console.log(this.range); */
     }
 
 
@@ -166,7 +174,7 @@ class Model implements IModel {
         }
     }
 
-    private findClosestStep(value: number, options: IModelOptions): number {
+    findClosestStep(value: number, options: IModelOptions): number {
         let step: number;
         let sign: number = options.reverse ? -1 : 1;
         let ceilSteps: number;
@@ -184,8 +192,16 @@ class Model implements IModel {
         return step;
     }
 
-    changeValues(key: string, percent: number): void {
+/*     changeValues(key: string, value: number | [number, number]): void {
+        if ( this[key] != value ) {
+            this[key] = value;
+            this.notify('slimChanges');            
+        }
+    } */
+
+/*     changeValues(keys: string | string[], percent: number): void {
         let newValue: number;
+        let obj: number;
 
         newValue = percent * (this.max - this.min) / 100;
         newValue = !this.reverse ? 
@@ -194,11 +210,32 @@ class Model implements IModel {
 
         newValue = this.findClosestStep(newValue, this);
 
-        if ( newValue != this[key] ) {
-            this[key] = newValue;
+        if ( Array.isArray(keys) ) {
+            //console.log(keys[0]);
+            //console.log(keys[1]);
+            obj = this[ keys[0] ][ keys[1] ];
+            //console.log('1   ' + obj)
+        } else {
+            obj = this[ keys ]
+        }
+
+        console.log(obj)
+        console.log(newValue)
+
+        if ( obj != newValue ) {
+            obj = newValue;
+            //console.log(obj)
+            //console.log(newValue)
+            //console.log(key)
+            //console.log(newValue);
+            //console.log(this[key])
+            //console.log(this.range)
+
+            //console.log(this.range);
+
             this.notify('slimChanges');
         }
-    }
+    } */
 
     // observer methods
     attach(observer: IObserver): void {
