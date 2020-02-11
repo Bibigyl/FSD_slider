@@ -8,7 +8,7 @@ interface ISubject {
     detach(observer: IObserver): void;
 
     // Уведомляет всех наблюдателей о событии.
-    notify(type?: string): void;
+    notify(...args: any): void;
 }
 
 
@@ -16,9 +16,9 @@ interface ISubject {
 // используют для оповещения своих подписчиков.
 interface IObserver {
     // Получить обновление от субъекта.
-    pushViewChanges(subject: ISubject): void;
-    pushSlimModelChanges(subject: ISubject): void;
-    pushFullModelChanges(subject: ISubject): void;
+    pushViewChanges(newThumbPosition: number): void;
+    pushSlimModelChanges(): void;
+    pushFullModelChanges(): void;
 }
 
 

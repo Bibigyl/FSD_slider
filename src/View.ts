@@ -16,6 +16,7 @@ interface IView extends ISubject {
     length: string;
     vertical: boolean;
 
+    // переписать все это через get set?
     slider: HTMLDivElement;
     thumb?: HTMLDivElement | undefined;
     thumbFirst?: HTMLDivElement | undefined;
@@ -26,12 +27,14 @@ interface IView extends ISubject {
     tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
 
-    activeThumb: HTMLDivElement;
-    newThumbPosition: number;
+    //activeThumb: HTMLDivElement;
+    //newThumbPosition: number;
 
     //setThumbs(options: IOptions): void;
     //setLinePosition(): void;
     //setTooltipValues(options: IModelOptions): void;
+    notify(activeThumb: HTMLDivElement, newThumbPosition: number): void;
+
     makeSlimChanges(options): void;
     makeFullChanges(options): void;
     //getOptions(): 
@@ -55,7 +58,7 @@ class View implements IView  {
     scale?: HTMLDivElement | undefined;
 
     activeThumb: HTMLDivElement;
-    newThumbPosition: number;
+    //newThumbPosition: number;
     private observers: IObserver[] = [];
     
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
@@ -150,7 +153,7 @@ class View implements IView  {
         event.preventDefault();
         event.stopPropagation();
 
-        this.activeThumb = event.currentTarget;
+        //this.activeThumb = event.currentTarget;
 
         document.addEventListener('mousemove', this.thumbOnMove);
         document.addEventListener('mouseup', this.thumbOnUp);
@@ -162,6 +165,7 @@ class View implements IView  {
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
+        let newThumbPosition: number;
         
         if (event.touches) {
             eventPos = !this.vertical ? event.touches[0].clientX : event.touches[0].clientY;
@@ -169,8 +173,8 @@ class View implements IView  {
             eventPos = !this.vertical ? event.clientX : event.clientY;
         }
 
-        this.newThumbPosition = (eventPos - offset) / length * 100;
-        this.notify();
+        //this.newThumbPosition = (eventPos - offset) / length * 100;
+        this.notify(event.currentTarget, newThumbPosition);
     }
 
     private thumbOnUp(event): void {
@@ -179,7 +183,7 @@ class View implements IView  {
         document.removeEventListener('touchend', this.thumbOnUp);
         document.removeEventListener('touchmove', this.thumbOnMove);
 
-        this.activeThumb = undefined;
+        //this.activeThumb = undefined;
     }
 
     private buildThumbs(options: IOptions): void {
@@ -478,7 +482,7 @@ class View implements IView  {
 
     notify(): void {
         for (const observer of this.observers) {
-            observer.pushViewChanges(this);
+            observer.pushViewChanges(newThumbPosition);
         }
     }
 }

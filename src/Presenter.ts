@@ -17,17 +17,16 @@ class Presenter implements IObserver, IPresenter {
         options = Object.assign(defaultOptions, options);
         this._model = new Model(options);
 
-        options = this.joinOptions(options);
+        options = Object.assign(options, this._model.data);
         this._view = new View(options, node);
 
         this._model.attach(this);
         this._view.attach(this);
     }
 
-    pushViewChanges(subject: IView) {
-        let percent: number = subject.newThumbPosition;
+    pushViewChanges(newThumbPosition: number) {
+        let percent: number = newThumbPosition;
         let newValue: number;
-        //let notify: boolean;
         let key: string;
         let value: number | number[];
 
@@ -36,11 +35,11 @@ class Presenter implements IObserver, IPresenter {
         this._model.min + newValue :
         this._model.max - newValue;
 
-        if ( subject.activeThumb == this._view.thumb ) {
+        if ( this._view.activeThumb == this._view.thumb ) {
             key = 'value';
             value = newValue;
 
-        } else if ( subject.activeThumb == this._view.thumbFirst ) {
+        } else if ( this._view.activeThumb == this._view.thumbFirst ) {
             key = 'range';
             value = [newValue, this._model.range[1]];
 
@@ -52,39 +51,37 @@ class Presenter implements IObserver, IPresenter {
         this._model.makeSlimChanges(key, value);
     }
 
-    pushSlimModelChanges(subject: ISubject) {
+    pushSlimModelChanges() {
         this._view.makeSlimChanges(this._model);
     }
 
-    pushFullModelChanges(subject: ISubject) {
+    pushFullModelChanges() {
         this._view.makeFullChanges(this._model);
     }
 
-    private joinOptions(options: IOptions): IOptions {
+/*     private joinOptions(options: IOptions): IOptions {
         for (let key in options) {
             options[key] = this._model[key] || options[key];
         }
         return options;
-    }
+    } */
 
-    change(options): void {
-        let modelFull: boolean = false;
-        //let modelSlim: boolean;
-        let viewFull: boolean = false;
-        //let viewSlim: boolean;
+    change(options: any): void {
+        let doesModelChange: boolean = false;
+        let doesViewChange: boolean = false;
 
         let modelOptions: string[] = ['value', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
 
         modelOptions.forEach(function(item) {
             if ( options.hasOwnProperty(item) ) {
-                modelFull = true;
+                doesModelChange = true;
             }
         });
 
-        if (modelFull) { 
+        if (doesModelChange) { 
             this._model.makeFullChanges(options);
-            viewFull = true;
-            options = Object.assign({}, options, this._model);
+            doesViewChange = true;
+            options = Object.assign(options, this._model.data);
         }
 
 
@@ -92,11 +89,11 @@ class Presenter implements IObserver, IPresenter {
 
         viewOptions.forEach(function(item) {
             if ( options.hasOwnProperty(item) ) {
-                viewFull = true;
+                doesViewChange = true;
             }
         });
 
-        if (viewFull) {
+        if (doesViewChange) {
             this._view.makeFullChanges(options);
         }
     }

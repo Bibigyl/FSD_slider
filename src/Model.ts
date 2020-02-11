@@ -24,6 +24,8 @@ interface IModel extends ISubject, IModelOptions {
 
     // findClosestStep - тоже ж вынести в отдельные функции
     //findClosestStep(value: number, options: IModelOptions): number;
+    notify(type?: string): void;
+    
     makeFullChanges(options: IOptions): void;
     makeSlimChanges(key, value): void;
     //getData(): IModelOptions;
