@@ -14,3 +14,6 @@ function getNumberOfSteps(min: number, max: number, step: number): number {
 export { isNumeric };
 export { findDecimalPlaces };
 export { getNumberOfSteps };
+
+
+// findClosestStep - тоже ж вынести в отдельные функции

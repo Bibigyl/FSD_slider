@@ -1,8 +1,6 @@
-import IOptions, { defaultOptions } from './defaultOptions';
-import { isNumeric } from './commonFunctions';
-import { findDecimalPlaces } from './commonFunctions';
-import { ISubject } from './Observer';
-import { IObserver } from './Observer';
+import { IOptions, defaultOptions } from './defaultOptions';
+import { ISubject, IObserver } from './Observer';
+import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 interface IModelOptions {
     value: number | null;
@@ -14,21 +12,21 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject {
-    value: number | null;
-    min: number;
-    max: number;
-    step: number;
-    range: [number, number] | null;
-    customValues?: string[];
-    reverse: boolean;
+interface IModel extends ISubject, IModelOptions {
+
+    data: IModelOptions;
     
     //getNumberOfSteps(): number,
     //translate(value: number): number | string,
     //findClosestStep(value: number, options: IModelOptions): number,
 
     //changeValues(key: string, percent: number): void;
-    findClosestStep(value: number, options: IModelOptions): number;
+
+    // findClosestStep - тоже ж вынести в отдельные функции
+    //findClosestStep(value: number, options: IModelOptions): number;
+    makeFullChanges(options: IOptions): void;
+    makeSlimChanges(key, value): void;
+    //getData(): IModelOptions;
 
 }
 class Model implements IModel {
@@ -44,7 +42,7 @@ class Model implements IModel {
 
     constructor(options: IOptions) {
 
-        let validOptions: IModelOptions = this.validation(options, defaultOptions);
+        let validOptions: IModelOptions = this.validation(options);
 
         this.value = validOptions.value;
         this.min = validOptions.min;
@@ -63,14 +61,7 @@ class Model implements IModel {
     }
 
 
-    private validation(allOptions: IOptions, defaultOptions: IOptions): IModelOptions {
-
-        let options: IModelOptions;
-
-        options = Object.assign({
-            valueStep: null,
-            rangeSteps: null
-        }, defaultOptions, allOptions);
+    private validation(options: IModelOptions): IModelOptions {
 
         if (options.customValues && Array.isArray(options.customValues)) {
             options.min = 0;
@@ -122,7 +113,7 @@ class Model implements IModel {
         return options;
     }
 
-    private integerValidation(options: number[]) {
+    private integerValidation(options: number[]): void {
         options.forEach(function(item) {
             if( !isNumeric(item) || item % 1 != 0 ) { 
                 throw new Error('All values should be integer'); 
@@ -130,13 +121,13 @@ class Model implements IModel {
         });
     }
 
-    private rangeArrayValidation(range: [number, number]) {
+    private rangeArrayValidation(range: [number, number]): void {
         if ( !Array.isArray(range) || range.length != 2 ) {
             throw new Error('Incorrect Range');
         }
     }
 
-    private limitsValidation(options: IModelOptions) {
+    private limitsValidation(options: IModelOptions): void {
         // добавляем все, что нужно проверить
         let valuesInLimits: number[] = [];
 
@@ -174,7 +165,7 @@ class Model implements IModel {
         }
     }
 
-    findClosestStep(value: number, options: IModelOptions): number {
+    private findClosestStep(value: number, options: IModelOptions): number {
         let step: number;
         let sign: number = options.reverse ? -1 : 1;
         let ceilSteps: number;
@@ -192,50 +183,49 @@ class Model implements IModel {
         return step;
     }
 
-/*     changeValues(key: string, value: number | [number, number]): void {
+    makeFullChanges(options: IModelOptions): void {
+        options = Object.assign({}, this, options);
+        let validOptions: IModelOptions = this.validation(options);
+
+        this.value = validOptions.value;
+        this.min = validOptions.min;
+        this.max = validOptions.max;
+        this.step = validOptions.step;
+        this.range = validOptions.range;
+        this.customValues = validOptions.customValues;      
+        this.reverse = validOptions.reverse;
+
+        this.notify('fullChanges');
+    }
+
+    makeSlimChanges(key: string, value: number | number[]): void {
+
+        if ( Array.isArray(value) ) {
+            value[0] = this.findClosestStep(value[0], this.data);
+            value[1] = this.findClosestStep(value[1], this.data);
+        } else {
+            value = this.findClosestStep(value, this.data);
+        }
+
         if ( this[key] != value ) {
             this[key] = value;
-            this.notify('slimChanges');            
-        }
-    } */
-
-/*     changeValues(keys: string | string[], percent: number): void {
-        let newValue: number;
-        let obj: number;
-
-        newValue = percent * (this.max - this.min) / 100;
-        newValue = !this.reverse ? 
-        this.min + newValue :
-        this.max - newValue;
-
-        newValue = this.findClosestStep(newValue, this);
-
-        if ( Array.isArray(keys) ) {
-            //console.log(keys[0]);
-            //console.log(keys[1]);
-            obj = this[ keys[0] ][ keys[1] ];
-            //console.log('1   ' + obj)
-        } else {
-            obj = this[ keys ]
-        }
-
-        console.log(obj)
-        console.log(newValue)
-
-        if ( obj != newValue ) {
-            obj = newValue;
-            //console.log(obj)
-            //console.log(newValue)
-            //console.log(key)
-            //console.log(newValue);
-            //console.log(this[key])
-            //console.log(this.range)
-
-            //console.log(this.range);
-
             this.notify('slimChanges');
         }
-    } */
+    }
+
+    get data(): IModelOptions {
+        return {
+            value: this.value,
+            min: this.min,
+            max: this.max,   
+            step: this.step,
+            range: this.range,
+            customValues: this.customValues,
+            reverse: this.reverse
+        }
+    }
+
+
 
     // observer methods
     attach(observer: IObserver): void {
@@ -255,13 +245,13 @@ class Model implements IModel {
         }
     }
 
-    notifySlimChanges(): void {
+    private notifySlimChanges(): void {
         for (const observer of this.observers) {
             observer.pushSlimModelChanges(this);
         }
     }
 
-    notifyFullChanges(): void {
+    private notifyFullChanges(): void {
         for (const observer of this.observers) {
             observer.pushFullModelChanges(this);
         }
@@ -269,6 +259,5 @@ class Model implements IModel {
 }
 
 
-export { IModel };
-export { IModelOptions };
+export { IModel, IModelOptions };
 export default Model;

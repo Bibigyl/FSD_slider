@@ -1,22 +1,11 @@
-export default interface IOptions {
-    // Model options
-    value: number | null;
-    min: number;
-    max: number;
-    step: number;    
-    reverse: boolean;
-    range: [number, number] | null; 
-    customValues?: string[];
+import { IModelOptions } from "./Model";
+import { IViewOptions } from "./View";
 
-
-    // View options
-    length: string | number;
-    vertical: boolean;
-    tooltip: boolean;
-    scale: boolean;
+interface IOptions extends IModelOptions, IViewOptions {
+    
 }
 
-var defaultOptions: IOptions = {
+let defaultOptions: IOptions = {
     // Model options
     // в начальных настройках не определены начальное значение или промежуток.
     // если они не указаны пользователем, начальное значение value == min 
@@ -33,4 +22,5 @@ var defaultOptions: IOptions = {
     scale: true,
 }
 
+export { IOptions };
 export { defaultOptions };

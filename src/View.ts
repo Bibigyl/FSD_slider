@@ -1,15 +1,20 @@
-import IOptions from './defaultOptions';
-import {IModel, IModelOptions} from './Model';
-import { runInNewContext } from 'vm';
-import { isNumeric } from './commonFunctions';
-import { getNumberOfSteps } from './commonFunctions';
-import { ISubject } from './Observer';
-import { IObserver } from './Observer';
+import { IOptions } from './defaultOptions';
+import { IModel, IModelOptions } from './Model';
+import { ISubject, IObserver } from './Observer';
+//import { runInNewContext } from 'vm';
+import { isNumeric, getNumberOfSteps } from './commonFunctions';
+
+
+interface IViewOptions {
+    length: string | number;
+    vertical: boolean;
+    tooltip: boolean;
+    scale: boolean;
+}
 
 interface IView extends ISubject {
     length: string;
     vertical: boolean;
-    numberOfSteps: number;
 
     slider: HTMLDivElement;
     thumb?: HTMLDivElement | undefined;
@@ -24,16 +29,20 @@ interface IView extends ISubject {
     activeThumb: HTMLDivElement;
     newThumbPosition: number;
 
-    setThumbs(options: IOptions): void;
-    setLinePosition(): void;
-    setTooltipValues(options: IModelOptions): void;
+    //setThumbs(options: IOptions): void;
+    //setLinePosition(): void;
+    //setTooltipValues(options: IModelOptions): void;
+    makeSlimChanges(options): void;
+    makeFullChanges(options): void;
+    //getOptions(): 
 }
 
 class View implements IView  {
+    [x: string]: any;
 
     length: string;
     vertical: boolean;
-    numberOfSteps: number;
+    //numberOfSteps: number;
 
     slider: HTMLDivElement;
     thumb?: HTMLDivElement | undefined;
@@ -51,29 +60,14 @@ class View implements IView  {
     
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
-        this.build(options, sliderNode)
-
-        // события
-        this.thumbOnDown = this.thumbOnDown.bind(this);
-        this.thumbOnMove = this.thumbOnMove.bind(this);
-        this.thumbOnUp = this.thumbOnUp.bind(this);
-
-        if ( !options.range ) {
-            this.thumb.addEventListener("mousedown", this.thumbOnDown);
-            this.thumb.addEventListener("touchstart", this.thumbOnDown);
-        } else {
-            this.thumbFirst.addEventListener("mousedown", this.thumbOnDown);
-            this.thumbFirst.addEventListener("touchstart", this.thumbOnDown);
-
-            this.thumbLast.addEventListener("mousedown", this.thumbOnDown);
-            this.thumbLast.addEventListener("touchstart", this.thumbOnDown);
-        }  
-    }
-
-    private build(options: IOptions, sliderNode: HTMLDivElement): void {
-
         this.slider = sliderNode;
         this.slider.classList.add('slider');
+
+        this.build(options)
+    }
+
+    private build(options: IOptions): void {
+
         this.length = this.findValidLength(options.length);
 
         if ( !options.vertical ) {
@@ -99,6 +93,55 @@ class View implements IView  {
         if ( options.scale ) {
             this.buildScale(options);
         }
+
+        // события
+        this.thumbOnDown = this.thumbOnDown.bind(this);
+        this.thumbOnMove = this.thumbOnMove.bind(this);
+        this.thumbOnUp = this.thumbOnUp.bind(this);
+
+        if ( !options.range ) {
+            this.thumb.addEventListener("mousedown", this.thumbOnDown);
+            this.thumb.addEventListener("touchstart", this.thumbOnDown);
+        } else {
+            this.thumbFirst.addEventListener("mousedown", this.thumbOnDown);
+            this.thumbFirst.addEventListener("touchstart", this.thumbOnDown);
+
+            this.thumbLast.addEventListener("mousedown", this.thumbOnDown);
+            this.thumbLast.addEventListener("touchstart", this.thumbOnDown);
+        }  
+    }
+
+    get data(): IViewOptions {
+        let tooltip = !!this.tooltip || !!this.tooltipFirst;
+        let scale = !!this.scale;
+
+        return {
+            length:  this.length,
+            vertical: this.vertical,
+            tooltip: tooltip,
+            scale: scale            
+        }
+    }
+
+    makeSlimChanges(options: IOptions): void {
+        this.setThumbs(options);
+        this.setLinePosition();
+        this.setTooltipValues(options);
+    }
+
+    makeFullChanges(options: IOptions): void {
+        let prevOptions: IViewOptions = this.data;
+        options = Object.assign(prevOptions, options);
+
+        for (let key in this) {
+            if (key != 'slider') {
+                try {
+                    this[key] = this.removeNode(this[key]);
+                } catch {}                
+            }
+        }
+        
+        this.build(options);
     }
 
 
@@ -127,7 +170,7 @@ class View implements IView  {
         }
 
         this.newThumbPosition = (eventPos - offset) / length * 100;
-        this.notify('slimChanges');
+        this.notify();
     }
 
     private thumbOnUp(event): void {
@@ -139,7 +182,7 @@ class View implements IView  {
         this.activeThumb = undefined;
     }
 
-    private buildThumbs(options): void {
+    private buildThumbs(options: IOptions): void {
         if ( !options.range ) {
             this.thumb = this.buildNode(this.slider, 'slider__thumb');
         } else {     
@@ -150,7 +193,7 @@ class View implements IView  {
         this.setThumbs(options);
     }
 
-    setThumbs(options): void {
+    private setThumbs(options: IOptions): void {
         let pos: string;
         if ( !options.range ) {
             pos = this.findThumbPosition(options.value, options);
@@ -243,7 +286,7 @@ class View implements IView  {
         this.setThumbPosition( this.thumbLast, pos);
     } */
 
-    setLinePosition(): void {
+    private setLinePosition(): void {
         let start: number | string;
         let length: number | string;
         let topLeft: string = !this.vertical ? 'left' : 'top';
@@ -258,7 +301,7 @@ class View implements IView  {
         this.line.style[widthHeight] = length;
     }
 
-    buildTooltips(options: IOptions): void {
+    private buildTooltips(options: IOptions): void {
 
         if (!options.range) { 
             this.tooltip = this.buildNode(this.thumb, 'slider__tooltip');
@@ -270,7 +313,7 @@ class View implements IView  {
         this.setTooltipValues(options);
     }
 
-    buildScale(options: IOptions): void {
+    private buildScale(options: IOptions): void {
         let scale: HTMLDivElement;
         let division: HTMLDivElement;
         let val: number | string;
@@ -302,7 +345,7 @@ class View implements IView  {
         this.scale = scale;
     }
 
-    setTooltipValues(options: IOptions): void {
+    private setTooltipValues(options: IOptions): void {
         let val: number | string;
 
         if (!options.range) { 
@@ -351,8 +394,6 @@ class View implements IView  {
     } */
 
 
-    // вспомогательные методы
-
     private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
         if ( !this.vertical ) {
             thumbNode.style.top = null;
@@ -385,8 +426,6 @@ class View implements IView  {
         return undefined;
     }
 
-
-    // приватные функции
 
     private buildNode(parentNode: HTMLDivElement, ...classes: string[]): HTMLDivElement {
         let node: HTMLDivElement = document.createElement('div');     
@@ -437,27 +476,13 @@ class View implements IView  {
         this.observers.splice(observerIndex, 1);
     }
 
-    notify(type?: string): void {
-        if (type == 'slimChanges') {
-            this.notifySlimChanges();
-        } else if (type == 'fullChanges') {
-            this.notifyFullChanges();
-        }
-    }
-
-    notifySlimChanges(): void {
+    notify(): void {
         for (const observer of this.observers) {
-            observer.pushSlimViewChanges(this);
-        }
-    }
-
-    notifyFullChanges(): void {
-        for (const observer of this.observers) {
-            observer.pushFullViewChanges(this);
+            observer.pushViewChanges(this);
         }
     }
 }
 
 
-export { IView };
+export { IView, IViewOptions };
 export default View;

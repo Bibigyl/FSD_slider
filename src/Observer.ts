@@ -16,11 +16,11 @@ interface ISubject {
 // используют для оповещения своих подписчиков.
 interface IObserver {
     // Получить обновление от субъекта.
-    pushSlimViewChanges(subject: ISubject): void;
-    pushFullViewChanges(subject: ISubject): void;
+    pushViewChanges(subject: ISubject): void;
     pushSlimModelChanges(subject: ISubject): void;
     pushFullModelChanges(subject: ISubject): void;
 }
+
 
 
 export { ISubject };

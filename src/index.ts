@@ -1,8 +1,7 @@
 import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
-import IOptions, { defaultOptions } from './defaultOptions';
-
+import { IOptions, defaultOptions } from './defaultOptions';
 import { IObserver } from './Observer';
 
 
@@ -10,7 +9,7 @@ import { IObserver } from './Observer';
 
   var methods: Object = {
 
-    init: function( options?: any ) {
+    init: function( options?: IOptions ) {
 
       return this.each(function(){
          
@@ -23,25 +22,11 @@ import { IObserver } from './Observer';
         
           options = $.extend({}, defaultOptions, options);
 
-          let model: IModel = new Model(options);
-          // передаем модель в представление для получения из нее 
-          // корректных данных
-          let view: IView = new View(model, options, this);
-
-          // субъект - это наблюдение
-          // он хранит значение val или промежуток
-          let val: any | [any, any];
-          val = model.getVal() || model.getRange(); 
-          let subject = new Subject(val);
-
-          let presenter = new Presenter(model, view, subject);
+          let presenter = new Presenter(options, this)
 
           $(this).data('sliderData', {
             slider : slider,
-            model: model,
-            view: view,
-            presenter: presenter,
-            subject: subject
+            presenter: presenter
           });
           
         }
@@ -51,8 +36,8 @@ import { IObserver } from './Observer';
     change: function( options: any ) {
       return this.each( function() {
 
-        let presenter = $(this).data('sliderData').presenter;
-        presenter.change(options);
+        $(this).data('sliderData').presenter.change(options);
+        //presenter.change(options);
 
       });
     },
@@ -74,10 +59,10 @@ import { IObserver } from './Observer';
 
       // добавляем наблюдателя
       // аргумент - эта функция которая будет обрабатывать изменения
-      let subject = $(this).data('sliderData').subject;
-      let observer: IObserver = new Observer( func );
+      //let subject = $(this).data('sliderData').subject;
+      //let observer: IObserver = new Observer( func );
 
-      subject.attach(observer);
+      //subject.attach(observer);
     }
   }
 
@@ -101,7 +86,16 @@ import { IObserver } from './Observer';
 })(jQuery);
 
 
-let test = document.querySelector('.test') as HTMLDivElement;
+//let test = document.querySelector('.test') as HTMLDivElement;
 
 
-let pres = new Presenter(defaultOptions, test);
+//let pres = new Presenter(defaultOptions, test);
+
+$('.test').slider({
+  value: 5
+});
+
+$('.test').slider('change', {
+  min: -5,
+  range: [3, 15]
+})
