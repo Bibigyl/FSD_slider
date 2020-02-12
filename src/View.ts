@@ -1,7 +1,6 @@
 import { IOptions } from './defaultOptions';
 import { IModel, IModelOptions } from './Model';
-import { ISubject, IObserver } from './Observer';
-//import { runInNewContext } from 'vm';
+import { ISubject, IObserver, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 
@@ -27,20 +26,14 @@ interface IView extends ISubject {
     tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
 
-    //activeThumb: HTMLDivElement;
-    //newThumbPosition: number;
-
-    //setThumbs(options: IOptions): void;
-    //setLinePosition(): void;
-    //setTooltipValues(options: IModelOptions): void;
+    data: IViewOptions;
     notify(activeThumb: HTMLDivElement, newThumbPosition: number): void;
 
     makeSlimChanges(options): void;
     makeFullChanges(options): void;
-    //getOptions(): 
 }
 
-class View implements IView  {
+class View extends Subject implements IView  {
     [x: string]: any;
 
     length: string;
@@ -58,14 +51,13 @@ class View implements IView  {
     scale?: HTMLDivElement | undefined;
 
     private _activeThumb: HTMLDivElement;
-    //newThumbPosition: number;
-    private observers: IObserver[] = [];
     
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
+        super();
+
         this.slider = sliderNode;
         this.slider.classList.add('slider');
-        //this._activeThumb = undefined;
 
         this.build(options)
     }
@@ -487,21 +479,8 @@ class View implements IView  {
     }
 
 
-    // observer methods
-    attach(observer: IObserver): void {
-        this.observers.push(observer);
-    }
+    // observer method
 
-    detach(observer: IObserver): void {
-        const observerIndex = this.observers.indexOf(observer);
-        this.observers.splice(observerIndex, 1);
-    }
-
-/*     notify(): void {
-        for (const observer of this.observers) {
-            observer.pushViewChanges(newThumbPosition);
-        }
-    } */
     notify(activeThumb: HTMLDivElement, newThumbPosition: number): void {
         for (const observer of this.observers) {
             observer.pushViewChanges(activeThumb, newThumbPosition);

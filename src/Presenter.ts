@@ -54,6 +54,7 @@ class Presenter implements IObserver, IPresenter {
             }
         }
 
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         this._model.makeSlimChanges(key, value);
     }
 

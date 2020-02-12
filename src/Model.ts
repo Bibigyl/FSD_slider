@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, IObserver } from './Observer';
+import { ISubject, IObserver, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 interface IModelOptions {
@@ -18,11 +18,11 @@ interface IModel extends ISubject, IModelOptions {
     notify(type?: string): void;
     
     makeFullChanges(options: IOptions): void;
-    makeSlimChanges(key, value): void;
+    makeSlimChanges(key: string, value: number): void;
 }
 
 
-class Model implements IModel {
+class Model extends Subject implements IModel {
     value: number | null;
     min: number;
     max: number;   
@@ -30,9 +30,11 @@ class Model implements IModel {
     range: [number, number] | null;
     customValues?: string[] | undefined;
     reverse: boolean;
-    private observers: IObserver[] = [];
+    //private observers: IObserver[] = [];
 
     constructor(options: IOptions) {
+
+        super();
 
         let validOptions: IModelOptions = this.validation(options);
 
@@ -44,7 +46,6 @@ class Model implements IModel {
         this.customValues = validOptions.customValues;      
         this.reverse = validOptions.reverse;
 
-        console.log(this.data)
     }
 
 
@@ -53,23 +54,15 @@ class Model implements IModel {
         if (options.customValues && Array.isArray(options.customValues)) {
             options.min = 0;
             options.max = options.customValues.length - 1;
+            options.step = 1;
         }
 
-        // собираем все, что должно быть integer
-/*         let integerOptions: number[] = [options.min, options.max, options.step];
-
-        if (options.range) {
-            this.rangeArrayValidation(options.range);
-            Array.prototype.push.apply(integerOptions, options.range);
-            options.value = null;
-        } else {
-            options.value = options.value || options.min;
-            integerOptions.push(options.value)
-        } */
-
+        if (options.range) { this.rangeArrayValidation(options.range) };
+        
         // проверили, что все, что должно быть целыми числами, таковыми являются
         // => меняем порядок, если он перепутан
         // => преобразуем step и reverse
+        this.numericValidation(options);
         this.integerValidation(options);
 
         if (options.min > options.max) {
@@ -105,8 +98,23 @@ class Model implements IModel {
             }
         });
     } */
+
+    private numericValidation(options: IModelOptions): void {
+        let numericOptions: number[] = [options.min, options.max, options.step];
+        if (options.range) {
+            numericOptions.push(options.range[0], options.range[1]);
+        } else {
+            numericOptions.push(options.value);
+        }
+
+        numericOptions.forEach(function(item) {
+            if( !isNumeric(item) ) { 
+                throw new Error('All values should be numbers'); 
+            }
+        });
+    }
+
     private integerValidation(options: IModelOptions): IModelOptions {
-        //let integers = ['min', 'max', 'value', 'range', 'step'];
         options.min = Math.trunc(options.min);
         options.max = Math.trunc(options.max);
         options.step = Math.trunc(options.step);
@@ -140,12 +148,21 @@ class Model implements IModel {
 
         valuesInLimits.forEach(function(item) {
             if ( item > options.max || item < options.min ) {
-                throw new Error('Incorrect value or range');
+                console.warn('Incorrect value or range');
+                item = Math.max(item, options.max);
+                item = Math.min(item, options.min);
+                //throw new W('Incorrect value or range');
             }
         });
 
         if ( options.step == 0 || options.step > (options.max - options.min) ) {
-            throw new Error('Incorrect step');
+            options.step = 1;
+            console.warn('Incorrect step');
+            //throw new Error('Incorrect step');
+        }
+
+        if ( options.min == options.max ) {
+            console.warn('Min cannot be equal to max');
         }
     }
 
@@ -233,34 +250,18 @@ class Model implements IModel {
     }
 
 
-
-    // observer methods
-    attach(observer: IObserver): void {
-        this.observers.push(observer);
-    }
-
-    detach(observer: IObserver): void {
-        const observerIndex = this.observers.indexOf(observer);
-        this.observers.splice(observerIndex, 1);
-    }
+    // observer method
 
     notify(type?: string): void {
-        if (type == 'slimChanges') {
-            this.notifySlimChanges();
-        } else if (type == 'fullChanges') {
-            this.notifyFullChanges();
-        }
-    }
 
-    private notifySlimChanges(): void {
         for (const observer of this.observers) {
-            observer.pushSlimModelChanges();
-        }
-    }
+            
+            if (type == 'slimChanges') {
+                observer.pushSlimModelChanges();
 
-    private notifyFullChanges(): void {
-        for (const observer of this.observers) {
-            observer.pushFullModelChanges();
+            } else if (type == 'fullChanges') {
+                observer.pushFullModelChanges();
+            }
         }
     }
 }

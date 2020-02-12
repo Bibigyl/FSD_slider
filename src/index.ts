@@ -93,11 +93,13 @@ import { IObserver } from './Observer';
 
 $('.test').slider({
   value: 0,
-  min: -7.6666,
+  //min: -7.6666,
   //range: [5, 10],
   //reverse: true,
-  customValues: ['a', 'b', 'c', 'd'],
-  step: 1
+  //customValues: ['a', 'b', 'c', 'd'],
+  step: 1,
+  min: 0,
+  max: 17,
 });
 
 /* $('.test').slider('change', {

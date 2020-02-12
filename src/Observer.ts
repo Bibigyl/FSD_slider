@@ -21,7 +21,19 @@ interface IObserver {
     pushFullModelChanges(): void;
 }
 
+class Subject {
+    protected observers: IObserver[] = [];
+
+    attach(observer: IObserver): void {
+        this.observers.push(observer);
+    }
+
+    detach(observer: IObserver): void {
+        const observerIndex = this.observers.indexOf(observer);
+        this.observers.splice(observerIndex, 1);
+    }
+}
 
 
-export { ISubject };
-export { IObserver };
+
+export { ISubject, IObserver, Subject};

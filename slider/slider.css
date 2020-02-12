@@ -18,13 +18,13 @@
     overflow: visible;
 }
 .slider_horizontal .slider__thumb {
-    left: -10px;
+/*     left: -10px; */
     top: -6px;
     transform: translateX(-50%);
 }
 .slider_vertical .slider__thumb {
     left: -6px;
-    top: -10px;
+/*     top: -10px; */
     transform: translateY(-50%);
 }
 .slider__tooltip {
