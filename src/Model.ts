@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, IObserver, Subject } from './Observer';
+import { ISubject, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 interface IModelOptions {
@@ -30,7 +30,6 @@ class Model extends Subject implements IModel {
     range: [number, number] | null;
     customValues?: string[] | undefined;
     reverse: boolean;
-    //private observers: IObserver[] = [];
 
     constructor(options: IOptions) {
 
@@ -45,7 +44,6 @@ class Model extends Subject implements IModel {
         this.range = validOptions.range;
         this.customValues = validOptions.customValues;      
         this.reverse = validOptions.reverse;
-
     }
 
 
@@ -58,7 +56,7 @@ class Model extends Subject implements IModel {
         }
 
         if (options.range) { this.rangeArrayValidation(options.range) };
-        
+
         // проверили, что все, что должно быть целыми числами, таковыми являются
         // => меняем порядок, если он перепутан
         // => преобразуем step и reverse

@@ -1,9 +1,7 @@
 import { IModelOptions } from "./Model";
 import { IViewOptions } from "./View";
 
-interface IOptions extends IModelOptions, IViewOptions {
-    
-}
+interface IOptions extends IModelOptions, IViewOptions {}
 
 let defaultOptions: IOptions = {
     // Model options

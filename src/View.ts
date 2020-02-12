@@ -1,6 +1,6 @@
 import { IOptions } from './defaultOptions';
 import { IModel, IModelOptions } from './Model';
-import { ISubject, IObserver, Subject } from './Observer';
+import { ISubject, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 

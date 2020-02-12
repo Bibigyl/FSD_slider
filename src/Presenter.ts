@@ -1,18 +1,25 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 import Model, { IModel, IModelOptions } from './Model';
 import View, { IView } from './View';
-import { ISubject, IObserver }  from './Observer';
+import { ISubject, Subject }  from './Observer';
 
-interface IPresenter {
+interface IPresenter extends ISubject {
     change(options: any): void
+
+    pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void;
+    pushSlimModelChanges(): void;
+    pushFullModelChanges(): void;
 }
 
-class Presenter implements IObserver, IPresenter {
+class Presenter extends Subject implements IPresenter {
 
     private _model: IModel;
     private _view: IView;
+    //private observers: IObserver[] = [];
 
     constructor(options: IOptions, node: HTMLDivElement) {
+
+        super();
 
         options = Object.assign(defaultOptions, options);
         this._model = new Model(options);
@@ -56,14 +63,17 @@ class Presenter implements IObserver, IPresenter {
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         this._model.makeSlimChanges(key, value);
+        this.notify();
     }
 
     pushSlimModelChanges() {
         this._view.makeSlimChanges(this._model);
+        this.notify();
     }
 
     pushFullModelChanges() {
         this._view.makeFullChanges(this._model);
+        this.notify();
     }
 
     change(options: any): void {
@@ -95,6 +105,15 @@ class Presenter implements IObserver, IPresenter {
 
         if (doesViewChange) {
             this._view.makeFullChanges(options);
+        }
+    }
+
+    // observer
+    notify() {
+        let options = Object.assign({}, this._model.data, this._view.data);
+
+        for (const observer of this.observers) {
+            observer.update(options);
         }
     }
     
