@@ -4,7 +4,7 @@ import View, { IView } from './View';
 import { ISubject, IObserver }  from './Observer';
 
 interface IPresenter {
-    change(options): void
+    change(options: any): void
 }
 
 class Presenter implements IObserver, IPresenter {
@@ -24,7 +24,7 @@ class Presenter implements IObserver, IPresenter {
         this._view.attach(this);
     }
 
-    pushViewChanges(newThumbPosition: number) {
+    pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void {
         let percent: number = newThumbPosition;
         let newValue: number;
         let key: string;
@@ -35,17 +35,23 @@ class Presenter implements IObserver, IPresenter {
         this._model.min + newValue :
         this._model.max - newValue;
 
-        if ( this._view.activeThumb == this._view.thumb ) {
+        if ( !this._model.range ) {
             key = 'value';
             value = newValue;
 
-        } else if ( this._view.activeThumb == this._view.thumbFirst ) {
-            key = 'range';
-            value = [newValue, this._model.range[1]];
-
         } else {
             key = 'range';
-            value = [this._model.range[0], newValue];
+            let isThumbFirst: boolean = activeThumb.classList.contains('slider__thumb_first');
+            let isReverse: boolean = this._model.reverse;
+
+            if ( (isThumbFirst && !isReverse) || (!isThumbFirst && isReverse) ) {
+                newValue = Math.min(newValue, this._model.range[1]);
+                value = [newValue, this._model.range[1]];
+
+            } else {
+                newValue = Math.max(newValue, this._model.range[0]);
+                value = [this._model.range[0], newValue];
+            }
         }
 
         this._model.makeSlimChanges(key, value);
@@ -58,13 +64,6 @@ class Presenter implements IObserver, IPresenter {
     pushFullModelChanges() {
         this._view.makeFullChanges(this._model);
     }
-
-/*     private joinOptions(options: IOptions): IOptions {
-        for (let key in options) {
-            options[key] = this._model[key] || options[key];
-        }
-        return options;
-    } */
 
     change(options: any): void {
         let doesModelChange: boolean = false;

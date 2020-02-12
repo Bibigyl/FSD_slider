@@ -3,6 +3,7 @@ import { ISubject, IObserver } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 
 interface IModelOptions {
+    [x: string]: any;
     value: number | null;
     min: number;
     max: number;
@@ -13,26 +14,15 @@ interface IModelOptions {
 }
 
 interface IModel extends ISubject, IModelOptions {
-
     data: IModelOptions;
-    
-    //getNumberOfSteps(): number,
-    //translate(value: number): number | string,
-    //findClosestStep(value: number, options: IModelOptions): number,
-
-    //changeValues(key: string, percent: number): void;
-
-    // findClosestStep - тоже ж вынести в отдельные функции
-    //findClosestStep(value: number, options: IModelOptions): number;
     notify(type?: string): void;
     
     makeFullChanges(options: IOptions): void;
     makeSlimChanges(key, value): void;
-    //getData(): IModelOptions;
-
 }
-class Model implements IModel {
 
+
+class Model implements IModel {
     value: number | null;
     min: number;
     max: number;   
@@ -54,12 +44,7 @@ class Model implements IModel {
         this.customValues = validOptions.customValues;      
         this.reverse = validOptions.reverse;
 
-/*         this.range[0] = 0;
-        console.log(this.range);
-        this.range[0] = 5;
-        console.log(this.range);
-        this.range[0] = 1;
-        console.log(this.range); */
+        console.log(this.data)
     }
 
 
@@ -71,7 +56,7 @@ class Model implements IModel {
         }
 
         // собираем все, что должно быть integer
-        let integerOptions: number[] = [options.min, options.max, options.step];
+/*         let integerOptions: number[] = [options.min, options.max, options.step];
 
         if (options.range) {
             this.rangeArrayValidation(options.range);
@@ -80,12 +65,13 @@ class Model implements IModel {
         } else {
             options.value = options.value || options.min;
             integerOptions.push(options.value)
-        }
+        } */
 
         // проверили, что все, что должно быть целыми числами, таковыми являются
         // => меняем порядок, если он перепутан
         // => преобразуем step и reverse
-        this.integerValidation(integerOptions);
+        this.integerValidation(options);
+
         if (options.min > options.max) {
             [options.min, options.max] = [options.max, options.min];
         }
@@ -102,9 +88,6 @@ class Model implements IModel {
         // например, шаг не больше всего диапазона, шаг не ноль..
         this.limitsValidation(options);
 
-        // находим value или range в шагах от 0
-        //options = this.addValuesSteps(options);
-
         if (options.range) {
             options.range[0] = this.findClosestStep(options.range[0], options);
             options.range[1] = this.findClosestStep(options.range[1], options);
@@ -115,12 +98,28 @@ class Model implements IModel {
         return options;
     }
 
-    private integerValidation(options: number[]): void {
+/*     private integerValidation(options: number[]): void {
         options.forEach(function(item) {
             if( !isNumeric(item) || item % 1 != 0 ) { 
                 throw new Error('All values should be integer'); 
             }
         });
+    } */
+    private integerValidation(options: IModelOptions): IModelOptions {
+        //let integers = ['min', 'max', 'value', 'range', 'step'];
+        options.min = Math.trunc(options.min);
+        options.max = Math.trunc(options.max);
+        options.step = Math.trunc(options.step);
+        
+        if (options.range) {
+            options.range[0] = Math.trunc(options.range[0]);
+            options.range[1] = Math.trunc(options.range[1]);
+            options.value = null;
+        } else {
+            options.value = Math.trunc(options.value);
+            options.range = null;
+        }
+        return options;
     }
 
     private rangeArrayValidation(range: [number, number]): void {
@@ -169,15 +168,21 @@ class Model implements IModel {
 
     private findClosestStep(value: number, options: IModelOptions): number {
         let step: number;
-        let sign: number = options.reverse ? -1 : 1;
         let ceilSteps: number;
         let restOfStep: number;
 
-        ceilSteps = Math.trunc( sign * (value - options.min) / options.step );
-        restOfStep = sign * (value - options.min) % options.step;
+        if ( !options.reverse ) {
+            ceilSteps = Math.trunc( (value - options.min) / options.step );
+            restOfStep = (value - options.min) % options.step;
+            step = options.min + ceilSteps * options.step;
+            step = restOfStep >= options.step/2 ? step + options.step : step;
 
-        step = options.min + sign * ceilSteps * options.step;
-        step = restOfStep >= options.step/2 ? step + sign * options.step : step;
+        } else {
+            ceilSteps = Math.trunc( (options.max - value) / options.step );
+            restOfStep = (options.max - value) % options.step;
+            step = options.max - ceilSteps * options.step;
+            step = restOfStep >= options.step/2 ? step - options.step : step;
+        }
 
         step = step > options.max ? options.max : step;
         step = step < options.min ? options.min : step;
@@ -249,13 +254,13 @@ class Model implements IModel {
 
     private notifySlimChanges(): void {
         for (const observer of this.observers) {
-            observer.pushSlimModelChanges(this);
+            observer.pushSlimModelChanges();
         }
     }
 
     private notifyFullChanges(): void {
         for (const observer of this.observers) {
-            observer.pushFullModelChanges(this);
+            observer.pushFullModelChanges();
         }
     }
 }

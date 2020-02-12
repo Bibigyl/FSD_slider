@@ -92,10 +92,15 @@ import { IObserver } from './Observer';
 //let pres = new Presenter(defaultOptions, test);
 
 $('.test').slider({
-  value: 5
+  value: 0,
+  min: -7.6666,
+  //range: [5, 10],
+  //reverse: true,
+  customValues: ['a', 'b', 'c', 'd'],
+  step: 1
 });
 
-$('.test').slider('change', {
+/* $('.test').slider('change', {
   min: -5,
   range: [3, 15]
-})
+}) */

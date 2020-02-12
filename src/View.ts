@@ -57,7 +57,7 @@ class View implements IView  {
     tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
 
-    activeThumb: HTMLDivElement;
+    private _activeThumb: HTMLDivElement;
     //newThumbPosition: number;
     private observers: IObserver[] = [];
     
@@ -65,6 +65,7 @@ class View implements IView  {
 
         this.slider = sliderNode;
         this.slider.classList.add('slider');
+        //this._activeThumb = undefined;
 
         this.build(options)
     }
@@ -153,7 +154,7 @@ class View implements IView  {
         event.preventDefault();
         event.stopPropagation();
 
-        //this.activeThumb = event.currentTarget;
+        this._activeThumb = event.currentTarget;
 
         document.addEventListener('mousemove', this.thumbOnMove);
         document.addEventListener('mouseup', this.thumbOnUp);
@@ -173,8 +174,8 @@ class View implements IView  {
             eventPos = !this.vertical ? event.clientX : event.clientY;
         }
 
-        //this.newThumbPosition = (eventPos - offset) / length * 100;
-        this.notify(event.currentTarget, newThumbPosition);
+        newThumbPosition = (eventPos - offset) / length * 100;
+        this.notify(this._activeThumb, newThumbPosition);
     }
 
     private thumbOnUp(event): void {
@@ -183,7 +184,7 @@ class View implements IView  {
         document.removeEventListener('touchend', this.thumbOnUp);
         document.removeEventListener('touchmove', this.thumbOnMove);
 
-        //this.activeThumb = undefined;
+        this._activeThumb = undefined;
     }
 
     private buildThumbs(options: IOptions): void {
@@ -199,21 +200,24 @@ class View implements IView  {
 
     private setThumbs(options: IOptions): void {
         let pos: string;
+
         if ( !options.range ) {
             pos = this.findThumbPosition(options.value, options);
             this.setThumbPosition(this.thumb, pos);
-        } else {     
-            pos = this.findThumbPosition(options.range[0], options);
+
+        } else {
+            let num: number;
+            // если reverse, то левый бегунок - это большее значение
+            // т.е. range[1]
+            num = !options.reverse ? 0 : 1;
+            pos = this.findThumbPosition(options.range[num], options);
             this.setThumbPosition(this.thumbFirst, pos);
 
-            pos = this.findThumbPosition(options.range[1], options);
+            num = num == 0 ? 1 : 0;
+            pos = this.findThumbPosition(options.range[num], options);
             this.setThumbPosition(this.thumbLast, pos);
         }
     }
-
-
-
-
 
 
 
@@ -329,8 +333,14 @@ class View implements IView  {
         scale.classList.add('slider__scale');
 
         for ( let i: number = 0; i <= getNumberOfSteps(options.min, options.max, options.step); i++ ) {
-            val = options.min + sign * options.step * i;
-            val = val > options.max ? options.max : val;
+
+            if ( !options.reverse ) {
+                val = options.min + options.step * i;
+                val = Math.min(val, options.max);
+            } else {
+                val = options.max - options.step * i;
+                val = Math.max(val, options.min);
+            }
 
             indent = i * options.step < length ? i * options.step : length; 
             indent = indent / length * 100 + '%';
@@ -356,10 +366,13 @@ class View implements IView  {
             val = options.customValues ? options.customValues[options.value] : options.value;
             this.tooltip.textContent = val as string; 
         } else {
-            val = options.customValues ? options.customValues[options.range[0]] : options.range[0];
+            let num: number;
+            num = !options.reverse ? 0 : 1;
+            val = options.customValues ? options.customValues[options.range[num]] : options.range[num];
             this.tooltipFirst.textContent = val as string;
 
-            val = options.customValues ? options.customValues[options.range[1]] : options.range[1];
+            num = num == 0 ? 1 : 0;
+            val = options.customValues ? options.customValues[options.range[num]] : options.range[num];
             this.tooltipLast.textContent = val as string;
         }
     }
@@ -422,7 +435,11 @@ class View implements IView  {
 
 
     private findThumbPosition(value: number, options: IOptions): string {
-        return (value - options.min) / (options.max - options.min) * 100 + '%';
+        let pos: string;
+        pos = !options.reverse ?
+        (value - options.min) / (options.max - options.min) * 100 + '%' :
+        (options.max - value) / (options.max - options.min) * 100 + '%'
+        return pos;
     }
 
     private removeNode(node: HTMLDivElement): undefined {
@@ -480,9 +497,14 @@ class View implements IView  {
         this.observers.splice(observerIndex, 1);
     }
 
-    notify(): void {
+/*     notify(): void {
         for (const observer of this.observers) {
             observer.pushViewChanges(newThumbPosition);
+        }
+    } */
+    notify(activeThumb: HTMLDivElement, newThumbPosition: number): void {
+        for (const observer of this.observers) {
+            observer.pushViewChanges(activeThumb, newThumbPosition);
         }
     }
 }

@@ -16,7 +16,7 @@ interface ISubject {
 // используют для оповещения своих подписчиков.
 interface IObserver {
     // Получить обновление от субъекта.
-    pushViewChanges(newThumbPosition: number): void;
+    pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void;
     pushSlimModelChanges(): void;
     pushFullModelChanges(): void;
 }

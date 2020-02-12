@@ -13,7 +13,7 @@ let defaultOptions: IOptions = {
     min: 0,
     max: 32,
     step: 3,
-    reverse: false,
+    reverse: true,
     range: null,
     
     length: '540px',
