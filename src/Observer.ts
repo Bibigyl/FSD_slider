@@ -10,7 +10,7 @@ interface ISubject {
     detach(observer: any): void;
 
     // Уведомляет всех наблюдателей о событии.
-    notify(...args: any): void;
+/*     notify(...args: any): void; */
 }
 
 class Subject implements ISubject {
@@ -25,11 +25,11 @@ class Subject implements ISubject {
         this.observers.splice(observerIndex, 1);
     }
 
-    notify() {
+/*     notify() {
         for (const observer of this.observers) {
             observer.update(this);
         }
-    }
+    } */
 }
 
 

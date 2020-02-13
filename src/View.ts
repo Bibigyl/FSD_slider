@@ -69,11 +69,15 @@ class View extends Subject implements IView  {
         if ( !options.vertical ) {
             this.vertical = false;
             this.slider.style.width = this.length;
+            this.slider.style.height = null;
             this.slider.classList.add('slider_horizontal');
+            this.slider.classList.remove('slider_vertical');
         } else {
             this.vertical = true;
             this.slider.style.height = this.length;
-            this.slider.classList.add('slider_vertical');            
+            this.slider.style.width = null;
+            this.slider.classList.add('slider_vertical');
+            this.slider.classList.remove('slider_horizontal');          
         }
 
         this.line = this.buildNode(this.slider, 'slider__line');
@@ -317,7 +321,7 @@ class View extends Subject implements IView  {
         let scale: HTMLDivElement;
         let division: HTMLDivElement;
         let val: number | string;
-        let sign: number = options.reverse ? -1 : 1;
+        //let sign: number = options.reverse ? -1 : 1;
         let indent: number | string;
         let length: number = options.max - options.min;
 
@@ -472,8 +476,8 @@ class View extends Subject implements IView  {
 
     private getOffsetInPx(): number {
         let offset: number = !this.vertical ?
-        this.slider.offsetLeft :
-        this.slider.offsetTop;
+        this.slider.getBoundingClientRect().left :
+        this.slider.getBoundingClientRect().top;
 
         return offset;
     }

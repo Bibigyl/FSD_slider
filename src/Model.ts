@@ -52,9 +52,10 @@ class Model extends Subject implements IModel {
         if (options.customValues && Array.isArray(options.customValues)) {
             options.min = 0;
             options.max = options.customValues.length - 1;
-            options.step = 1;
+            //options.step = 1;
         }
 
+        options.value = options.value || options.min;
         if (options.range) { this.rangeArrayValidation(options.range) };
 
         // проверили, что все, что должно быть целыми числами, таковыми являются
@@ -72,7 +73,11 @@ class Model extends Subject implements IModel {
             });            
         }
 
+        //console.log('22 ' + options.reverse)
+
         options.reverse = !!options.reverse;
+
+        //console.log('22 ' + options.reverse)
         options.step = Math.abs(options.step);
 
         // проверка на то, что соблюдены все неравенства
@@ -206,8 +211,10 @@ class Model extends Subject implements IModel {
     }
 
     makeFullChanges(options: IModelOptions): void {
-        options = Object.assign({}, this, options);
+        options = Object.assign({}, this.data, options);
         let validOptions: IModelOptions = this.validation(options);
+
+        ///console.log('333 ' + validOptions.reverse)
 
         this.value = validOptions.value;
         this.min = validOptions.min;

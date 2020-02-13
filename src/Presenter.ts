@@ -4,7 +4,9 @@ import View, { IView } from './View';
 import { ISubject, Subject }  from './Observer';
 
 interface IPresenter extends ISubject {
-    change(options: any): void
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //data(): IOptions;
+    change(options: any): void;
 
     pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void;
     pushSlimModelChanges(): void;
@@ -15,7 +17,6 @@ class Presenter extends Subject implements IPresenter {
 
     private _model: IModel;
     private _view: IView;
-    //private observers: IObserver[] = [];
 
     constructor(options: IOptions, node: HTMLDivElement) {
 
@@ -62,8 +63,8 @@ class Presenter extends Subject implements IPresenter {
         }
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //@ts-ignore
         this._model.makeSlimChanges(key, value);
-        this.notify();
     }
 
     pushSlimModelChanges() {
@@ -73,7 +74,7 @@ class Presenter extends Subject implements IPresenter {
 
     pushFullModelChanges() {
         this._view.makeFullChanges(this._model);
-        this.notify();
+        //this.notify();
     }
 
     change(options: any): void {
@@ -91,7 +92,6 @@ class Presenter extends Subject implements IPresenter {
         if (doesModelChange) { 
             this._model.makeFullChanges(options);
             doesViewChange = true;
-            options = Object.assign(options, this._model.data);
         }
 
 
@@ -104,11 +104,21 @@ class Presenter extends Subject implements IPresenter {
         });
 
         if (doesViewChange) {
+            options = Object.assign(options, this._model.data);
             this._view.makeFullChanges(options);
+        }
+
+        if (doesModelChange || doesViewChange) {
+            this.notify();
         }
     }
 
-    // observer
+    // ?????????????????????????????????????????????????????????????
+    get data(): IOptions {
+        return Object.assign({}, this._model.data, this._view.data);
+    }
+
+    // observe
     notify() {
         let options = Object.assign({}, this._model.data, this._view.data);
 

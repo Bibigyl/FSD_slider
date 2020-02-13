@@ -51,6 +51,9 @@ button {
 }
 
 /*------------------*/
+.slider {
+    margin: 0;
+}
 .slider__tooltip {
     border-radius: 5px;
 }
@@ -69,4 +72,7 @@ button {
 }
 input[name='customValues'] {
     width: 100%;
+}
+.row_with-margin-top {
+    margin-top: 20px;
 }

@@ -7,7 +7,15 @@ import { IOuterObserver, OuterObserver } from './Observer';
 
 (function($){
 
-  var methods: Object = {
+  interface IMethods {
+    init(options?: IOptions): void;
+    getData(): IOptions;
+    change(options: any): void;
+    destroy(): void;
+    observe(func: Function): void;
+  }
+
+  var methods: IMethods = {
 
     init: function( options?: IOptions ) {
 
@@ -22,7 +30,7 @@ import { IOuterObserver, OuterObserver } from './Observer';
         
           options = $.extend({}, defaultOptions, options);
 
-          let presenter = new Presenter(options, this)
+          let presenter = new Presenter(options, this);
 
           $(this).data('sliderData', {
             slider : slider,
@@ -33,11 +41,13 @@ import { IOuterObserver, OuterObserver } from './Observer';
       });
     },
 
+    getData: function() {
+      return $(this).data('sliderData').presenter.data;
+    },
+
     change: function( options: any ) {
       return this.each( function() {
-
         $(this).data('sliderData').presenter.change(options);
-
       });
     },
 
@@ -60,13 +70,6 @@ import { IOuterObserver, OuterObserver } from './Observer';
       let presenter = $(this).data('sliderData').presenter;
 
       presenter.attach(observer);
-
-      // добавляем наблюдателя
-      // аргумент - эта функция которая будет обрабатывать изменения
-      //let subject = $(this).data('sliderData').subject;
-      //let observer: IObserver = new Observer( func );
-
-      //subject.attach(observer);
     }
   }
 
@@ -96,7 +99,7 @@ import { IOuterObserver, OuterObserver } from './Observer';
 
 //let pres = new Presenter(defaultOptions, test);
 
-$('.test').slider({
+/* $('.test').slider({
   value: 0,
   //min: -7.6666,
   //range: [5, 10],
@@ -107,12 +110,20 @@ $('.test').slider({
   max: 17,
 });
 
-/* $('.test').slider('change', {
+$('.test').slider('change', {
   min: -5,
   range: [3, 15]
-}) */
+})
 
 $('.test').slider('observe', function(options) {
+  console.log('2 ' + options)
+  $('.input').val(options.range);
+}) */
 
-  $('.input').val(options.value);
-})
+
+/* let mod = new Model(defaultOptions);
+console.log(mod.reverse)
+mod.makeFullChanges({reverse: true})
+console.log(mod.reverse)
+mod.makeFullChanges({reverse: false})
+console.log(mod.reverse) */
