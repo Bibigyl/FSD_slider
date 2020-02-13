@@ -1,6 +1,6 @@
 # Слайдер - jquery плагин
 
-### [Демонстрация работы слайдера](https://bibigyl.github.io/FSD_task_4/demo/demo.html)
+### [Демонстрация работы слайдера](https://bibigyl.github.io/FSD_slider/demo/demo.html)
 ## Установка
 ```
 npm install
