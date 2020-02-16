@@ -134,10 +134,12 @@ class View extends Subject implements IView  {
                 if (this.tooltip || this.tooltipFirst) {
                     this.setTooltipValues(config.options);
                 }
+                break;
 
             case 'NEW_DATA':
 
                 this.rebuild(config.options);
+                break;
         }
     }
 

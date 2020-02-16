@@ -52,8 +52,6 @@ class Model extends Subject implements IModel {
 
     private validation(options: IModelOptions): IModelOptions {
 
-        console.log('!!!!' + options)
-
         if (options.customValues && Array.isArray(options.customValues)) {
             options.min = 0;
             options.max = options.customValues.length - 1;
@@ -251,11 +249,8 @@ class Model extends Subject implements IModel {
             }
         }
 
-        console.log('1  ' + options.value)
         validOptions = this.validation(options);
-        console.log('2  ' + options.value)
         this.setOptions(validOptions);       
-        console.log('3  ' + this.value)
     }
     
 
@@ -263,29 +258,32 @@ class Model extends Subject implements IModel {
 
     update(config: any): void {
 
-        //console.log(this)
-
         switch (config.type) {
 
             case 'NEW_VALUE_IN_PERCENT':
 
-                //console.log('я тут')
+                this.setValueByPercent(config.percent, config.index);
 
-                this.setValueByPercent(config.percent, config.index)
                 this.notify({ 
                     type: 'NEW_VALUE',
                     index: config.index,
                     options: this.data
                 });
+                break;
 
             case 'NEW_DATA':
 
                 let validOptions: IModelOptions = this.validation(config.options);
                 this.setOptions(validOptions);
+
                 this.notify({
                     type: 'NEW_DATA',
                     options: this.data
                 });
+                break;
+
+            default:
+                return;
         }
     }
 /* 

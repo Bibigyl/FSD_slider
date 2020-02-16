@@ -85,6 +85,7 @@ class Presenter extends Subject implements IPresenter {
     } */
 
     update(config: any): void {
+
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
 
