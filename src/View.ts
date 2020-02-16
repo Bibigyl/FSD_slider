@@ -15,7 +15,6 @@ interface IView extends ISubject {
     length: string;
     vertical: boolean;
 
-    // переписать все это через get set?
     slider: HTMLDivElement;
     thumb?: HTMLDivElement | undefined;
     thumbFirst?: HTMLDivElement | undefined;
@@ -27,10 +26,11 @@ interface IView extends ISubject {
     scale?: HTMLDivElement | undefined;
 
     data: IViewOptions;
-    notify(activeThumb: HTMLDivElement, newThumbPosition: number): void;
+    update(config: any): void;
+    //notify(activeThumb: HTMLDivElement, newThumbPosition: number): void;
 
-    makeSlimChanges(options): void;
-    makeFullChanges(options): void;
+    //makeSlimChanges(options): void;
+    //makeFullChanges(options): void;
 }
 
 class View extends Subject implements IView  {
@@ -123,15 +123,33 @@ class View extends Subject implements IView  {
         }
     }
 
-    makeSlimChanges(options: IOptions): void {
+    update(config: any): void {
+
+        switch (config.type) {
+
+            case 'NEW_VALUE':
+
+                this.setThumbs(config.options);
+                this.setLinePosition();
+                if (this.tooltip || this.tooltipFirst) {
+                    this.setTooltipValues(config.options);
+                }
+
+            case 'NEW_DATA':
+
+                this.rebuild(config.options);
+        }
+    }
+
+/*     makeSlimChanges(options: IOptions): void {
         this.setThumbs(options);
         this.setLinePosition();
         this.setTooltipValues(options);
-    }
+    } */
 
-    makeFullChanges(options: IOptions): void {
+    private rebuild(options: IOptions): void {
         let prevOptions: IViewOptions = this.data;
-        options = Object.assign(prevOptions, options);
+        options = Object.assign({}, prevOptions, options);
 
         for (let key in this) {
             if (key != 'slider') {
@@ -163,6 +181,7 @@ class View extends Subject implements IView  {
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
         let newThumbPosition: number;
+        let index: number;
         
         if (event.touches) {
             eventPos = !this.vertical ? event.touches[0].clientX : event.touches[0].clientY;
@@ -171,7 +190,13 @@ class View extends Subject implements IView  {
         }
 
         newThumbPosition = (eventPos - offset) / length * 100;
-        this.notify(this._activeThumb, newThumbPosition);
+        index = this._activeThumb == this.thumbLast ? 1 : 0;
+
+        this.notify({
+            type: 'NEW_VALUE_IN_PERCENT',
+            index: index,
+            percent: newThumbPosition
+        });
     }
 
     private thumbOnUp(event): void {
@@ -216,79 +241,6 @@ class View extends Subject implements IView  {
     }
 
 
-
-
-
-
-
-
-
-    // методы для создания и изменения view
-
-/*     changeSliderBase (options: any): void {
-
-        let lengthChanged: boolean = false;
-
-        // ширина / длина
-        if ( options.length && this.length != options.length ) {
-            this.length = options.length;
-            lengthChanged = true;
-        }
-
-        // ориентация
-        if ( options.vertical && !this.vertical ) {
-            this.vertical = true;
-            this.slider.classList.remove('slider_horizontal')
-            this.slider.classList.add('slider_vertical');
-
-            lengthChanged = true;
-        }
-        if ( options.vertical === false && this.vertical ) {
-            this.vertical = false;
-            this.slider.classList.remove('slider_vertical')
-            this.slider.classList.add('slider_horizontal');
-
-            lengthChanged = true
-        }
-
-        if (lengthChanged && !this.vertical) {
-            this.slider.style.height = null;
-            this.slider.style.width = this.length;
-        }
-        if (lengthChanged && this.vertical) {
-            this.slider.style.width = null;
-            this.slider.style.height = this.length;
-        }
-    } */
-
-/*     changeRangeToVal (model: IModel): void {
-        let pos: number;
-
-        this.hasRange = false;
-        
-        this.thumb = this.buildNode(this.slider, 'slider__thumb');
-        this.thumbFirst = this.removeNode(this.thumbFirst);
-        this.thumbLast = this.removeNode(this.thumbLast);
-
-        pos = this.findThumbPosition( model.getStepNumber(model.getVal()), model.getNumberOfSteps() );
-        this.setThumbPosition( this.thumb, pos);
-    } */
-
-/*     changeValToRange (model: IModel): void {
-        let pos: number;
-
-        this.hasRange = true;
-
-        this.thumb = this.removeNode(this.thumb);
-        this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first'); 
-        this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
-        
-        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[0]), model.getNumberOfSteps() );
-        this.setThumbPosition( this.thumbFirst, pos);
-
-        pos = this.findThumbPosition( model.getStepNumber(model.getRange()[1]), model.getNumberOfSteps() );
-        this.setThumbPosition( this.thumbLast, pos);
-    } */
 
     private setLinePosition(): void {
         let start: number | string;
@@ -374,39 +326,6 @@ class View extends Subject implements IView  {
     }
 
 
-
-
-
-/*     rebuildScale(model: IModel): void {
-        let scale: HTMLDivElement = this.getScale();
-        let prevNumOfSteps: number = scale.querySelectorAll('.slider__scale-division').length - 1;
-        let newNumOfSteps: number;
-        let division: HTMLDivElement;
-        
-        // множитель. во сколько раз шаг в моделе меньше шага шкалы
-        let n: number = Math.max( this.findDecimalPlaces(this.scaleStep), this.findDecimalPlaces(model.getStep()) );
-        let mult: number = this.scaleStep / model.getStep();
-        mult = +mult.toFixed(n);
-        mult = Math.abs(mult);
-
-        newNumOfSteps = model.getNumberOfSteps() / mult;
-
-        if ( prevNumOfSteps > newNumOfSteps ) {
-            for (let i: number = 0; i < (prevNumOfSteps - newNumOfSteps); i++) {
-                scale.lastChild.remove();
-            }
-        }
-        if ( prevNumOfSteps < newNumOfSteps ) {
-            for (let i: number = 0; i < (newNumOfSteps - prevNumOfSteps); i++) {
-                division = document.createElement('div');
-                division.classList.add('slider__scale-division');
-                division.innerHTML = '<span></span>';
-                scale.append(division);
-            }
-        }
-    } */
-
-
     private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
         if ( !this.vertical ) {
             thumbNode.style.top = null;
@@ -416,7 +335,7 @@ class View extends Subject implements IView  {
             thumbNode.style.top = position;
         }
 
-        // если оба бегунка справа(внизу), добавлем z index для нижнего
+        // z index
         if ( this.thumbFirst ) {
             if ( !this.vertical ) {
                 if ( (this.thumbFirst.style.left == '100%') || (this.thumbFirst.style.top == '100%') ) {
@@ -485,11 +404,11 @@ class View extends Subject implements IView  {
 
     // observer method
 
-    notify(activeThumb: HTMLDivElement, newThumbPosition: number): void {
+/*     notify(activeThumb: HTMLDivElement, newThumbPosition: number): void {
         for (const observer of this.observers) {
             observer.pushViewChanges(activeThumb, newThumbPosition);
         }
-    }
+    } */
 }
 
 

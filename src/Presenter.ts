@@ -6,11 +6,8 @@ import { ISubject, Subject }  from './Observer';
 interface IPresenter extends ISubject {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //data(): IOptions;
-    change(options: any): void;
+    update(config: any): void;
 
-    pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void;
-    pushSlimModelChanges(): void;
-    pushFullModelChanges(): void;
 }
 
 class Presenter extends Subject implements IPresenter {
@@ -28,11 +25,21 @@ class Presenter extends Subject implements IPresenter {
         options = Object.assign(options, this._model.data);
         this._view = new View(options, node);
 
-        this._model.attach(this);
-        this._view.attach(this);
+
+        let that = this;
+
+        this._model.attach(function(config: any): void {
+            that._view.update(config);
+            //that.notify(config);
+        });
+
+        this._view.attach(function(config: any): void {
+            that._model.update(config);
+            //that.notify(config);
+        });
     }
 
-    pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void {
+/*     pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void {
         let percent: number = newThumbPosition;
         let newValue: number;
         let key: string;
@@ -65,9 +72,9 @@ class Presenter extends Subject implements IPresenter {
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //@ts-ignore
         this._model.makeSlimChanges(key, value);
-    }
+    } */
 
-    pushSlimModelChanges() {
+/*     pushSlimModelChanges() {
         this._view.makeSlimChanges(this._model);
         this.notify();
     }
@@ -75,58 +82,51 @@ class Presenter extends Subject implements IPresenter {
     pushFullModelChanges() {
         this._view.makeFullChanges(this._model);
         //this.notify();
-    }
+    } */
 
-    change(options: any): void {
-        let doesModelChange: boolean = false;
-        let doesViewChange: boolean = false;
+    update(config: any): void {
+        let isModelUpdated: boolean = false;
+        let isViewUpdated: boolean = false;
 
         let modelOptions: string[] = ['value', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
 
         modelOptions.forEach(function(item) {
-            if ( options.hasOwnProperty(item) ) {
-                doesModelChange = true;
+            if ( config.options.hasOwnProperty(item) ) {
+                isModelUpdated = true;
+                return;
             }
         });
 
-        if (doesModelChange) { 
-            this._model.makeFullChanges(options);
-            doesViewChange = true;
+        if (isModelUpdated) { 
+            this._model.update(config);
+            isViewUpdated = true;
         }
 
 
         let viewOptions: string[] = ['length', 'vertical', 'tooltip', 'scale'];
 
         viewOptions.forEach(function(item) {
-            if ( options.hasOwnProperty(item) ) {
-                doesViewChange = true;
+            if ( config.options.hasOwnProperty(item) ) {
+                isViewUpdated = true;
+                return;
             }
         });
 
-        if (doesViewChange) {
-            options = Object.assign(options, this._model.data);
-            this._view.makeFullChanges(options);
+        if (isViewUpdated) {
+            config.options = Object.assign(config.options, this._model.data);
+            this._view.update(config);
+            config.options = this.data
         }
 
-        if (doesModelChange || doesViewChange) {
-            this.notify();
+        if (isModelUpdated || isViewUpdated) {
+            this.notify(config);
         }
     }
 
     // ?????????????????????????????????????????????????????????????
     get data(): IOptions {
         return Object.assign({}, this._model.data, this._view.data);
-    }
-
-    // observe
-    notify() {
-        let options = Object.assign({}, this._model.data, this._view.data);
-
-        for (const observer of this.observers) {
-            observer.update(options);
-        }
-    }
-    
+    }  
 }
 
 export default Presenter;

@@ -2,57 +2,63 @@ import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
-import { IOuterObserver, OuterObserver } from './Observer';
+//import { IOuterObserver, OuterObserver } from './Observer';
 
 
-(function($){
+(function ($) {
 
   interface IMethods {
     init(options?: IOptions): void;
     getData(): IOptions;
-    change(options: any): void;
+    update(options: any): void;
     destroy(): void;
     observe(func: Function): void;
   }
 
   var methods: IMethods = {
 
-    init: function( options?: IOptions ) {
+    init: function (options?: IOptions) {
 
-      return this.each(function(){
-         
+      return this.each(function () {
+
         let $this = $(this);
         let data = $this.data('sliderData');
         let slider = $this;
-        
+
         // Если плагин ещё не проинициализирован
-        if ( ! data ) {
-        
+        if (!data) {
+
           options = $.extend({}, defaultOptions, options);
 
           let presenter = new Presenter(options, this);
 
           $(this).data('sliderData', {
-            slider : slider,
+            slider: slider,
             presenter: presenter
           });
-          
+
         }
       });
     },
 
-    getData: function() {
+    getData: function () {
       return $(this).data('sliderData').presenter.data;
     },
 
-    change: function( options: any ) {
-      return this.each( function() {
-        $(this).data('sliderData').presenter.change(options);
+    update: function (options: any) {
+      return this.each(function () {
+        let config: any = {
+          type: 'NEW_DATA',
+          options: options
+        }
+
+        $(this).data('sliderData').presenter.update(config);
+
       });
     },
 
-    destroy: function() {
-      return this.each( function() {
+    destroy: function () {
+      return this.each(function () {
 
         let $this = $(this);
         let data = $this.data('sliderData');
@@ -60,34 +66,34 @@ import { IOuterObserver, OuterObserver } from './Observer';
         $(window).unbind('.slider');
         data.slider.remove();
         $this.removeData('sliderData');
-        
+
       });
     },
 
-    observe: function( func ) {
+    observe: function (callback) {
 
-      let observer: IOuterObserver = new OuterObserver(func);
+      //let observer: IOuterObserver = new OuterObserver(func);
       let presenter = $(this).data('sliderData').presenter;
 
-      presenter.attach(observer);
+      presenter.attach(callback);
     }
   }
 
-  
-  jQuery.fn.slider = function( method ) {
+
+  jQuery.fn.slider = function (method) {
 
     // логика вызова метода
-    if ( methods[method as string] ) {
+    if (methods[method as string]) {
 
-      return methods[ method as string ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+      return methods[method as string].apply(this, Array.prototype.slice.call(arguments, 1));
 
-    } else if ( typeof method === 'object' || ! method ) {
+    } else if (typeof method === 'object' || !method) {
 
-      return methods.init.apply( this, arguments );
+      return methods.init.apply(this, arguments);
 
     } else {
-      $.error( 'Method called ' +  method + ' does not exist for JQuery.slider' );
-    } 
+      $.error('Method called ' + method + ' does not exist for JQuery.slider');
+    }
 
   };
 
@@ -99,7 +105,7 @@ import { IOuterObserver, OuterObserver } from './Observer';
 
 //let pres = new Presenter(defaultOptions, test);
 
-/* $('.test').slider({
+$('.test').slider({
   value: 0,
   //min: -7.6666,
   //range: [5, 10],
@@ -109,17 +115,17 @@ import { IOuterObserver, OuterObserver } from './Observer';
   min: 0,
   max: 17,
 });
-
-$('.test').slider('change', {
+/* 
+$('.test').slider('update', {
   min: -5,
   range: [3, 15]
-})
-
-$('.test').slider('observe', function(options) {
-  console.log('2 ' + options)
-  $('.input').val(options.range);
 }) */
 
+/* $('.test').slider('observe', function(config) {
+  console.log('2 ' + config.options)
+  $('.input').val(config.options.range);
+})
+ */
 
 /* let mod = new Model(defaultOptions);
 console.log(mod.reverse)

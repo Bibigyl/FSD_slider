@@ -15,10 +15,10 @@ interface IModelOptions {
 
 interface IModel extends ISubject, IModelOptions {
     data: IModelOptions;
-    notify(type?: string): void;
+    //notify(type?: string): void;
     
-    makeFullChanges(options: IOptions): void;
-    makeSlimChanges(key: string, value: number): void;
+    //makeFullChanges(options: IOptions): void;
+    //makeSlimChanges(key: string, value: number): void;
 }
 
 
@@ -36,18 +36,23 @@ class Model extends Subject implements IModel {
         super();
 
         let validOptions: IModelOptions = this.validation(options);
+        this.setOptions(validOptions);
+    }
 
-        this.value = validOptions.value;
-        this.min = validOptions.min;
-        this.max = validOptions.max;
-        this.step = validOptions.step;
-        this.range = validOptions.range;
-        this.customValues = validOptions.customValues;      
-        this.reverse = validOptions.reverse;
+    private setOptions(options: IModelOptions): void {
+        this.value = options.value;
+        this.min = options.min;
+        this.max = options.max;
+        this.step = options.step;
+        this.range = options.range;
+        this.customValues = options.customValues;      
+        this.reverse = options.reverse;        
     }
 
 
     private validation(options: IModelOptions): IModelOptions {
+
+        console.log('!!!!' + options)
 
         if (options.customValues && Array.isArray(options.customValues)) {
             options.min = 0;
@@ -73,11 +78,7 @@ class Model extends Subject implements IModel {
             });            
         }
 
-        //console.log('22 ' + options.reverse)
-
         options.reverse = !!options.reverse;
-
-        //console.log('22 ' + options.reverse)
         options.step = Math.abs(options.step);
 
         // проверка на то, что соблюдены все неравенства
@@ -178,13 +179,13 @@ class Model extends Subject implements IModel {
         let step: number = 
     } */
 
-    private translate(value: number): number | string {
+/*     private translate(value: number): number | string {
         if (this.customValues) {
             return this.customValues[value];
         } else {
             return value;
         }
-    }
+    } */
 
     private findClosestStep(value: number, options: IModelOptions): number {
         let step: number;
@@ -210,6 +211,84 @@ class Model extends Subject implements IModel {
         return step;
     }
 
+/*     private findValueByPercent(percent: number): number {
+        let newValue: number;
+
+        newValue = percent * (this.max - this.min) / 100;
+        newValue = !this.reverse ? 
+        this.min + newValue :
+        this.max - newValue;
+
+        return newValue;
+    } */
+
+    private setValueByPercent(percent: number, index: number): void {
+
+        let newValue: number;
+        let options: IModelOptions = Object.assign({}, this.data);
+        let validOptions: IModelOptions;
+
+        newValue = percent * (this.max - this.min) / 100;
+        newValue = !this.reverse ? 
+        this.min + newValue :
+        this.max - newValue;
+
+        newValue = this.findClosestStep(newValue, options);
+
+        if ( !this.range ) {
+            options.value = newValue;
+
+        } else {
+
+            if (index == 0 && !this.reverse) {
+
+                newValue = Math.min(newValue, options.range[0]);
+                options.range[0] = newValue;
+
+            } else {
+                newValue = Math.max(newValue, options.range[1]);
+                options.range[1] = newValue;
+            }
+        }
+
+        console.log('1  ' + options.value)
+        validOptions = this.validation(options);
+        console.log('2  ' + options.value)
+        this.setOptions(validOptions);       
+        console.log('3  ' + this.value)
+    }
+    
+
+    
+
+    update(config: any): void {
+
+        //console.log(this)
+
+        switch (config.type) {
+
+            case 'NEW_VALUE_IN_PERCENT':
+
+                //console.log('я тут')
+
+                this.setValueByPercent(config.percent, config.index)
+                this.notify({ 
+                    type: 'NEW_VALUE',
+                    index: config.index,
+                    options: this.data
+                });
+
+            case 'NEW_DATA':
+
+                let validOptions: IModelOptions = this.validation(config.options);
+                this.setOptions(validOptions);
+                this.notify({
+                    type: 'NEW_DATA',
+                    options: this.data
+                });
+        }
+    }
+/* 
     makeFullChanges(options: IModelOptions): void {
         options = Object.assign({}, this.data, options);
         let validOptions: IModelOptions = this.validation(options);
@@ -240,7 +319,7 @@ class Model extends Subject implements IModel {
             this[key] = value;
             this.notify('slimChanges');
         }
-    }
+    } */
 
     get data(): IModelOptions {
         return {
@@ -257,7 +336,7 @@ class Model extends Subject implements IModel {
 
     // observer method
 
-    notify(type?: string): void {
+/*     notify(type?: string): void {
 
         for (const observer of this.observers) {
             
@@ -268,7 +347,7 @@ class Model extends Subject implements IModel {
                 observer.pushFullModelChanges();
             }
         }
-    }
+    } */
 }
 
 
