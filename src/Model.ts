@@ -14,19 +14,19 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject, IObserver, IModelOptions {
+interface IModel extends ISubject, IObserver {
     getOptions(): IModelOptions;
 }
 
 
 class Model extends Subject implements IModel {
-    value: number | null;
-    min: number;
-    max: number;   
-    step: number;
-    range: [number, number] | null;
-    customValues?: string[] | undefined;
-    reverse: boolean;
+    private _value: number | null;
+    private _min: number;
+    private _max: number;   
+    private _step: number;
+    private _range: [number, number] | null;
+    private _customValues?: string[] | undefined;
+    private _reverse: boolean;
 
     private _warnings: any;
 
@@ -75,24 +75,24 @@ class Model extends Subject implements IModel {
 
     getOptions(): IModelOptions {
         return {
-            value: this.value,
-            min: this.min,
-            max: this.max,   
-            step: this.step,
-            range: this.range,
-            customValues: this.customValues,
-            reverse: this.reverse
+            value: this._value,
+            min: this._min,
+            max: this._max,   
+            step: this._step,
+            range: this._range,
+            customValues: this._customValues,
+            reverse: this._reverse
         }
     }
 
     private setOptions(options: IModelOptions): void {
-        this.value = options.value;
-        this.min = options.min;
-        this.max = options.max;
-        this.step = options.step;
-        this.range = options.range;
-        this.customValues = options.customValues;      
-        this.reverse = options.reverse;        
+        this._value = options.value;
+        this._min = options.min;
+        this._max = options.max;
+        this._step = options.step;
+        this._range = options.range;
+        this._customValues = options.customValues;      
+        this._reverse = options.reverse;        
     }
 
     private validate(options: IModelOptions): void {
@@ -148,6 +148,11 @@ class Model extends Subject implements IModel {
             options.range = null;
 
         } else {
+
+            if ( !Array.isArray(options.range) ) {
+                options.range = [options.min, options.max];
+            }
+
             options.range = options.range.slice(0, 2) as [number, number];
             
             options.range[0] = this.normalizeNumber(options.range[0], options.min);
@@ -207,26 +212,26 @@ class Model extends Subject implements IModel {
 
         let newValue: number;
 
-        newValue = percent * (this.max - this.min) / 100;
-        newValue = !this.reverse ? 
-        this.min + newValue :
-        this.max - newValue;
+        newValue = percent * (this._max - this._min) / 100;
+        newValue = !this._reverse ? 
+        this._min + newValue :
+        this._max - newValue;
 
         newValue = this.findClosestStep(newValue, this.getOptions());
 
-        if ( !this.range ) {
-            this.value = newValue;
+        if ( !this._range ) {
+            this._value = newValue;
 
         } else {
 
-            if (index == 0 && !this.reverse) {
+            if (index == 0 && !this._reverse) {
 
-                newValue = Math.min(newValue, this.range[1]);
-                this.range[0] = newValue;
+                newValue = Math.min(newValue, this._range[1]);
+                this._range[0] = newValue;
 
             } else {
-                newValue = Math.max(newValue, this.range[0]);
-                this.range[1] = newValue;
+                newValue = Math.max(newValue, this._range[0]);
+                this._range[1] = newValue;
             }
         }
     }

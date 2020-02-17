@@ -108,12 +108,12 @@ import { IOptions, defaultOptions } from './defaultOptions';
 $('.test').slider({
   //value: 0,
   //min: -7.6666,
-  range: [15, 10],
+  range: 'hjk,',
   //reverse: true,
   //customValues: ['a', 'b', 'c', 'd'],
   step: 'hg',
   value: 'vxnxm',
-  min: 0,
+  min: 'fdgvhxjk',
   max: 17.5,
   tooltip: true,
   scale: true

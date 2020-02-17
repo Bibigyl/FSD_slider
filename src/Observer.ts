@@ -22,7 +22,6 @@ class Subject implements ISubject {
 
     notify(config: any): void {
         for (const callback of this.callbacks) {
-            //console.log(this);
             callback(config);
         }
     }
