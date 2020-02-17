@@ -1,6 +1,7 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 import { ISubject, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
+import { validateModel } from './validations';
 
 interface IModelOptions {
     [x: string]: any;
@@ -14,11 +15,7 @@ interface IModelOptions {
 }
 
 interface IModel extends ISubject, IModelOptions {
-    data: IModelOptions;
-    //notify(type?: string): void;
-    
-    //makeFullChanges(options: IOptions): void;
-    //makeSlimChanges(key: string, value: number): void;
+    getData(): IModelOptions;
 }
 
 
@@ -31,11 +28,14 @@ class Model extends Subject implements IModel {
     customValues?: string[] | undefined;
     reverse: boolean;
 
-    constructor(options: IOptions) {
+    private _warnings: any;
+
+    constructor(options: IModelOptions) {
 
         super();
 
-        let validOptions: IModelOptions = this.validation(options);
+        this.validate(options);
+        let validOptions: IModelOptions = this.normalize(options);
         this.setOptions(validOptions);
     }
 
@@ -49,141 +49,94 @@ class Model extends Subject implements IModel {
         this.reverse = options.reverse;        
     }
 
+    private validate(options: IModelOptions): void {
 
-    private validation(options: IModelOptions): IModelOptions {
+        this._warnings = validateModel(options);
+        let warnings = Object.assign({}, this._warnings);
 
-        if (options.customValues && Array.isArray(options.customValues)) {
-            options.min = 0;
-            options.max = options.customValues.length - 1;
-            //options.step = 1;
+        if (warnings) {
+
+            this.notify({
+                type: 'WARNINGS',
+                warnings: warnings
+            })
         }
-
-        options.value = options.value || options.min;
-        if (options.range) { this.rangeArrayValidation(options.range) };
-
-        // проверили, что все, что должно быть целыми числами, таковыми являются
-        // => меняем порядок, если он перепутан
-        // => преобразуем step и reverse
-        this.numericValidation(options);
-        this.integerValidation(options);
-
-        if (options.min > options.max) {
-            [options.min, options.max] = [options.max, options.min];
-        }
-        if (options.range) {
-            options.range.sort(function(a, b) {
-                return a - b;
-            });            
-        }
-
-        options.reverse = !!options.reverse;
-        options.step = Math.abs(options.step);
-
-        // проверка на то, что соблюдены все неравенства
-        // например, шаг не больше всего диапазона, шаг не ноль..
-        this.limitsValidation(options);
-
-        if (options.range) {
-            options.range[0] = this.findClosestStep(options.range[0], options);
-            options.range[1] = this.findClosestStep(options.range[1], options);
-        } else {
-            options.value = this.findClosestStep(options.value, options)
-        }
-
-        return options;
     }
 
-/*     private integerValidation(options: number[]): void {
-        options.forEach(function(item) {
-            if( !isNumeric(item) || item % 1 != 0 ) { 
-                throw new Error('All values should be integer'); 
-            }
-        });
-    } */
+    private normalize(options: IModelOptions): IModelOptions {
 
-    private numericValidation(options: IModelOptions): void {
-        let numericOptions: number[] = [options.min, options.max, options.step];
-        if (options.range) {
-            numericOptions.push(options.range[0], options.range[1]);
-        } else {
-            numericOptions.push(options.value);
+        let validOptions: IModelOptions;
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // вопрос про создать пустой объкт и добавлять туда свва
+        validOptions = Object.assign({}, defaultOptions);
+
+        if ( this._warnings.customValuesIsNotArray ) {
+            validOptions.customValues = undefined;
         }
 
-        numericOptions.forEach(function(item) {
-            if( !isNumeric(item) ) { 
-                throw new Error('All values should be numbers'); 
+        if ( options.customValues ) {
+            validOptions.min = 0;
+            validOptions.max = options.customValues.length - 1;
+        }
+
+        validOptions.min = this.normalizeNumber(options.min, defaultOptions.min);
+        validOptions.max = this.normalizeNumber(options.max, defaultOptions.max);
+        validOptions.step = this.normalizeNumber(options.step, defaultOptions.step);
+
+        if ( this._warnings.minIsOverMax ) {
+            [validOptions.min, validOptions.max] = [validOptions.max, validOptions.min];
+        }
+
+        if ( this._warnings.minIsEqualToMax ) {
+            validOptions.min = defaultOptions.min;
+            validOptions.max = defaultOptions.max;
+        }
+
+        if ( this._warnings.stepIsNull || this._warnings.tooBigStep ) {
+            validOptions.step = 1;
+        }
+
+        validOptions.step = Math.abs(options.step);
+        validOptions.reverse = !!options.reverse;
+
+
+        if ( !options.range ) {
+            validOptions.value = this.normalizeNumber(options.value, defaultOptions.min);
+            validOptions.value = this.findClosestStep(validOptions.value, validOptions)
+            validOptions.range = null;
+
+        } else {
+            validOptions.range = options.range.slice(0, 1) as [number, number];
+            validOptions.range[0] = this.normalizeNumber(validOptions.range[0], defaultOptions.min);
+            validOptions.range[1] = this.normalizeNumber(validOptions.range[1], defaultOptions.max);
+
+            if ( this._warnings.wrongOrderInRange ) {
+                validOptions.range.sort(function(a, b) {
+                    return a - b;
+                });  
             }
-        });
+            
+            validOptions.range[0] = this.findClosestStep(validOptions.range[0], validOptions);
+            validOptions.range[1] = this.findClosestStep(validOptions.range[1], validOptions);
+            validOptions.value = null;
+        }
+
+        return validOptions;
     }
 
-    private integerValidation(options: IModelOptions): IModelOptions {
-        options.min = Math.trunc(options.min);
-        options.max = Math.trunc(options.max);
-        options.step = Math.trunc(options.step);
+
+    private normalizeNumber(value: number, defaultVal: number): number {
+        let newValue: number = value;
+
+        if ( !isNumeric(value) ) { 
+            newValue = defaultVal; 
+        }
+        newValue = Math.trunc(+newValue);
         
-        if (options.range) {
-            options.range[0] = Math.trunc(options.range[0]);
-            options.range[1] = Math.trunc(options.range[1]);
-            options.value = null;
-        } else {
-            options.value = Math.trunc(options.value);
-            options.range = null;
-        }
-        return options;
+        return newValue;
     }
 
-    private rangeArrayValidation(range: [number, number]): void {
-        if ( !Array.isArray(range) || range.length != 2 ) {
-            throw new Error('Incorrect Range');
-        }
-    }
-
-    private limitsValidation(options: IModelOptions): void {
-        // добавляем все, что нужно проверить
-        let valuesInLimits: number[] = [];
-
-        if (options.range) {
-            Array.prototype.push.apply(valuesInLimits, options.range);
-        } else {
-            valuesInLimits.push(options.value);
-        }
-
-        valuesInLimits.forEach(function(item) {
-            if ( item > options.max || item < options.min ) {
-                console.warn('Incorrect value or range');
-                item = Math.max(item, options.max);
-                item = Math.min(item, options.min);
-                //throw new W('Incorrect value or range');
-            }
-        });
-
-        if ( options.step == 0 || options.step > (options.max - options.min) ) {
-            options.step = 1;
-            console.warn('Incorrect step');
-            //throw new Error('Incorrect step');
-        }
-
-        if ( options.min == options.max ) {
-            console.warn('Min cannot be equal to max');
-        }
-    }
-
-/*     getNumberOfSteps(): number {
-        let num: number = Math.ceil( (this.max - this.min) / this.step );
-        return num;
-    } */
-
-/*     getValueStep(value: number): number {
-        let step: number = 
-    } */
-
-/*     private translate(value: number): number | string {
-        if (this.customValues) {
-            return this.customValues[value];
-        } else {
-            return value;
-        }
-    } */
 
     private findClosestStep(value: number, options: IModelOptions): number {
         let step: number;
@@ -209,52 +162,34 @@ class Model extends Subject implements IModel {
         return step;
     }
 
-/*     private findValueByPercent(percent: number): number {
-        let newValue: number;
-
-        newValue = percent * (this.max - this.min) / 100;
-        newValue = !this.reverse ? 
-        this.min + newValue :
-        this.max - newValue;
-
-        return newValue;
-    } */
 
     private setValueByPercent(percent: number, index: number): void {
 
         let newValue: number;
-        let options: IModelOptions = Object.assign({}, this.data);
-        let validOptions: IModelOptions;
 
         newValue = percent * (this.max - this.min) / 100;
         newValue = !this.reverse ? 
         this.min + newValue :
         this.max - newValue;
 
-        newValue = this.findClosestStep(newValue, options);
+        newValue = this.findClosestStep(newValue, this.getData());
 
         if ( !this.range ) {
-            options.value = newValue;
+            this.value = newValue;
 
         } else {
 
             if (index == 0 && !this.reverse) {
 
-                newValue = Math.min(newValue, options.range[0]);
-                options.range[0] = newValue;
+                newValue = Math.min(newValue, this.range[0]);
+                this.range[0] = newValue;
 
             } else {
-                newValue = Math.max(newValue, options.range[1]);
-                options.range[1] = newValue;
+                newValue = Math.max(newValue, this.range[1]);
+                this.range[1] = newValue;
             }
         }
-
-        validOptions = this.validation(options);
-        this.setOptions(validOptions);       
     }
-    
-
-    
 
     update(config: any): void {
 
@@ -266,19 +201,19 @@ class Model extends Subject implements IModel {
 
                 this.notify({ 
                     type: 'NEW_VALUE',
-                    index: config.index,
-                    options: this.data
+                    options: this.getData()
                 });
                 break;
 
             case 'NEW_DATA':
 
-                let validOptions: IModelOptions = this.validation(config.options);
+                this.validate(config.options)
+                let validOptions: IModelOptions = this.normalize(config.options);
                 this.setOptions(validOptions);
 
                 this.notify({
                     type: 'NEW_DATA',
-                    options: this.data
+                    options: this.getData()
                 });
                 break;
 
@@ -286,40 +221,8 @@ class Model extends Subject implements IModel {
                 return;
         }
     }
-/* 
-    makeFullChanges(options: IModelOptions): void {
-        options = Object.assign({}, this.data, options);
-        let validOptions: IModelOptions = this.validation(options);
 
-        ///console.log('333 ' + validOptions.reverse)
-
-        this.value = validOptions.value;
-        this.min = validOptions.min;
-        this.max = validOptions.max;
-        this.step = validOptions.step;
-        this.range = validOptions.range;
-        this.customValues = validOptions.customValues;      
-        this.reverse = validOptions.reverse;
-
-        this.notify('fullChanges');
-    }
-
-    makeSlimChanges(key: string, value: number | number[]): void {
-
-        if ( Array.isArray(value) ) {
-            value[0] = this.findClosestStep(value[0], this.data);
-            value[1] = this.findClosestStep(value[1], this.data);
-        } else {
-            value = this.findClosestStep(value, this.data);
-        }
-
-        if ( this[key] != value ) {
-            this[key] = value;
-            this.notify('slimChanges');
-        }
-    } */
-
-    get data(): IModelOptions {
+    getData(): IModelOptions {
         return {
             value: this.value,
             min: this.min,
@@ -330,22 +233,6 @@ class Model extends Subject implements IModel {
             reverse: this.reverse
         }
     }
-
-
-    // observer method
-
-/*     notify(type?: string): void {
-
-        for (const observer of this.observers) {
-            
-            if (type == 'slimChanges') {
-                observer.pushSlimModelChanges();
-
-            } else if (type == 'fullChanges') {
-                observer.pushFullModelChanges();
-            }
-        }
-    } */
 }
 
 

@@ -22,7 +22,7 @@ class Presenter extends Subject implements IPresenter {
         options = Object.assign(defaultOptions, options);
         this._model = new Model(options);
 
-        options = Object.assign(options, this._model.data);
+        options = Object.assign(options, this._model.getData());
         this._view = new View(options, node);
 
 
@@ -39,50 +39,6 @@ class Presenter extends Subject implements IPresenter {
         });
     }
 
-/*     pushViewChanges(activeThumb: HTMLDivElement, newThumbPosition: number): void {
-        let percent: number = newThumbPosition;
-        let newValue: number;
-        let key: string;
-        let value: number | number[];
-
-        newValue = percent * (this._model.max - this._model.min) / 100;
-        newValue = !this._model.reverse ? 
-        this._model.min + newValue :
-        this._model.max - newValue;
-
-        if ( !this._model.range ) {
-            key = 'value';
-            value = newValue;
-
-        } else {
-            key = 'range';
-            let isThumbFirst: boolean = activeThumb.classList.contains('slider__thumb_first');
-            let isReverse: boolean = this._model.reverse;
-
-            if ( (isThumbFirst && !isReverse) || (!isThumbFirst && isReverse) ) {
-                newValue = Math.min(newValue, this._model.range[1]);
-                value = [newValue, this._model.range[1]];
-
-            } else {
-                newValue = Math.max(newValue, this._model.range[0]);
-                value = [this._model.range[0], newValue];
-            }
-        }
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //@ts-ignore
-        this._model.makeSlimChanges(key, value);
-    } */
-
-/*     pushSlimModelChanges() {
-        this._view.makeSlimChanges(this._model);
-        this.notify();
-    }
-
-    pushFullModelChanges() {
-        this._view.makeFullChanges(this._model);
-        //this.notify();
-    } */
 
     update(config: any): void {
 
@@ -114,9 +70,9 @@ class Presenter extends Subject implements IPresenter {
         });
 
         if (isViewUpdated) {
-            config.options = Object.assign(config.options, this._model.data);
+            config.options = Object.assign(config.options, this._model.getData());
             this._view.update(config);
-            config.options = this.data
+            config.options = this.getData()
         }
 
         if (isModelUpdated || isViewUpdated) {
@@ -124,9 +80,8 @@ class Presenter extends Subject implements IPresenter {
         }
     }
 
-    // ?????????????????????????????????????????????????????????????
-    get data(): IOptions {
-        return Object.assign({}, this._model.data, this._view.data);
+    getData(): IOptions {
+        return Object.assign({}, this._model.getData(), this._view.getData());
     }  
 }
 

@@ -25,12 +25,8 @@ interface IView extends ISubject {
     tooltipLast?: HTMLDivElement | undefined;
     scale?: HTMLDivElement | undefined;
 
-    data: IViewOptions;
+    getData(): IViewOptions;
     update(config: any): void;
-    //notify(activeThumb: HTMLDivElement, newThumbPosition: number): void;
-
-    //makeSlimChanges(options): void;
-    //makeFullChanges(options): void;
 }
 
 class View extends Subject implements IView  {
@@ -111,7 +107,7 @@ class View extends Subject implements IView  {
         }  
     }
 
-    get data(): IViewOptions {
+    getData(): IViewOptions {
         let tooltip = !!this.tooltip || !!this.tooltipFirst;
         let scale = !!this.scale;
 
@@ -150,7 +146,7 @@ class View extends Subject implements IView  {
     } */
 
     private rebuild(options: IOptions): void {
-        let prevOptions: IViewOptions = this.data;
+        let prevOptions: IViewOptions = this.getData();
         options = Object.assign({}, prevOptions, options);
 
         for (let key in this) {
