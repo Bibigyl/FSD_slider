@@ -1,7 +1,8 @@
 import { IOptions } from './defaultOptions';
-import { IModel, IModelOptions } from './Model';
-import { ISubject, Subject } from './Observer';
+//import { IModel, IModelOptions } from './Model';
+import { ISubject, Subject, IObserver } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
+import { validateView, IWarnings } from './validations';
 
 
 interface IViewOptions {
@@ -11,113 +12,41 @@ interface IViewOptions {
     scale: boolean;
 }
 
-interface IView extends ISubject {
-    length: string;
-    vertical: boolean;
-
-    slider: HTMLDivElement;
-    thumb?: HTMLDivElement | undefined;
-    thumbFirst?: HTMLDivElement | undefined;
-    thumbLast?: HTMLDivElement | undefined;
-    line: HTMLDivElement;
-    tooltip?: HTMLDivElement | undefined;
-    tooltipFirst?: HTMLDivElement | undefined;
-    tooltipLast?: HTMLDivElement | undefined;
-    scale?: HTMLDivElement | undefined;
-
-    getData(): IViewOptions;
-    update(config: any): void;
+interface IView extends ISubject, IObserver {
+    getOptions(): IViewOptions;
 }
 
 class View extends Subject implements IView  {
     [x: string]: any;
 
-    length: string;
-    vertical: boolean;
-    //numberOfSteps: number;
+    private _length: string;
+    private _vertical: boolean;
 
-    slider: HTMLDivElement;
-    thumb?: HTMLDivElement | undefined;
-    thumbFirst?: HTMLDivElement | undefined;
-    thumbLast?: HTMLDivElement | undefined;
-    line: HTMLDivElement;
-    tooltip?: HTMLDivElement | undefined;
-    tooltipFirst?: HTMLDivElement | undefined;
-    tooltipLast?: HTMLDivElement | undefined;
-    scale?: HTMLDivElement | undefined;
+    private _slider: HTMLDivElement;
+    private _thumb?: HTMLDivElement | undefined;
+    private _thumbFirst?: HTMLDivElement | undefined;
+    private _thumbLast?: HTMLDivElement | undefined;
+    private _line: HTMLDivElement;
+    private _tooltip?: HTMLDivElement | undefined;
+    private _tooltipFirst?: HTMLDivElement | undefined;
+    private _tooltipLast?: HTMLDivElement | undefined;
+    private _scale?: HTMLDivElement | undefined;
 
     private _activeThumb: HTMLDivElement;
+    private _warnings: IWarnings;
     
     constructor(options: IOptions, sliderNode: HTMLDivElement) {
 
         super();
 
-        this.slider = sliderNode;
-        this.slider.classList.add('slider');
+        this.validate(options);
+
+        this._slider = sliderNode;
+        this._slider.classList.add('slider');
 
         this.build(options)
     }
 
-    private build(options: IOptions): void {
-
-        this.length = this.findValidLength(options.length);
-
-        if ( !options.vertical ) {
-            this.vertical = false;
-            this.slider.style.width = this.length;
-            this.slider.style.height = null;
-            this.slider.classList.add('slider_horizontal');
-            this.slider.classList.remove('slider_vertical');
-        } else {
-            this.vertical = true;
-            this.slider.style.height = this.length;
-            this.slider.style.width = null;
-            this.slider.classList.add('slider_vertical');
-            this.slider.classList.remove('slider_horizontal');          
-        }
-
-        this.line = this.buildNode(this.slider, 'slider__line');
-
-        this.buildThumbs(options);
-
-        this.setLinePosition();
-
-        if ( options.tooltip ) {
-            this.buildTooltips(options);
-        }
-        
-        if ( options.scale ) {
-            this.buildScale(options);
-        }
-
-        // события
-        this.thumbOnDown = this.thumbOnDown.bind(this);
-        this.thumbOnMove = this.thumbOnMove.bind(this);
-        this.thumbOnUp = this.thumbOnUp.bind(this);
-
-        if ( !options.range ) {
-            this.thumb.addEventListener("mousedown", this.thumbOnDown);
-            this.thumb.addEventListener("touchstart", this.thumbOnDown);
-        } else {
-            this.thumbFirst.addEventListener("mousedown", this.thumbOnDown);
-            this.thumbFirst.addEventListener("touchstart", this.thumbOnDown);
-
-            this.thumbLast.addEventListener("mousedown", this.thumbOnDown);
-            this.thumbLast.addEventListener("touchstart", this.thumbOnDown);
-        }  
-    }
-
-    getData(): IViewOptions {
-        let tooltip = !!this.tooltip || !!this.tooltipFirst;
-        let scale = !!this.scale;
-
-        return {
-            length:  this.length,
-            vertical: this.vertical,
-            tooltip: tooltip,
-            scale: scale            
-        }
-    }
 
     update(config: any): void {
 
@@ -127,38 +56,31 @@ class View extends Subject implements IView  {
 
                 this.setThumbs(config.options);
                 this.setLinePosition();
-                if (this.tooltip || this.tooltipFirst) {
+                if (this._tooltip || this._tooltipFirst) {
                     this.setTooltipValues(config.options);
                 }
                 break;
 
             case 'NEW_DATA':
 
+                this.validate(config.options);
                 this.rebuild(config.options);
                 break;
         }
     }
 
-/*     makeSlimChanges(options: IOptions): void {
-        this.setThumbs(options);
-        this.setLinePosition();
-        this.setTooltipValues(options);
-    } */
+    getOptions(): IViewOptions {
+        let tooltip = !!this._tooltip || !!this._tooltipFirst;
+        let scale = !!this._scale;
 
-    private rebuild(options: IOptions): void {
-        let prevOptions: IViewOptions = this.getData();
-        options = Object.assign({}, prevOptions, options);
-
-        for (let key in this) {
-            if (key != 'slider') {
-                try {
-                    this[key] = this.removeNode(this[key]);
-                } catch {}                
-            }
+        return {
+            length:  this._length,
+            vertical: this._vertical,
+            tooltip: tooltip,
+            scale: scale            
         }
-        
-        this.build(options);
     }
+
 
 
     private thumbOnDown(event): void {
@@ -182,13 +104,13 @@ class View extends Subject implements IView  {
         let index: number;
         
         if (event.touches) {
-            eventPos = !this.vertical ? event.touches[0].clientX : event.touches[0].clientY;
+            eventPos = !this._vertical ? event.touches[0].clientX : event.touches[0].clientY;
         } else {
-            eventPos = !this.vertical ? event.clientX : event.clientY;
+            eventPos = !this._vertical ? event.clientX : event.clientY;
         }
 
         newThumbPosition = (eventPos - offset) / length * 100;
-        index = this._activeThumb == this.thumbLast ? 1 : 0;
+        index = this._activeThumb == this._thumbLast ? 1 : 0;
 
         this.notify({
             type: 'NEW_VALUE_IN_PERCENT',
@@ -206,12 +128,89 @@ class View extends Subject implements IView  {
         this._activeThumb = undefined;
     }
 
+    private build(options: IOptions): void {
+
+        this._length = this.findValidLength(options.length);
+
+        if ( !options.vertical ) {
+            this._vertical = false;
+            this._slider.style.width = this._length;
+            this._slider.style.height = null;
+            this._slider.classList.add('slider_horizontal');
+            this._slider.classList.remove('slider_vertical');
+        } else {
+            this._vertical = true;
+            this._slider.style.height = this._length;
+            this._slider.style.width = null;
+            this._slider.classList.add('slider_vertical');
+            this._slider.classList.remove('slider_horizontal');          
+        }
+
+        this._line = this.buildNode(this._slider, 'slider__line');
+
+        this.buildThumbs(options);
+
+        this.setLinePosition();
+
+        if ( options.tooltip ) {
+            this.buildTooltips(options);
+        }
+        
+        if ( options.scale ) {
+            this.buildScale(options);
+        }
+
+
+        this.thumbOnDown = this.thumbOnDown.bind(this);
+        this.thumbOnMove = this.thumbOnMove.bind(this);
+        this.thumbOnUp = this.thumbOnUp.bind(this);
+
+        if ( !options.range ) {
+            this._thumb.addEventListener("mousedown", this.thumbOnDown);
+            this._thumb.addEventListener("touchstart", this.thumbOnDown);
+        } else {
+            this._thumbFirst.addEventListener("mousedown", this.thumbOnDown);
+            this._thumbFirst.addEventListener("touchstart", this.thumbOnDown);
+
+            this._thumbLast.addEventListener("mousedown", this.thumbOnDown);
+            this._thumbLast.addEventListener("touchstart", this.thumbOnDown);
+        }  
+    }
+
+    private rebuild(options: IOptions): void {
+        let prevOptions: IViewOptions = this.getOptions();
+        options = Object.assign({}, prevOptions, options);
+
+        for (let key in this) {
+            if (key != 'slider') {
+                try {
+                    this[key] = this.removeNode(this[key]);
+                } catch {}                
+            }
+        }
+        
+        this.build(options);
+    }
+
+    private validate(options): void {
+        this._warnings = validateView(options);
+        let warnings = Object.assign({}, this._warnings);
+
+        if (warnings) {
+
+            this.notify({
+                type: 'WARNINGS',
+                warnings: warnings
+            })
+        }
+    }
+
     private buildThumbs(options: IOptions): void {
         if ( !options.range ) {
-            this.thumb = this.buildNode(this.slider, 'slider__thumb');
+            this._thumb = this.buildNode(this._slider, 'slider__thumb');
         } else {     
-            this.thumbFirst = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_first');
-            this.thumbLast = this.buildNode(this.slider, 'slider__thumb', 'slider__thumb_last');
+            this._thumbFirst = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_first');
+            this._thumbLast = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_last');
         }
 
         this.setThumbs(options);
@@ -222,7 +221,7 @@ class View extends Subject implements IView  {
 
         if ( !options.range ) {
             pos = this.findThumbPosition(options.value, options);
-            this.setThumbPosition(this.thumb, pos);
+            this.setThumbPosition(this._thumb, pos);
 
         } else {
             let num: number;
@@ -230,38 +229,36 @@ class View extends Subject implements IView  {
             // т.е. range[1]
             num = !options.reverse ? 0 : 1;
             pos = this.findThumbPosition(options.range[num], options);
-            this.setThumbPosition(this.thumbFirst, pos);
+            this.setThumbPosition(this._thumbFirst, pos);
 
             num = num == 0 ? 1 : 0;
             pos = this.findThumbPosition(options.range[num], options);
-            this.setThumbPosition(this.thumbLast, pos);
+            this.setThumbPosition(this._thumbLast, pos);
         }
     }
-
-
 
     private setLinePosition(): void {
         let start: number | string;
         let length: number | string;
-        let topLeft: string = !this.vertical ? 'left' : 'top';
-        let widthHeight: string = !this.vertical ? 'width' : 'height';
+        let topLeft: string = !this._vertical ? 'left' : 'top';
+        let widthHeight: string = !this._vertical ? 'width' : 'height';
 
-        start = this.thumbFirst ? this.thumbFirst.style[topLeft] : '0%';
-        length = this.thumbFirst ? 
-        this.thumbLast.style[topLeft].slice(0, -1) - this.thumbFirst.style[topLeft].slice(0, -1)  + '%' :
-        this.thumb.style[topLeft];
+        start = this._thumbFirst ? this._thumbFirst.style[topLeft] : '0%';
+        length = this._thumbFirst ? 
+        this._thumbLast.style[topLeft].slice(0, -1) - this._thumbFirst.style[topLeft].slice(0, -1)  + '%' :
+        this._thumb.style[topLeft];
 
-        this.line.style[topLeft] = start;
-        this.line.style[widthHeight] = length;
+        this._line.style[topLeft] = start;
+        this._line.style[widthHeight] = length;
     }
 
     private buildTooltips(options: IOptions): void {
 
         if (!options.range) { 
-            this.tooltip = this.buildNode(this.thumb, 'slider__tooltip');
+            this._tooltip = this.buildNode(this._thumb, 'slider__tooltip');
         } else {
-            this.tooltipFirst = this.buildNode(this.thumbFirst, 'slider__tooltip', 'slider__tooltip_first');
-            this.tooltipLast = this.buildNode(this.thumbLast, 'slider__tooltip', 'slider__tooltip_last');
+            this._tooltipFirst = this.buildNode(this._thumbFirst, 'slider__tooltip', 'slider__tooltip_first');
+            this._tooltipLast = this.buildNode(this._thumbLast, 'slider__tooltip', 'slider__tooltip_last');
         }
 
         this.setTooltipValues(options);
@@ -271,7 +268,6 @@ class View extends Subject implements IView  {
         let scale: HTMLDivElement;
         let division: HTMLDivElement;
         let val: number | string;
-        //let sign: number = options.reverse ? -1 : 1;
         let indent: number | string;
         let length: number = options.max - options.min;
 
@@ -301,8 +297,8 @@ class View extends Subject implements IView  {
             scale.append(division);
         }
 
-        this.slider.prepend(scale);        
-        this.scale = scale;
+        this._slider.prepend(scale);        
+        this._scale = scale;
     }
 
     private setTooltipValues(options: IOptions): void {
@@ -310,22 +306,21 @@ class View extends Subject implements IView  {
 
         if (!options.range) { 
             val = options.customValues ? options.customValues[options.value] : options.value;
-            this.tooltip.textContent = val as string; 
+            this._tooltip.textContent = val as string; 
         } else {
             let num: number;
             num = !options.reverse ? 0 : 1;
             val = options.customValues ? options.customValues[options.range[num]] : options.range[num];
-            this.tooltipFirst.textContent = val as string;
+            this._tooltipFirst.textContent = val as string;
 
             num = num == 0 ? 1 : 0;
             val = options.customValues ? options.customValues[options.range[num]] : options.range[num];
-            this.tooltipLast.textContent = val as string;
+            this._tooltipLast.textContent = val as string;
         }
     }
 
-
     private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
-        if ( !this.vertical ) {
+        if ( !this._vertical ) {
             thumbNode.style.top = null;
             thumbNode.style.left = position;
         } else {
@@ -334,18 +329,16 @@ class View extends Subject implements IView  {
         }
 
         // z index
-        if ( this.thumbFirst ) {
-            if ( !this.vertical ) {
-                if ( (this.thumbFirst.style.left == '100%') || (this.thumbFirst.style.top == '100%') ) {
-                    this.thumbFirst.style.zIndex = '1';
+        if ( this._thumbFirst ) {
+            if ( !this._vertical ) {
+                if ( (this._thumbFirst.style.left == '100%') || (this._thumbFirst.style.top == '100%') ) {
+                    this._thumbFirst.style.zIndex = '1';
                 } else {
-                    this.thumbFirst.style.zIndex = null;
+                    this._thumbFirst.style.zIndex = null;
                 }  
             }
         }
     }
-
-
 
     private findThumbPosition(value: number, options: IOptions): string {
         let pos: string;
@@ -359,7 +352,6 @@ class View extends Subject implements IView  {
         node.remove();
         return undefined;
     }
-
 
     private buildNode(parentNode: HTMLDivElement, ...classes: string[]): HTMLDivElement {
         let node: HTMLDivElement = document.createElement('div');     
@@ -384,29 +376,21 @@ class View extends Subject implements IView  {
     }
 
     private getLengthInPx(): number {
-        let length: number = !this.vertical ?
-        this.slider.offsetWidth :
-        this.slider.offsetHeight;
+        let length: number = !this._vertical ?
+        this._slider.offsetWidth :
+        this._slider.offsetHeight;
 
         return length;
     }
 
     private getOffsetInPx(): number {
-        let offset: number = !this.vertical ?
-        this.slider.getBoundingClientRect().left :
-        this.slider.getBoundingClientRect().top;
+        let offset: number = !this._vertical ?
+        this._slider.getBoundingClientRect().left :
+        this._slider.getBoundingClientRect().top;
 
         return offset;
     }
 
-
-    // observer method
-
-/*     notify(activeThumb: HTMLDivElement, newThumbPosition: number): void {
-        for (const observer of this.observers) {
-            observer.pushViewChanges(activeThumb, newThumbPosition);
-        }
-    } */
 }
 
 

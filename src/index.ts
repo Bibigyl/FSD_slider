@@ -106,14 +106,17 @@ import { IOptions, defaultOptions } from './defaultOptions';
 //let pres = new Presenter(defaultOptions, test);
 
 $('.test').slider({
-  value: 0,
+  //value: 0,
   //min: -7.6666,
-  //range: [5, 10],
+  range: [15, 10],
   //reverse: true,
   //customValues: ['a', 'b', 'c', 'd'],
-  step: 1,
+  step: 'hg',
+  value: 'vxnxm',
   min: 0,
-  max: 17,
+  max: 17.5,
+  tooltip: true,
+  scale: true
 });
 /* 
 $('.test').slider('update', {

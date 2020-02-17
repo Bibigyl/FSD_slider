@@ -12,7 +12,11 @@ interface IWarnings {
     stepIsNull?: string,
     reverseIsNotBoolean?: string,
     customValuesIsNotArray?: string,
-    //someValuesAreIgnored?: string
+
+    invalidLength?: string,
+    verticalIsNotBoolean?: string,
+    tooltipIsNotBoolean?: string,
+    scaleIsNotBoolean?: string,
 }
 
 let warnings: IWarnings = {
@@ -26,7 +30,11 @@ let warnings: IWarnings = {
     stepIsNull: 'Step cant be equal to 0',
     reverseIsNotBoolean: 'Option reverse should be true or false',
     customValuesIsNotArray: 'CustomValues should be array',
-    //someValuesAreIgnored: 'If options customValues is defined min, max are ignored'
+
+    invalidLength: 'Length should be valid to CSS',
+    verticalIsNotBoolean: 'Option vertical should be true or false',
+    tooltipIsNotBoolean: 'Option tooltip should be true or false',
+    scaleIsNotBoolean: 'Option scale should be true or false',
 }
 
 function validateModel(options: IModelOptions): IWarnings {
@@ -83,22 +91,16 @@ function validateModel(options: IModelOptions): IWarnings {
         if ( !Array.isArray(options.customValues) ) {
             warns.customValuesIsNotArray = warnings.customValuesIsNotArray;
         }
-
-/*         if ( (options.customValues.length - 1) != options.max || options.min != 0 ) {
-            warns.someValuesAreIgnored = warnings.someValuesAreIgnored;
-        } */
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+/* 
     if (Object.keys(warns).length == 0) {
         return {};
-    }
+    } */
 
     return warns;
 }
-
-
 
 function validateNumbers(numbers: number[]): boolean {
     numbers.forEach(function(item) {
@@ -118,4 +120,26 @@ function validateIntegers(numbers: number[]): boolean {
     return true;
 }
 
-export { validateModel }
+function validateView(options): IWarnings {
+    let warns: IWarnings = {};
+
+    if ( !options.length.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i) ) {
+        warns.invalidLength = warnings.invalidLength;
+    }
+
+    if ( typeof options.vertical != 'boolean' ) {
+        warns.verticalIsNotBoolean = warnings.verticalIsNotBoolean;
+    }
+
+    if ( typeof options.tooltip != 'boolean' ) {
+        warns.tooltipIsNotBoolean = warnings.tooltipIsNotBoolean;
+    }
+
+    if ( typeof options.scale != 'boolean' ) {
+        warns.scaleIsNotBoolean = warnings.scaleIsNotBoolean;
+    }
+
+    return warns;
+}
+
+export { validateModel, validateView, IWarnings }

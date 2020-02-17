@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, Subject } from './Observer';
+import { ISubject, Subject, IObserver } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateModel } from './validations';
 
@@ -14,8 +14,8 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject, IModelOptions {
-    getData(): IModelOptions;
+interface IModel extends ISubject, IObserver, IModelOptions {
+    getOptions(): IModelOptions;
 }
 
 
@@ -34,9 +34,55 @@ class Model extends Subject implements IModel {
 
         super();
 
+        let validOptions: IModelOptions = Object.assign({}, defaultOptions, options);
+
         this.validate(options);
-        let validOptions: IModelOptions = this.normalize(options);
+        validOptions = this.normalize(options);
         this.setOptions(validOptions);
+    }
+
+    
+    update(config: any): void {
+
+        switch (config.type) {
+
+            case 'NEW_VALUE_IN_PERCENT':
+
+                this.setValueByPercent(config.percent, config.index);
+
+                this.notify({ 
+                    type: 'NEW_VALUE',
+                    options: this.getOptions()
+                });
+                break;
+
+            case 'NEW_DATA':
+
+                this.validate(config.options)
+                let validOptions: IModelOptions = this.normalize(config.options);
+                this.setOptions(validOptions);
+
+                this.notify({
+                    type: 'NEW_DATA',
+                    options: this.getOptions()
+                });
+                break;
+
+            default:
+                return;
+        }
+    }
+
+    getOptions(): IModelOptions {
+        return {
+            value: this.value,
+            min: this.min,
+            max: this.max,   
+            step: this.step,
+            range: this.range,
+            customValues: this.customValues,
+            reverse: this.reverse
+        }
     }
 
     private setOptions(options: IModelOptions): void {
@@ -65,75 +111,69 @@ class Model extends Subject implements IModel {
 
     private normalize(options: IModelOptions): IModelOptions {
 
-        let validOptions: IModelOptions;
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // вопрос про создать пустой объкт и добавлять туда свва
-        validOptions = Object.assign({}, defaultOptions);
-
         if ( this._warnings.customValuesIsNotArray ) {
-            validOptions.customValues = undefined;
+            options.customValues = undefined;
         }
 
         if ( options.customValues ) {
-            validOptions.min = 0;
-            validOptions.max = options.customValues.length - 1;
+            options.min = 0;
+            options.max = options.customValues.length - 1;
         }
 
-        validOptions.min = this.normalizeNumber(options.min, defaultOptions.min);
-        validOptions.max = this.normalizeNumber(options.max, defaultOptions.max);
-        validOptions.step = this.normalizeNumber(options.step, defaultOptions.step);
+        options.min = this.normalizeNumber(options.min, defaultOptions.min);
+        options.max = this.normalizeNumber(options.max, defaultOptions.max);
+        options.step = this.normalizeNumber(options.step, defaultOptions.step);
 
         if ( this._warnings.minIsOverMax ) {
-            [validOptions.min, validOptions.max] = [validOptions.max, validOptions.min];
+            [options.min, options.max] = [options.max, options.min];
         }
 
         if ( this._warnings.minIsEqualToMax ) {
-            validOptions.min = defaultOptions.min;
-            validOptions.max = defaultOptions.max;
+            options.min = defaultOptions.min;
+            options.max = defaultOptions.max;
         }
 
         if ( this._warnings.stepIsNull || this._warnings.tooBigStep ) {
-            validOptions.step = 1;
+            options.step = 1;
         }
 
-        validOptions.step = Math.abs(options.step);
-        validOptions.reverse = !!options.reverse;
+        
+        options.step = Math.abs(options.step);
+        options.reverse = !!options.reverse;
 
 
         if ( !options.range ) {
-            validOptions.value = this.normalizeNumber(options.value, defaultOptions.min);
-            validOptions.value = this.findClosestStep(validOptions.value, validOptions)
-            validOptions.range = null;
+            options.value = this.normalizeNumber(options.value, options.min);
+            options.value = this.findClosestStep(options.value, options)
+            options.range = null;
 
         } else {
-            validOptions.range = options.range.slice(0, 1) as [number, number];
-            validOptions.range[0] = this.normalizeNumber(validOptions.range[0], defaultOptions.min);
-            validOptions.range[1] = this.normalizeNumber(validOptions.range[1], defaultOptions.max);
+            options.range = options.range.slice(0, 2) as [number, number];
+            
+            options.range[0] = this.normalizeNumber(options.range[0], options.min);
+            options.range[1] = this.normalizeNumber(options.range[1], options.max);
 
             if ( this._warnings.wrongOrderInRange ) {
-                validOptions.range.sort(function(a, b) {
+                options.range.sort(function(a, b) {
                     return a - b;
                 });  
             }
-            
-            validOptions.range[0] = this.findClosestStep(validOptions.range[0], validOptions);
-            validOptions.range[1] = this.findClosestStep(validOptions.range[1], validOptions);
-            validOptions.value = null;
+            options.range[0] = this.findClosestStep(options.range[0], options);
+            options.range[1] = this.findClosestStep(options.range[1], options);
+            options.value = null;
         }
 
-        return validOptions;
+        return options;
     }
 
 
     private normalizeNumber(value: number, defaultVal: number): number {
         let newValue: number = value;
 
-        if ( !isNumeric(value) ) { 
-            newValue = defaultVal; 
+        if ( !isNumeric(value) ) {
+            newValue = defaultVal;
         }
         newValue = Math.trunc(+newValue);
-        
         return newValue;
     }
 
@@ -172,7 +212,7 @@ class Model extends Subject implements IModel {
         this.min + newValue :
         this.max - newValue;
 
-        newValue = this.findClosestStep(newValue, this.getData());
+        newValue = this.findClosestStep(newValue, this.getOptions());
 
         if ( !this.range ) {
             this.value = newValue;
@@ -181,56 +221,13 @@ class Model extends Subject implements IModel {
 
             if (index == 0 && !this.reverse) {
 
-                newValue = Math.min(newValue, this.range[0]);
+                newValue = Math.min(newValue, this.range[1]);
                 this.range[0] = newValue;
 
             } else {
-                newValue = Math.max(newValue, this.range[1]);
+                newValue = Math.max(newValue, this.range[0]);
                 this.range[1] = newValue;
             }
-        }
-    }
-
-    update(config: any): void {
-
-        switch (config.type) {
-
-            case 'NEW_VALUE_IN_PERCENT':
-
-                this.setValueByPercent(config.percent, config.index);
-
-                this.notify({ 
-                    type: 'NEW_VALUE',
-                    options: this.getData()
-                });
-                break;
-
-            case 'NEW_DATA':
-
-                this.validate(config.options)
-                let validOptions: IModelOptions = this.normalize(config.options);
-                this.setOptions(validOptions);
-
-                this.notify({
-                    type: 'NEW_DATA',
-                    options: this.getData()
-                });
-                break;
-
-            default:
-                return;
-        }
-    }
-
-    getData(): IModelOptions {
-        return {
-            value: this.value,
-            min: this.min,
-            max: this.max,   
-            step: this.step,
-            range: this.range,
-            customValues: this.customValues,
-            reverse: this.reverse
         }
     }
 }

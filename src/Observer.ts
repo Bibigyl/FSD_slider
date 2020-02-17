@@ -11,11 +11,11 @@ interface ISubject {
 class Subject implements ISubject {
     protected callbacks: any[] = [];
 
-    attach(callback: any): void {
+    attach(callback: Function): void {
         this.callbacks.push(callback);
     }
 
-    detach(callback: any): void {
+    detach(callback: Function): void {
         const callbackIndex: number = this.callbacks.indexOf(callback);
         this.callbacks.splice(callbackIndex, 1);
     }
@@ -28,27 +28,13 @@ class Subject implements ISubject {
     }
 }
 
-/* 
 interface IObserver {
-    callback: any;
-    update(options: IOptions): void;
+    update(config: any): void;
 }
 
-class Observer implements IObserver {
-    callback: any;
-
-    constructor(callback: Function) {
-        this.callback = callback;
-    }
-
-    public update(options: IOptions): void {
-        this.callback(options);
-    }
-} */
 
 
-
-export { ISubject, Subject};
+export { ISubject, Subject, IObserver};
 //export { IOuterObserver, OuterObserver}
 
 

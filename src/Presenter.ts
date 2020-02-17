@@ -19,10 +19,10 @@ class Presenter extends Subject implements IPresenter {
 
         super();
 
-        options = Object.assign(defaultOptions, options);
+        options = Object.assign({}, defaultOptions, options);
         this._model = new Model(options);
 
-        options = Object.assign(options, this._model.getData());
+        options = Object.assign(options, this._model.getOptions());
         this._view = new View(options, node);
 
 
@@ -30,17 +30,26 @@ class Presenter extends Subject implements IPresenter {
 
         this._model.attach(function(config: any): void {
             that._view.update(config);
-            //that.notify(config);
+            that.notify(config);
         });
 
         this._view.attach(function(config: any): void {
             that._model.update(config);
-            //that.notify(config);
+            that.notify(config);
         });
     }
 
 
     update(config: any): void {
+
+        this._model.update(config);
+        config.options = Object.assign(config.options, this._model.getOptions());
+        this._view.update(config);
+
+    }
+
+
+/*     update(config: any): void {
 
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
@@ -70,18 +79,18 @@ class Presenter extends Subject implements IPresenter {
         });
 
         if (isViewUpdated) {
-            config.options = Object.assign(config.options, this._model.getData());
+            config.options = Object.assign(config.options, this._model.getOptions());
             this._view.update(config);
-            config.options = this.getData()
+            config.options = this.getOptions()
         }
 
         if (isModelUpdated || isViewUpdated) {
-            this.notify(config);
+            //this.notify(config);
         }
-    }
+    } */
 
-    getData(): IOptions {
-        return Object.assign({}, this._model.getData(), this._view.getData());
+    getOptions(): IOptions {
+        return Object.assign({}, this._model.getOptions(), this._view.getOptions());
     }  
 }
 
