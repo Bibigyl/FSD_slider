@@ -1,7 +1,9 @@
+import { IModelOptions } from "./Model";
+import { IViewOptions } from "./View";
 import { IOptions } from "./defaultOptions";
 
+//import { IOptions } from "./defaultOptions";
 
-//Интферфейс издателя объявляет набор методов для управлениями подпискичами.
 interface ISubject {
     attach(callback: any): void;
     detach(callback: any): void;
@@ -27,13 +29,15 @@ class Subject implements ISubject {
     }
 }
 
-interface IObserver {
-    update(config: any): void;
+interface IConfig {
+    type: string,
+    options?: IModelOptions | IViewOptions | IOptions,
+    persent?: number,
+    index?: number
 }
 
 
-
-export { ISubject, Subject, IObserver};
+export { ISubject, Subject};
 //export { IOuterObserver, OuterObserver}
 
 

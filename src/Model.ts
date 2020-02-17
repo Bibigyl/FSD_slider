@@ -1,10 +1,10 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, Subject, IObserver } from './Observer';
-import { isNumeric, getNumberOfSteps } from './commonFunctions';
-import { validateModel } from './validations';
+import { ISubject, Subject } from './Observer';
+import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
+import { validateModel, IWarnings } from './validations';
 
 interface IModelOptions {
-    [x: string]: any;
+    //[x: string]: any;
     value: number | null;
     min: number;
     max: number;
@@ -14,8 +14,11 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject, IObserver {
+interface IModel extends ISubject {
+    update(config: any): void
+
     getOptions(): IModelOptions;
+    getWarnings(): IWarnings;
 }
 
 
@@ -34,10 +37,11 @@ class Model extends Subject implements IModel {
 
         super();
 
-        let validOptions: IModelOptions = Object.assign({}, defaultOptions, options);
+        let fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
+        let validOptions: IModelOptions;
 
-        this.validate(options);
-        validOptions = this.normalize(options);
+        this.validate(fullOptions);
+        validOptions = this.normalize(fullOptions, defaultOptions);
         this.setOptions(validOptions);
     }
 
@@ -58,15 +62,19 @@ class Model extends Subject implements IModel {
 
             case 'NEW_DATA':
 
-                this.validate(config.options)
-                let validOptions: IModelOptions = this.normalize(config.options);
-                this.setOptions(validOptions);
+                let prevOptions = this.getOptions();
+                this.validate(Object.assign({}, prevOptions, config.options))
+                let validOptions: IModelOptions = this.normalize(config.options, prevOptions);
 
-                this.notify({
-                    type: 'NEW_DATA',
-                    options: this.getOptions()
-                });
-                break;
+                if ( !deepEqual(prevOptions, validOptions) ) {
+                    this.setOptions(validOptions);
+
+                    this.notify({
+                        type: 'NEW_DATA',
+                        options: this.getOptions()
+                    });
+                    break;                    
+                }
 
             default:
                 return;
@@ -85,6 +93,10 @@ class Model extends Subject implements IModel {
         }
     }
 
+    getWarnings(): IWarnings {
+        return Object.assign({}, this._warnings);
+    }
+
     private setOptions(options: IModelOptions): void {
         this._value = options.value;
         this._min = options.min;
@@ -98,10 +110,11 @@ class Model extends Subject implements IModel {
     private validate(options: IModelOptions): void {
 
         this._warnings = validateModel(options);
-        let warnings = Object.assign({}, this._warnings);
 
-        if (warnings) {
+        if ( Object.keys(this._warnings).length != 0 ) {
 
+            let warnings: IWarnings = Object.assign({}, this._warnings);
+            
             this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
@@ -109,9 +122,11 @@ class Model extends Subject implements IModel {
         }
     }
 
-    private normalize(options: IModelOptions): IModelOptions {
+    private normalize(options: IModelOptions, validOptions: IModelOptions): IModelOptions {
 
-        if ( this._warnings.customValuesIsNotArray ) {
+        options = Object.assign({}, validOptions, options);
+
+        if ( this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall ) {
             options.customValues = undefined;
         }
 
@@ -120,17 +135,17 @@ class Model extends Subject implements IModel {
             options.max = options.customValues.length - 1;
         }
 
-        options.min = this.normalizeNumber(options.min, defaultOptions.min);
-        options.max = this.normalizeNumber(options.max, defaultOptions.max);
-        options.step = this.normalizeNumber(options.step, defaultOptions.step);
+        options.min = this.normalizeNumber(options.min, validOptions.min);
+        options.max = this.normalizeNumber(options.max, validOptions.max);
+        options.step = this.normalizeNumber(options.step, validOptions.step);
 
         if ( this._warnings.minIsOverMax ) {
             [options.min, options.max] = [options.max, options.min];
         }
 
         if ( this._warnings.minIsEqualToMax ) {
-            options.min = defaultOptions.min;
-            options.max = defaultOptions.max;
+            options.min = validOptions.min;
+            options.max = validOptions.max;
         }
 
         if ( this._warnings.stepIsNull || this._warnings.tooBigStep ) {

@@ -1,19 +1,22 @@
-import { IOptions } from './defaultOptions';
+import { IOptions, defaultOptions } from './defaultOptions';
 //import { IModel, IModelOptions } from './Model';
-import { ISubject, Subject, IObserver } from './Observer';
+import { ISubject, Subject } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IWarnings } from './validations';
 
 
 interface IViewOptions {
-    length: string | number;
+    length: string;
     vertical: boolean;
     tooltip: boolean;
     scale: boolean;
 }
 
-interface IView extends ISubject, IObserver {
+interface IView extends ISubject {
+    update(config: any): void
+
     getOptions(): IViewOptions;
+    getWarnings(): IWarnings;
 }
 
 class View extends Subject implements IView  {
@@ -39,6 +42,7 @@ class View extends Subject implements IView  {
 
         super();
 
+        options = Object.assign(defaultOptions, options);
         this.validate(options);
 
         this._slider = sliderNode;
@@ -63,6 +67,7 @@ class View extends Subject implements IView  {
 
             case 'NEW_DATA':
 
+                config.options = Object.assign({}, this.getOptions(), config.options);
                 this.validate(config.options);
                 this.rebuild(config.options);
                 break;
@@ -81,6 +86,9 @@ class View extends Subject implements IView  {
         }
     }
 
+    getWarnings(): IWarnings {
+        return Object.assign({}, this._warnings);
+    }
 
 
     private thumbOnDown(event): void {
@@ -130,7 +138,8 @@ class View extends Subject implements IView  {
 
     private build(options: IOptions): void {
 
-        this._length = this.findValidLength(options.length);
+        let validLength: string = this._length || defaultOptions.length;
+        this._length = this.getValidLength(options.length, validLength);
 
         if ( !options.vertical ) {
             this._vertical = false;
@@ -182,7 +191,7 @@ class View extends Subject implements IView  {
         options = Object.assign({}, prevOptions, options);
 
         for (let key in this) {
-            if (key != 'slider') {
+            if (key != '_slider') {
                 try {
                     this[key] = this.removeNode(this[key]);
                 } catch {}                
@@ -193,11 +202,13 @@ class View extends Subject implements IView  {
     }
 
     private validate(options): void {
+        
         this._warnings = validateView(options);
-        let warnings = Object.assign({}, this._warnings);
 
-        if (warnings) {
+        if ( Object.keys(this._warnings).length != 0 ) {
 
+            let warnings: IWarnings = Object.assign({}, this._warnings);
+            
             this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
@@ -363,16 +374,17 @@ class View extends Subject implements IView  {
         return node;
     }
     
-    private findValidLength(str: any): string {
+    private getValidLength(str: any, validLength: string): string {
         if ( typeof ('' + str) == 'string' ) {
             let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
             if ( r && isNumeric(r[0]) ) { 
                 return r[0].toLowerCase().replace(',', '.') + 'px';
             } else if ( r ) {
                 return r[0].toLowerCase().replace(',', '.');
+            } else {
+                return validLength
             }
         }
-        throw new Error('Width (or height) should be valid to css');
     }
 
     private getLengthInPx(): number {

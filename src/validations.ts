@@ -12,6 +12,7 @@ interface IWarnings {
     stepIsNull?: string,
     reverseIsNotBoolean?: string,
     customValuesIsNotArray?: string,
+    customValuesIsTooSmall? : string,
 
     invalidLength?: string,
     verticalIsNotBoolean?: string,
@@ -30,6 +31,7 @@ let warnings: IWarnings = {
     stepIsNull: 'Step cant be equal to 0',
     reverseIsNotBoolean: 'Option reverse should be true or false',
     customValuesIsNotArray: 'CustomValues should be array',
+    customValuesIsTooSmall: 'CustomValues should contain at least two values',
 
     invalidLength: 'Length should be valid to CSS',
     verticalIsNotBoolean: 'Option vertical should be true or false',
@@ -70,7 +72,7 @@ function validateModel(options: IModelOptions): IWarnings {
             warns.wrongRangeLength = warnings.wrongRangeLength;
         }
 
-        if ( options.range[0] > options.range[1] ) {
+        if ( !warns.wrongRangeLength && options.range[0] > options.range[1] ) {
             warns.wrongOrderInRange = warnings.wrongOrderInRange;
         }
     }
@@ -91,33 +93,33 @@ function validateModel(options: IModelOptions): IWarnings {
         if ( !Array.isArray(options.customValues) ) {
             warns.customValuesIsNotArray = warnings.customValuesIsNotArray;
         }
-    }
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-/* 
-    if (Object.keys(warns).length == 0) {
-        return {};
-    } */
+        if ( !warns.customValuesIsNotArray && options.customValues.length < 2 ) {
+            warns.customValuesIsTooSmall = warnings.customValuesIsTooSmall;
+        }
+    }
 
     return warns;
 }
 
 function validateNumbers(numbers: number[]): boolean {
-    numbers.forEach(function(item) {
+    let isValid: boolean = true;
+    numbers.forEach(function(item) { 
         if( !isNumeric(item) ) { 
-            return false;
+            isValid = false;
         }
     });
-    return true;
+    return isValid;
 }
 
 function validateIntegers(numbers: number[]): boolean {
+    let isValid: boolean = true;
     numbers.forEach(function(num) {
         if ( num % 1 != 0 ) { 
-            return false;
+            isValid = false;
         }
     });
-    return true;
+    return isValid;
 }
 
 function validateView(options): IWarnings {

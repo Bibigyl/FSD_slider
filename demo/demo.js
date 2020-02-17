@@ -10,6 +10,13 @@ $(document).ready( function() {
         tooltip: true,
     });
 
+    $('#slider1').slider('update', {
+        value: 6
+    })
+    $('#slider1').slider('update', {
+        value: 11
+    })
+
 
     $('.demo').each(function() {
         let demo = $(this);
@@ -18,9 +25,9 @@ $(document).ready( function() {
         let instantChange = true;
         let timeout;
         let prevOptions;
-       
 
         demo.find('.radio-thumbs').change(function() {
+
 
             let value;
             if ( $(this).attr('value') == 'one' ) {
@@ -45,7 +52,8 @@ $(document).ready( function() {
             }
 
             if (instantChange) {
-                timeout = tryToChange(demo, options, timeout);
+                //timeout = tryToChange(demo, options, timeout);
+                slider.slider('update', options);
                 options = {};
             }
         });
@@ -69,7 +77,8 @@ $(document).ready( function() {
                 options.customValues = undefined;
 
                 if (instantChange) {
-                    timeout = tryToChange(demo, options, timeout);
+                    //timeout = tryToChange(demo, options, timeout);
+                    slider.slider('update', options);
                     options = {};
                 }
             }
@@ -81,16 +90,11 @@ $(document).ready( function() {
         });
 
         demo.find('button').on('click', function() {
-            timeout = tryToChange(demo, options, timeout);
+            //timeout = tryToChange(demo, options, timeout);
+            slider.slider('update', options);
         });
 
         demo.find('.option').each(function() {
-
-/*             let temp;
-
-            $(this).on('click', function() {
-                temp = $(this).val()
-            }); */
 
             $(this).change(function() {
 
@@ -127,51 +131,88 @@ $(document).ready( function() {
 
 
                 if (instantChange) {
-                    timeout = tryToChange(demo, options, timeout);
+                    //timeout = tryToChange(demo, options, timeout);
+
+                    slider.slider('update', options);
                     options = {};
                 }
             });
         });
 
-        slider.slider('observe', function(options) {
+        slider.slider('observe', function(config) {
 
             let name;
             let opt;
             let val;
 
-            demo.find('.option').each(function() {
+            if ( config.type == 'NEW_VALUE' || config.type == 'NEW_DATA' ) {
+                let options = config.options;
 
-                opt = $(this);
-                name = opt.attr('name');
+                demo.find('.option').each(function() {
 
-                if (opt.hasAttr('disabled')) {return};
+                    opt = $(this);
+                    name = opt.attr('name');
+    
+                    if (opt.hasAttr('disabled')) { return };
 
-                if (opt.attr('type') == 'checkbox') {
-
-                    if ( options[name] ) {
-                        opt.prop('checked', true)
+                    if (!options.hasOwnProperty(name)) { return };
+    
+                    if (opt.attr('type') == 'checkbox') {
+    
+                        if ( options[name] ) {
+                            opt.prop('checked', true)
+                        } else {
+                            opt.prop('checked', false)
+                        }
+    
                     } else {
-                        opt.prop('checked', false)
+    
+                        opt.val(options[name]);
                     }
+                });
 
-                } else {
 
-                    opt.val(options[name]);
+                if ( options.customValues ) {
+
+                    if ( !demo.find('input[name="customValue"]').hasAttr('disabled') ) {
+                        val = options.customValues[options.value];
+                        demo.find('input[name="customValue"]').val(val);     
+                    }
+        
+                    if ( !demo.find('input[name="customRange"]').hasAttr('disabled') ) {
+                        val = [];
+                        val[0] = options.customValues[options.range[0]];
+                        val[1] = options.customValues[options.range[1]];
+                        demo.find('input[name="customRange"]').val(val);                
+                    }
                 }
-            });
 
-
-            if ( !demo.find('input[name="customValue"]').hasAttr('disabled') ) {
-                val = options.customValues[options.value];
-                demo.find('input[name="customValue"]').val(val);                
             }
 
-            if ( !demo.find('input[name="customRange"]').hasAttr('disabled') ) {
-                val = [];
-                val[0] = options.customValues[options.range[0]];
-                val[1] = options.customValues[options.range[1]];
-                demo.find('input[name="customRange"]').val(val);                
+
+            if ( config.type == 'WARNINGS' ) {
+
+                console.log('+++++')
+
+                let error = demo.find('.error');
+                error.text('');
+
+                clearTimeout(timeout);
+
+                for ( let key in config.warnings ) {
+                    error.append('<p>' + config.warnings[key] + '</p>')
+                }
+                //block.find('.error span').text(e);
+                error.removeAttr('hidden');
+        
+                timeout = setTimeout(function() {
+                    //error.text('');
+                    //error.attr('hidden', '');
+                }, 7000);
+        
+                return timeout;
             }
+
 
         });
     });
@@ -192,14 +233,15 @@ $.fn.hasAttr = function(name) {
     return this.attr(name) !== undefined;
 }
 
-function tryToChange(block, options, timeout) {
+// поменять название, если функция  остается 
+/* function tryToChange(block, options, timeout) {
     let slider = block.find('.slider');
     let prevOptions;
     prevOptions = slider.slider('getData');
 
     try {
 
-        slider.slider('change', options);
+        slider.slider('update', options);
 
         if ( !block.find('.mistake').hasAttr('hidden') ) {
 
@@ -209,7 +251,7 @@ function tryToChange(block, options, timeout) {
 
     } catch(e) {
 
-        slider.slider('change', prevOptions);
+        slider.slider('update', prevOptions);
 
         clearTimeout(timeout);
 
@@ -222,4 +264,4 @@ function tryToChange(block, options, timeout) {
 
         return timeout;
     } 
-}
+} */

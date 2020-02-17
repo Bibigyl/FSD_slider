@@ -29,6 +29,8 @@
 }
 .slider__tooltip {
     width: fit-content;
+    min-width: 22px;
+    min-height: 28px;
 
     text-align: center;
     background-color: #333;

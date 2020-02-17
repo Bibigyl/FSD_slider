@@ -2,12 +2,14 @@ import { IOptions, defaultOptions } from './defaultOptions';
 import Model, { IModel, IModelOptions } from './Model';
 import View, { IView } from './View';
 import { ISubject, Subject }  from './Observer';
+import { IWarnings } from './validations';
 
 interface IPresenter extends ISubject {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //data(): IOptions;
     update(config: any): void;
 
+    getOptions(): IOptions;
+    getWarnings(): IWarnings;
 }
 
 class Presenter extends Subject implements IPresenter {
@@ -42,10 +44,30 @@ class Presenter extends Subject implements IPresenter {
 
     update(config: any): void {
 
+        let options: IOptions;
+        let warnings: IWarnings;
+
+
         this._model.update(config);
+
         config.options = Object.assign(config.options, this._model.getOptions());
+
         this._view.update(config);
 
+        options = this.getOptions();
+        this.notify({
+            type: 'NEW_DATA',
+            options: options
+        });
+
+        warnings = this.getWarnings();
+        if ( Object.keys(warnings).length != 0 ) {
+            //console.log('!!!!!')
+            this.notify({
+                type: 'WARNINGS',
+                warnings: warnings
+            });            
+        }
     }
 
 
@@ -91,7 +113,11 @@ class Presenter extends Subject implements IPresenter {
 
     getOptions(): IOptions {
         return Object.assign({}, this._model.getOptions(), this._view.getOptions());
-    }  
+    }
+
+    getWarnings(): IWarnings {
+        return Object.assign({}, this._model.getWarnings(), this._view.getWarnings());
+    }
 }
 
 export default Presenter;
