@@ -91,20 +91,20 @@ class View extends Subject implements IView  {
     }
 
 
-    private thumbOnDown(event): void {
+    private handleThumbDown(event): void {
         // предотвратить запуск выделения (действие браузера)
         event.preventDefault();
         event.stopPropagation();
 
         this._activeThumb = event.currentTarget;
 
-        document.addEventListener('mousemove', this.thumbOnMove);
-        document.addEventListener('mouseup', this.thumbOnUp);
-        document.addEventListener('touchmove', this.thumbOnMove);
-        document.addEventListener('touchend', this.thumbOnUp);
+        document.addEventListener('mousemove', this.handleThumbMove);
+        document.addEventListener('mouseup', this.handleThumbUp);
+        document.addEventListener('touchmove', this.handleThumbMove);
+        document.addEventListener('touchend', this.handleThumbUp);
     }
 
-    private thumbOnMove(event): void {
+    private handleThumbMove(event): void {
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
@@ -127,11 +127,11 @@ class View extends Subject implements IView  {
         });
     }
 
-    private thumbOnUp(event): void {
-        document.removeEventListener('mouseup', this.thumbOnUp);
-        document.removeEventListener('mousemove', this.thumbOnMove);
-        document.removeEventListener('touchend', this.thumbOnUp);
-        document.removeEventListener('touchmove', this.thumbOnMove);
+    private handleThumbUp(event): void {
+        document.removeEventListener('mouseup', this.handleThumbUp);
+        document.removeEventListener('mousemove', this.handleThumbMove);
+        document.removeEventListener('touchend', this.handleThumbUp);
+        document.removeEventListener('touchmove', this.handleThumbMove);
 
         this._activeThumb = undefined;
     }
@@ -170,19 +170,19 @@ class View extends Subject implements IView  {
         }
 
 
-        this.thumbOnDown = this.thumbOnDown.bind(this);
-        this.thumbOnMove = this.thumbOnMove.bind(this);
-        this.thumbOnUp = this.thumbOnUp.bind(this);
+        this.handleThumbDown = this.handleThumbDown.bind(this);
+        this.handleThumbMove = this.handleThumbMove.bind(this);
+        this.handleThumbUp = this.handleThumbUp.bind(this);
 
         if ( !options.range ) {
-            this._thumb.addEventListener("mousedown", this.thumbOnDown);
-            this._thumb.addEventListener("touchstart", this.thumbOnDown);
+            this._thumb.addEventListener("mousedown", this.handleThumbDown);
+            this._thumb.addEventListener("touchstart", this.handleThumbDown);
         } else {
-            this._thumbFirst.addEventListener("mousedown", this.thumbOnDown);
-            this._thumbFirst.addEventListener("touchstart", this.thumbOnDown);
+            this._thumbFirst.addEventListener("mousedown", this.handleThumbDown);
+            this._thumbFirst.addEventListener("touchstart", this.handleThumbDown);
 
-            this._thumbLast.addEventListener("mousedown", this.thumbOnDown);
-            this._thumbLast.addEventListener("touchstart", this.thumbOnDown);
+            this._thumbLast.addEventListener("mousedown", this.handleThumbDown);
+            this._thumbLast.addEventListener("touchstart", this.handleThumbDown);
         }  
     }
 
