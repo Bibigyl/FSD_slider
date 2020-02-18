@@ -1,8 +1,8 @@
 import { IModelOptions } from "./Model";
 import { IViewOptions } from "./View";
 import { IOptions } from "./defaultOptions";
+import { IWarnings } from "./validations";
 
-//import { IOptions } from "./defaultOptions";
 
 interface ISubject {
     attach(callback: any): void;
@@ -31,14 +31,16 @@ class Subject implements ISubject {
 
 interface IConfig {
     type: string,
-    options?: IModelOptions | IViewOptions | IOptions,
-    persent?: number,
-    index?: number
+    // ???????????????????????
+    //options?: IModelOptions | IViewOptions | IOptions,
+    options?: any,
+    percent?: number,
+    index?: number,
+    warnings?: IWarnings
 }
 
 
-export { ISubject, Subject};
-//export { IOuterObserver, OuterObserver}
+export { ISubject, Subject, IConfig };
 
 
 

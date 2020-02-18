@@ -192,8 +192,6 @@ $(document).ready( function() {
 
             if ( config.type == 'WARNINGS' ) {
 
-                console.log('+++++')
-
                 let error = demo.find('.error');
                 error.text('');
 
@@ -207,8 +205,8 @@ $(document).ready( function() {
         
                 timeout = setTimeout(function() {
                     //error.text('');
-                    //error.attr('hidden', '');
-                }, 7000);
+                    error.attr('hidden', '');
+                }, 5000);
         
                 return timeout;
             }

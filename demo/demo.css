@@ -52,13 +52,6 @@ button {
     margin: 70px auto;
 }
 
-/* .mistake {
-    border: double;
-    border-color: #eee;
-    margin-top: 50px;
-    padding: 10px 15px;
-    color: red;
-} */
 .error {
     border: double;
     border-color: rgba(194, 132, 40, .5);

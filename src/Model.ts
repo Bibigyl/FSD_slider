@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, Subject } from './Observer';
+import { ISubject, Subject, IConfig } from './Observer';
 import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
 import { validateModel, IWarnings } from './validations';
 
@@ -15,7 +15,7 @@ interface IModelOptions {
 }
 
 interface IModel extends ISubject {
-    update(config: any): void
+    update(config: IConfig): void
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
@@ -31,7 +31,7 @@ class Model extends Subject implements IModel {
     private _customValues?: string[] | undefined;
     private _reverse: boolean;
 
-    private _warnings: any;
+    private _warnings: IWarnings;
 
     constructor(options: IModelOptions) {
 
@@ -46,7 +46,7 @@ class Model extends Subject implements IModel {
     }
 
     
-    update(config: any): void {
+    update(config: IConfig): void {
 
         switch (config.type) {
 
@@ -239,7 +239,11 @@ class Model extends Subject implements IModel {
 
         } else {
 
-            if (index == 0 && !this._reverse) {
+            let isFirstInRange: boolean;
+            isFirstInRange = index == 0 && !this._reverse;
+            isFirstInRange = isFirstInRange || index == 1 && this._reverse;
+
+            if (isFirstInRange) {
 
                 newValue = Math.min(newValue, this._range[1]);
                 this._range[0] = newValue;

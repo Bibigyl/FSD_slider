@@ -2,6 +2,7 @@ import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
+import { IConfig } from './Observer';
 //import { IOuterObserver, OuterObserver } from './Observer';
 
 (function ($) {
@@ -16,7 +17,7 @@ import { IOptions, defaultOptions } from './defaultOptions';
 
   var methods: IMethods = {
 
-    init: function (options?: IOptions) {
+    init: function (options?: IOptions): void {
 
       return this.each(function () {
 
@@ -40,25 +41,23 @@ import { IOptions, defaultOptions } from './defaultOptions';
       });
     },
 
-    getData: function () {
+    getData: function (): IOptions {
       return $(this).data('sliderData').presenter.getData();
     },
 
-    update: function (options: IOptions) {
+    update: function (options: IOptions): void {
       return this.each(function () {
-        let config: any = {
+        let config: IConfig = {
           type: 'NEW_DATA',
           options: options
         }
-
-        //console.log(config);
 
         $(this).data('sliderData').presenter.update(config);
 
       });
     },
 
-    destroy: function () {
+    destroy: function (): void {
       return this.each(function () {
 
         let $this = $(this);
@@ -71,17 +70,15 @@ import { IOptions, defaultOptions } from './defaultOptions';
       });
     },
 
-    observe: function (callback) {
+    observe: function (callback: Function): void {
 
-      //let observer: IOuterObserver = new OuterObserver(func);
       let presenter = $(this).data('sliderData').presenter;
-
       presenter.attach(callback);
     }
   }
 
-
-  jQuery.fn.slider = function (method) {
+// ?????????????
+  jQuery.fn.slider = function (method: string): JQuery {
 
     // логика вызова метода
     if (methods[method as string]) {
