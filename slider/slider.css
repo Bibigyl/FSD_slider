@@ -110,7 +110,7 @@
     height: 1.2px;
     width: 10px;
 }
-.slider__line {
+.slider__bar {
     position: absolute;
     background-color: blue;
     opacity: 0.1;

@@ -15,7 +15,7 @@ interface IModelOptions {
 }
 
 interface IModel extends ISubject {
-    update(config: IConfig): void
+    update(config: IConfig): void;
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;

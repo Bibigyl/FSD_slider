@@ -13,7 +13,7 @@ interface IViewOptions {
 }
 
 interface IView extends ISubject {
-    update(config: any): void
+    update(config: any): void;
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
@@ -105,6 +105,7 @@ class View extends Subject implements IView  {
     }
 
     private handleThumbMove(event): void {
+        //console.log(this.getLengthInPx())
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
@@ -119,6 +120,45 @@ class View extends Subject implements IView  {
 
         newThumbPosition = (eventPos - offset) / length * 100;
         index = this._activeThumb == this._thumbLast ? 1 : 0;
+
+        this.notify({
+            type: 'NEW_VALUE_IN_PERCENT',
+            index: index,
+            percent: newThumbPosition
+        });
+    }
+
+    private handleSliderClick(event): void {
+        console.log('sddfcgv')
+        console.log(this.getLengthInPx())
+        let length: number = this.getLengthInPx();
+        let offset: number = this.getOffsetInPx();
+        let eventPos: number;
+        let newThumbPosition: number;
+        let index: number;
+        
+        if (event.touches) {
+            eventPos = !this._vertical ? event.touches[0].clientX : event.touches[0].clientY;
+        } else {
+            eventPos = !this._vertical ? event.clientX : event.clientY;
+        }
+
+        newThumbPosition = (eventPos - offset) / length * 100;
+        
+        if (!this._range) {
+            index = 0;
+        } else {
+            let topLeft: string = !this._vertical ? 'left' : 'top';
+
+            let firstThumbPos: number = this._thumbFirst.getBoundingClientRect()[topLeft];
+            let lastThumbPos: number = this._thumbLast.getBoundingClientRect()[topLeft];
+
+            if ( Math.abs(firstThumbPos - newThumbPosition) < Math.abs(lastThumbPos - newThumbPosition) ) {
+                index = 0;
+            } else {
+                index = 1;
+            }
+        }
 
         this.notify({
             type: 'NEW_VALUE_IN_PERCENT',
@@ -173,6 +213,7 @@ class View extends Subject implements IView  {
         this.handleThumbDown = this.handleThumbDown.bind(this);
         this.handleThumbMove = this.handleThumbMove.bind(this);
         this.handleThumbUp = this.handleThumbUp.bind(this);
+        this.handleSliderClick = this.handleSliderClick.bind(this);
 
         if ( !options.range ) {
             this._thumb.addEventListener("mousedown", this.handleThumbDown);
@@ -183,7 +224,8 @@ class View extends Subject implements IView  {
 
             this._thumbLast.addEventListener("mousedown", this.handleThumbDown);
             this._thumbLast.addEventListener("touchstart", this.handleThumbDown);
-        }  
+        }
+        this._slider.addEventListener('click', this.handleSliderClick);
     }
 
     private rebuild(options: IOptions): void {
