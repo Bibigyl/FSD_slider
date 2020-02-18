@@ -52,7 +52,7 @@ class View extends Subject implements IView  {
     }
 
 
-    update(config: any): void {
+    public update(config: any): void {
 
         switch (config.type) {
 
@@ -74,7 +74,7 @@ class View extends Subject implements IView  {
         }
     }
 
-    getOptions(): IViewOptions {
+    public getOptions(): IViewOptions {
         let tooltip = !!this._tooltip || !!this._tooltipFirst;
         let scale = !!this._scale;
 
@@ -86,7 +86,7 @@ class View extends Subject implements IView  {
         }
     }
 
-    getWarnings(): IWarnings {
+    public getWarnings(): IWarnings {
         return Object.assign({}, this._warnings);
     }
 

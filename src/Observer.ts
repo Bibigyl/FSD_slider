@@ -13,16 +13,16 @@ interface ISubject {
 class Subject implements ISubject {
     protected callbacks: any[] = [];
 
-    attach(callback: Function): void {
+    public attach(callback: Function): void {
         this.callbacks.push(callback);
     }
 
-    detach(callback: Function): void {
+    public detach(callback: Function): void {
         const callbackIndex: number = this.callbacks.indexOf(callback);
         this.callbacks.splice(callbackIndex, 1);
     }
 
-    notify(config: any): void {
+    public notify(config: any): void {
         for (const callback of this.callbacks) {
             callback(config);
         }

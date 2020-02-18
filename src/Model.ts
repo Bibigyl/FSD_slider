@@ -46,7 +46,7 @@ class Model extends Subject implements IModel {
     }
 
     
-    update(config: IConfig): void {
+    public update(config: IConfig): void {
 
         switch (config.type) {
 
@@ -81,7 +81,7 @@ class Model extends Subject implements IModel {
         }
     }
 
-    getOptions(): IModelOptions {
+    public getOptions(): IModelOptions {
         return {
             value: this._value,
             min: this._min,
@@ -93,7 +93,7 @@ class Model extends Subject implements IModel {
         }
     }
 
-    getWarnings(): IWarnings {
+    public getWarnings(): IWarnings {
         return Object.assign({}, this._warnings);
     }
 

@@ -42,7 +42,7 @@ class Presenter extends Subject implements IPresenter {
     }
 
 
-    update(config: any): void {
+    public update(config: any): void {
 
         let options: IOptions;
         let warnings: IWarnings;
@@ -111,11 +111,11 @@ class Presenter extends Subject implements IPresenter {
         }
     } */
 
-    getOptions(): IOptions {
+    public getOptions(): IOptions {
         return Object.assign({}, this._model.getOptions(), this._view.getOptions());
     }
 
-    getWarnings(): IWarnings {
+    public getWarnings(): IWarnings {
         return Object.assign({}, this._model.getWarnings(), this._view.getWarnings());
     }
 }
