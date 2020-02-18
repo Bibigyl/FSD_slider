@@ -29,7 +29,7 @@ class View extends Subject implements IView  {
     private _thumb?: HTMLDivElement | undefined;
     private _thumbFirst?: HTMLDivElement | undefined;
     private _thumbLast?: HTMLDivElement | undefined;
-    private _line: HTMLDivElement;
+    private _bar: HTMLDivElement;
     private _tooltip?: HTMLDivElement | undefined;
     private _tooltipFirst?: HTMLDivElement | undefined;
     private _tooltipLast?: HTMLDivElement | undefined;
@@ -59,7 +59,7 @@ class View extends Subject implements IView  {
             case 'NEW_VALUE':
 
                 this.setThumbs(config.options);
-                this.setLinePosition();
+                this.setBarPosition();
                 if (this._tooltip || this._tooltipFirst) {
                     this.setTooltipValues(config.options);
                 }
@@ -155,11 +155,11 @@ class View extends Subject implements IView  {
             this._slider.classList.remove('slider_horizontal');          
         }
 
-        this._line = this.buildNode(this._slider, 'slider__line');
+        this._bar = this.buildNode(this._slider, 'slider__bar');
 
         this.buildThumbs(options);
 
-        this.setLinePosition();
+        this.setBarPosition();
 
         if ( options.tooltip ) {
             this.buildTooltips(options);
@@ -248,7 +248,7 @@ class View extends Subject implements IView  {
         }
     }
 
-    private setLinePosition(): void {
+    private setBarPosition(): void {
         let start: number | string;
         let length: number | string;
         let topLeft: string = !this._vertical ? 'left' : 'top';
@@ -259,8 +259,8 @@ class View extends Subject implements IView  {
         this._thumbLast.style[topLeft].slice(0, -1) - this._thumbFirst.style[topLeft].slice(0, -1)  + '%' :
         this._thumb.style[topLeft];
 
-        this._line.style[topLeft] = start;
-        this._line.style[widthHeight] = length;
+        this._bar.style[topLeft] = start;
+        this._bar.style[widthHeight] = length;
     }
 
     private buildTooltips(options: IOptions): void {
