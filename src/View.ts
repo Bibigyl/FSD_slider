@@ -68,6 +68,7 @@ class View extends Subject implements IView  {
             case 'NEW_DATA':
 
                 config.options = Object.assign({}, this.getOptions(), config.options);
+
                 this.validate(config.options);
                 this.rebuild(config.options);
                 break;
@@ -105,7 +106,6 @@ class View extends Subject implements IView  {
     }
 
     private handleThumbMove(event): void {
-        //console.log(this.getLengthInPx())
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
@@ -129,8 +129,6 @@ class View extends Subject implements IView  {
     }
 
     private handleSliderClick(event): void {
-        console.log('sddfcgv')
-        console.log(this.getLengthInPx())
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
@@ -145,19 +143,18 @@ class View extends Subject implements IView  {
 
         newThumbPosition = (eventPos - offset) / length * 100;
         
-        if (!this._range) {
+        if (this._thumb) {
             index = 0;
         } else {
             let topLeft: string = !this._vertical ? 'left' : 'top';
 
-            let firstThumbPos: number = this._thumbFirst.getBoundingClientRect()[topLeft];
-            let lastThumbPos: number = this._thumbLast.getBoundingClientRect()[topLeft];
+            let firstThumbPos: number = parseInt( this._thumbFirst.style[topLeft] );
+            let lastThumbPos: number = parseInt( this._thumbLast.style[topLeft] );
 
-            if ( Math.abs(firstThumbPos - newThumbPosition) < Math.abs(lastThumbPos - newThumbPosition) ) {
-                index = 0;
-            } else {
-                index = 1;
-            }
+            let isFirstCloser: boolean;
+            isFirstCloser = Math.abs(firstThumbPos - newThumbPosition) < Math.abs(lastThumbPos - newThumbPosition);
+
+            index = isFirstCloser ? 0 : 1;
         }
 
         this.notify({
@@ -245,6 +242,7 @@ class View extends Subject implements IView  {
 
     private validate(options): void {
         
+        this._warnings = {};
         this._warnings = validateView(options);
 
         if ( Object.keys(this._warnings).length != 0 ) {

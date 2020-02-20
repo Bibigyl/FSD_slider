@@ -10,12 +10,12 @@ $(document).ready( function() {
         tooltip: true,
     });
 
-    $('#slider1').slider('update', {
+/*     $('#slider1').slider('update', {
         value: 6
     })
     $('#slider1').slider('update', {
         value: 11
-    })
+    }) */
 
 
     $('.demo').each(function() {
@@ -92,6 +92,7 @@ $(document).ready( function() {
         demo.find('button').on('click', function() {
             //timeout = tryToChange(demo, options, timeout);
             slider.slider('update', options);
+            options = {};
         });
 
         demo.find('.option').each(function() {

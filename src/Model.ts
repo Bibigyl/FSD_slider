@@ -109,6 +109,7 @@ class Model extends Subject implements IModel {
 
     private validate(options: IModelOptions): void {
 
+        this._warnings = {};
         this._warnings = validateModel(options);
 
         if ( Object.keys(this._warnings).length != 0 ) {
