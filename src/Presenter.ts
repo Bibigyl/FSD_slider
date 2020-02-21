@@ -76,7 +76,6 @@ const updateView = function(action) {
 
 // МОДЕЛЬ И ВИД - ЭТО ПОДОБИЕ STORE. ОНИ НАСЛЕДУЮТ ОТ КЛАССА STORE, ОН ВРЕМЕННО В ПАПКЕ OBSERVER
 
-
 class Presenter extends Subject implements IPresenter {
 
     private _model: IModel;

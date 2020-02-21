@@ -1,6 +1,6 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 //import { IModel, IModelOptions } from './Model';
-import { ISubject, Subject } from './Observer';
+import { ISubject, Subject, IStore, Store } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IWarnings } from './validations';
 
@@ -12,16 +12,18 @@ interface IViewOptions {
     scale: boolean;
 }
 
-interface IView extends ISubject {
+interface IView extends IStore {
     update(config: any): void;
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
-    getLastUpdate(): string;
+    //getLastUpdate(): string;
+
+    // ЕСЛИ В КОЛБЭКИ НЕ ПЕРЕДАЮ ПАРАМЕТРЫ, ТО НУЖНО СОХРАНИТЬ НОВУЮ ПОЗИЦИЮ _newIndent
     getNewIndent(): any;
 }
 
-class View extends Subject implements IView  {
+class View extends Store implements IView  {
     [x: string]: any;
 
     private _length: string;
@@ -39,14 +41,16 @@ class View extends Subject implements IView  {
 
     private _activeThumb: HTMLDivElement;
     private _warnings: IWarnings;
-    private _lastUpdate: string;
+    //private _lastUpdate: string;
+
+    // *
     private _newIndent: any;
 
-    private _update: Function;
+    //private _update: Function;
     
     constructor(options: IOptions, sliderNode: HTMLDivElement, update: Function) {
 
-        super();
+        super(update);
 
         options = Object.assign(defaultOptions, options);
         this.validate(options);
@@ -56,12 +60,12 @@ class View extends Subject implements IView  {
 
         this.build(options)
 
-        this._update = update;
+        //this._update = update;
     }
 
-    update(action) {
+/*     update(action) {
         this._update(action);
-    }
+    } */
 
 
     public getOptions(): IViewOptions {
@@ -80,9 +84,9 @@ class View extends Subject implements IView  {
         return Object.assign({}, this._warnings);
     }
 
-    public getLastUpdate(): string {
+/*     public getLastUpdate(): string {
         return this._lastUpdate;
-    }
+    } */
 
     getNewIndent() {
         return this._newIndent;

@@ -1,10 +1,11 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, Subject, IConfig } from './Observer';
+import { ISubject, Subject, IConfig, Store, IStore } from './Observer';
 import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
 import { validateModel, IWarnings } from './validations';
 
+// НЕКОТОРЫЕ СТРОЧКИ Я ЗАКОММЕНТИРОВАЛА, ВМЕСТО ТОГО ЧТОБ УДАЛЯТЬ. СЕЙЧАС ЭТОТ КОД В КЛАССЕ Store  В ФАЙЛЕ Observer
+
 interface IModelOptions {
-    //[x: string]: any;
     value: number | null;
     min: number;
     max: number;
@@ -14,16 +15,16 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject {
+interface IModel extends IStore {
     update(config: IConfig): void;
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
-    getLastUpdate(): string;
+    //getLastUpdate(): string;
 }
 
 
-class Model extends Subject implements IModel {
+class Model extends Store implements IModel {
     private _value: number | null;
     private _min: number;
     private _max: number;   
@@ -33,14 +34,14 @@ class Model extends Subject implements IModel {
     private _reverse: boolean;
 
     private _warnings: IWarnings;
-    private _lastUpdate: string;
+    //private _lastUpdate: string;
 
-    private _update: Function;
+    //private _update: Function;
 
 
     constructor(options: IModelOptions, update: Function) {
 
-        super();
+        super(update);
 
         let fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
         let validOptions: IModelOptions;
@@ -49,50 +50,13 @@ class Model extends Subject implements IModel {
         validOptions = this.normalize(fullOptions, defaultOptions);
         this.setOptions(validOptions);
 
-        this._update = update;
+        //this._update = update;
     }
 
-    update(action) {
-        //console.log('222');
-        //console.dir(this._update);
+/*     update(action) {
         this._update(action);
-    }
-
-    
-/*     public update(config: IConfig): void {
-
-        switch (config.type) {
-
-            case 'NEW_VALUE_IN_PERCENT':
-
-                this.setValueByPercent(config.percent, config.index);
-
-                this.notify({ 
-                    type: 'NEW_VALUE',
-                    options: this.getOptions()
-                });
-                break;
-
-            case 'NEW_DATA':
-
-                let prevOptions = this.getOptions();
-                this.validate(Object.assign({}, prevOptions, config.options))
-                let validOptions: IModelOptions = this.normalize(config.options, prevOptions);
-
-                if ( !deepEqual(prevOptions, validOptions) ) {
-                    this.setOptions(validOptions);
-
-                    this.notify({
-                        type: 'NEW_DATA',
-                        options: this.getOptions()
-                    });
-                    break;                    
-                }
-
-            default:
-                return;
-        }
     } */
+
 
     public getOptions(): IModelOptions {
         return {
@@ -110,9 +74,9 @@ class Model extends Subject implements IModel {
         return Object.assign({}, this._warnings);
     }
 
-    public getLastUpdate(): string {
+/*     public getLastUpdate(): string {
         return this._lastUpdate;
-    }
+    } */
 
     private setOptions(options: IModelOptions): void {
         this._value = options.value;
@@ -129,15 +93,15 @@ class Model extends Subject implements IModel {
         this._warnings = {};
         this._warnings = validateModel(options);
 
-        if ( Object.keys(this._warnings).length != 0 ) {
+/*         if ( Object.keys(this._warnings).length != 0 ) {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-/*             this.notify({
+            this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
-            }) */
-        }
+            })
+        } */
     }
 
     private normalize(options: IModelOptions, validOptions: IModelOptions): IModelOptions {
@@ -240,38 +204,6 @@ class Model extends Subject implements IModel {
         return step;
     }
 
-
-    private setValueByPercent(percent: number, index: number): void {
-
-        let newValue: number;
-
-        newValue = percent * (this._max - this._min) / 100;
-        newValue = !this._reverse ? 
-        this._min + newValue :
-        this._max - newValue;
-
-        newValue = this.findClosestStep(newValue, this.getOptions());
-
-        if ( !this._range ) {
-            this._value = newValue;
-
-        } else {
-
-            let isFirstInRange: boolean;
-            isFirstInRange = index == 0 && !this._reverse;
-            isFirstInRange = isFirstInRange || index == 1 && this._reverse;
-
-            if (isFirstInRange) {
-
-                newValue = Math.min(newValue, this._range[1]);
-                this._range[0] = newValue;
-
-            } else {
-                newValue = Math.max(newValue, this._range[0]);
-                this._range[1] = newValue;
-            }
-        }
-    }
 }
 
 
