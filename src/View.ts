@@ -17,6 +17,8 @@ interface IView extends ISubject {
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
+    getLastUpdate(): string;
+    getNewIndent(): any;
 }
 
 class View extends Subject implements IView  {
@@ -37,8 +39,12 @@ class View extends Subject implements IView  {
 
     private _activeThumb: HTMLDivElement;
     private _warnings: IWarnings;
+    private _lastUpdate: string;
+    private _newIndent: any;
+
+    private _update: Function;
     
-    constructor(options: IOptions, sliderNode: HTMLDivElement) {
+    constructor(options: IOptions, sliderNode: HTMLDivElement, update: Function) {
 
         super();
 
@@ -49,31 +55,14 @@ class View extends Subject implements IView  {
         this._slider.classList.add('slider');
 
         this.build(options)
+
+        this._update = update;
     }
 
-
-    public update(config: any): void {
-
-        switch (config.type) {
-
-            case 'NEW_VALUE':
-
-                this.setThumbs(config.options);
-                this.setBarPosition();
-                if (this._tooltip || this._tooltipFirst) {
-                    this.setTooltipValues(config.options);
-                }
-                break;
-
-            case 'NEW_DATA':
-
-                config.options = Object.assign({}, this.getOptions(), config.options);
-
-                this.validate(config.options);
-                this.rebuild(config.options);
-                break;
-        }
+    update(action) {
+        this._update(action);
     }
+
 
     public getOptions(): IViewOptions {
         let tooltip = !!this._tooltip || !!this._tooltipFirst;
@@ -89,6 +78,14 @@ class View extends Subject implements IView  {
 
     public getWarnings(): IWarnings {
         return Object.assign({}, this._warnings);
+    }
+
+    public getLastUpdate(): string {
+        return this._lastUpdate;
+    }
+
+    getNewIndent() {
+        return this._newIndent;
     }
 
 
@@ -121,11 +118,18 @@ class View extends Subject implements IView  {
         newThumbPosition = (eventPos - offset) / length * 100;
         index = this._activeThumb == this._thumbLast ? 1 : 0;
 
-        this.notify({
+        this._newIndent = {
+            index,
+            percent: newThumbPosition
+        }
+        this._lastUpdate = 'NEW_POSITION';
+        this.notify();
+
+/*         this.notify({
             type: 'NEW_VALUE_IN_PERCENT',
             index: index,
             percent: newThumbPosition
-        });
+        }); */
     }
 
     private handleSliderClick(event): void {
@@ -157,11 +161,18 @@ class View extends Subject implements IView  {
             index = isFirstCloser ? 0 : 1;
         }
 
-        this.notify({
+        this._newIndent = {
+            index,
+            percent: newThumbPosition
+        };
+        this._lastUpdate = 'NEW_POSITION';
+        this.notify();
+
+/*         this.notify({
             type: 'NEW_VALUE_IN_PERCENT',
             index: index,
             percent: newThumbPosition
-        });
+        }); */
     }
 
     private handleThumbUp(event): void {
@@ -245,7 +256,7 @@ class View extends Subject implements IView  {
         this._warnings = {};
         this._warnings = validateView(options);
 
-        if ( Object.keys(this._warnings).length != 0 ) {
+/*         if ( Object.keys(this._warnings).length != 0 ) {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
@@ -253,7 +264,7 @@ class View extends Subject implements IView  {
                 type: 'WARNINGS',
                 warnings: warnings
             })
-        }
+        } */
     }
 
     private buildThumbs(options: IOptions): void {
@@ -268,9 +279,11 @@ class View extends Subject implements IView  {
     }
 
     private setThumbs(options: IOptions): void {
+        
         let pos: string;
 
         if ( !options.range ) {
+
             pos = this.findThumbPosition(options.value, options);
             this.setThumbPosition(this._thumb, pos);
 

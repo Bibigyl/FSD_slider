@@ -46,15 +46,10 @@ import { IConfig } from './Observer';
     },
 
     update: function (options: IOptions): void {
-      return this.each(function () {
-        let config: IConfig = {
-          type: 'NEW_DATA',
-          options: options
-        }
 
-        $(this).data('sliderData').presenter.update(config);
-
-      });
+      let presenter = $(this).data('sliderData').presenter;
+      presenter.setLastUpdate('NEW_OUTER_OPTIONS');
+      presenter.update(options);
     },
 
     destroy: function (): void {
@@ -66,7 +61,6 @@ import { IConfig } from './Observer';
         $(window).unbind('.slider');
         data.slider.remove();
         $this.removeData('sliderData');
-
       });
     },
 

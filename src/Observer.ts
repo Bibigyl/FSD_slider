@@ -8,9 +8,13 @@ interface ISubject {
     attach(callback: any): void;
     detach(callback: any): void;
     notify(config: any): void;
+
+    //getLastUpdate(): string;
 }
 
 class Subject implements ISubject {
+
+    //constructor()
     protected callbacks: any[] = [];
 
     public attach(callback: Function): void {
@@ -22,9 +26,9 @@ class Subject implements ISubject {
         this.callbacks.splice(callbackIndex, 1);
     }
 
-    public notify(config: any): void {
+    public notify(): void {
         for (const callback of this.callbacks) {
-            callback(config);
+            callback();
         }
     }
 }

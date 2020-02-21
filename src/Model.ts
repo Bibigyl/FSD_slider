@@ -19,6 +19,7 @@ interface IModel extends ISubject {
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
+    getLastUpdate(): string;
 }
 
 
@@ -32,8 +33,12 @@ class Model extends Subject implements IModel {
     private _reverse: boolean;
 
     private _warnings: IWarnings;
+    private _lastUpdate: string;
 
-    constructor(options: IModelOptions) {
+    private _update: Function;
+
+
+    constructor(options: IModelOptions, update: Function) {
 
         super();
 
@@ -43,10 +48,18 @@ class Model extends Subject implements IModel {
         this.validate(fullOptions);
         validOptions = this.normalize(fullOptions, defaultOptions);
         this.setOptions(validOptions);
+
+        this._update = update;
+    }
+
+    update(action) {
+        //console.log('222');
+        //console.dir(this._update);
+        this._update(action);
     }
 
     
-    public update(config: IConfig): void {
+/*     public update(config: IConfig): void {
 
         switch (config.type) {
 
@@ -79,7 +92,7 @@ class Model extends Subject implements IModel {
             default:
                 return;
         }
-    }
+    } */
 
     public getOptions(): IModelOptions {
         return {
@@ -95,6 +108,10 @@ class Model extends Subject implements IModel {
 
     public getWarnings(): IWarnings {
         return Object.assign({}, this._warnings);
+    }
+
+    public getLastUpdate(): string {
+        return this._lastUpdate;
     }
 
     private setOptions(options: IModelOptions): void {
@@ -116,10 +133,10 @@ class Model extends Subject implements IModel {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-            this.notify({
+/*             this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
-            })
+            }) */
         }
     }
 

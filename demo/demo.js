@@ -3,20 +3,22 @@ $(document).ready( function() {
     $('#slider1').slider({
         min: 0,
         max: 15,
-        value: 5,
+        //value: 5,
+        //range: [1, 2],
         step: 1,
         length: '400px',
         scale: true,
         tooltip: true,
     });
 
-/*     $('#slider1').slider('update', {
-        value: 6
-    })
     $('#slider1').slider('update', {
+        value: 25
+    })
+
+/*     $('#slider1').slider('update', {
         value: 11
     }) */
-
+/* 
 
     $('.demo').each(function() {
         let demo = $(this);
@@ -215,7 +217,7 @@ $(document).ready( function() {
 
         });
     });
-
+ */
 
 });
 
