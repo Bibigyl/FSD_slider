@@ -5,7 +5,7 @@ $(document).ready( function() {
         max: 15,
         value: 5,
         step: 1,
-        length: '400px',
+        length: '100%',
         scale: true,
         tooltip: true,
     });

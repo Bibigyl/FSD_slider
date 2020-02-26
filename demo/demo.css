@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 70px auto;
 }
@@ -49,7 +53,8 @@ button {
 }
 
 .slider-wrap {
-    margin: 70px auto;
+    margin: 70px 20px;
+    height: 150px;
 }
 
 .error {
