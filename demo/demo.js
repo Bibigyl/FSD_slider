@@ -1,8 +1,6 @@
 $(document).ready( function() {
 
     $('#slider1').slider({
-        min: 0,
-        max: 15,
         value: 5,
         step: 1,
         length: '100%',
