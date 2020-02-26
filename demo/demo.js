@@ -140,14 +140,14 @@ $(document).ready( function() {
             });
         });
 
-        slider.slider('observe', function(config) {
+        slider.slider('observe', function(message) {
 
             let name;
             let opt;
             let val;
 
-            if ( config.type == 'NEW_VALUE' || config.type == 'NEW_DATA' ) {
-                let options = config.options;
+            if ( message.type == 'NEW_VALUE' || message.type == 'NEW_DATA' ) {
+                let options = message.options;
 
                 demo.find('.option').each(function() {
 
@@ -191,15 +191,15 @@ $(document).ready( function() {
             }
 
 
-            if ( config.type == 'WARNINGS' ) {
+            if ( message.type == 'WARNINGS' ) {
 
                 let error = demo.find('.error');
                 error.text('');
 
                 clearTimeout(timeout);
 
-                for ( let key in config.warnings ) {
-                    error.append('<p>' + config.warnings[key] + '</p>')
+                for ( let key in message.warnings ) {
+                    error.append('<p>' + message.warnings[key] + '</p>')
                 }
                 //block.find('.error span').text(e);
                 error.removeAttr('hidden');

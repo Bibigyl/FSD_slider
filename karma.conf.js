@@ -17,7 +17,7 @@
 // Karma configuration
 // Generated on Sun Jun 23 2019 11:58:21 GMT-0700 (Pacific Daylight Time)
 
-const webpackConfig = require('./webpack.dev.config');
+const webpackconfig = require('./webpack.dev.config');
 
 module.exports = function(config) {
     config.set({
@@ -41,9 +41,9 @@ module.exports = function(config) {
             'test/**/*.js': ['webpack'],
         },
         webpack: {
-            module: webpackConfig.module,
-            resolve: webpackConfig.resolve,
-            mode: webpackConfig.mode,
+            module: webpackconfig.module,
+            resolve: webpackconfig.resolve,
+            mode: webpackconfig.mode,
             devtool: 'inline-source-map',
         },
 

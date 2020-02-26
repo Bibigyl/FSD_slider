@@ -4,32 +4,32 @@ import { IOptions } from "./defaultOptions";
 import { IWarnings } from "./validations";
 
 
-interface ISubject {
-    attach(callback: any): void;
-    detach(callback: any): void;
-    notify(config: any): void;
+interface IObservable {
+    subscribe(listener: any): void;
+    //detach(listener: any): void;
+    emit(message: any): void;
 }
 
-class Subject implements ISubject {
-    protected callbacks: any[] = [];
+class Observable implements IObservable {
+    protected listeners: any[] = [];
 
-    public attach(callback: Function): void {
-        this.callbacks.push(callback);
+    public subscribe(listener: Function): void {
+        this.listeners.push(listener);
     }
 
-    public detach(callback: Function): void {
-        const callbackIndex: number = this.callbacks.indexOf(callback);
-        this.callbacks.splice(callbackIndex, 1);
-    }
+/*     public detach(listener: Function): void {
+        const listenerIndex: number = this.listeners.indexOf(listener);
+        this.listeners.splice(listenerIndex, 1);
+    } */
 
-    public notify(config: any): void {
-        for (const callback of this.callbacks) {
-            callback(config);
+    public emit(message: any): void {
+        for (const listener of this.listeners) {
+            listener(message);
         }
     }
 }
 
-interface IConfig {
+interface IMessage {
     type: string,
     // ???????????????????????
     //options?: IModelOptions | IViewOptions | IOptions,
@@ -40,7 +40,7 @@ interface IConfig {
 }
 
 
-export { ISubject, Subject, IConfig };
+export { IObservable, Observable, IMessage };
 
 
 
@@ -53,22 +53,22 @@ export { ISubject, Subject, IConfig };
 import { IOptions } from "./defaultOptions";
 
 //Интферфейс издателя объявляет набор методов для управлениями подпискичами.
-interface ISubject {
+interface IObservable {
 
     // Присоединяет наблюдателя к издателю.
-    attach(observer: any): void;
+    subscribe(observer: any): void;
 
     // Отсоединяет наблюдателя от издателя.
     detach(observer: any): void;
 
     // Уведомляет всех наблюдателей о событии.
-    notify(config: any): void;
+    emit(message: any): void;
 }
 
-class Subject implements ISubject {
+class Observable implements IObservable {
     protected observers: any[] = [];
 
-    attach(observer: any): void {
+    subscribe(observer: any): void {
         this.observers.push(observer);
     }
 
@@ -77,7 +77,7 @@ class Subject implements ISubject {
         this.observers.splice(observerIndex, 1);
     }
 
-    notify() {
+    emit() {
         for (const observer of this.observers) {
             observer.update(this);
         }
@@ -104,5 +104,5 @@ class OuterObserver implements IOuterObserver {
 
 
 
-export { ISubject, Subject};
+export { IObservable, Observable};
 export { IOuterObserver, OuterObserver} */

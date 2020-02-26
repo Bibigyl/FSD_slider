@@ -8,17 +8,17 @@ document.getElementsByTagName("head")[0].appendChild(ss);
 import Model, { IModel } from '../src/Model';
 import View, { IView } from '../src/View';
 import Presenter from '../src/Presenter';
-import Subject from '../src/Observer';
+import Observable from '../src/Observer';
 import { defaultOptions } from '../src/defaultOptions';
 import IOptions from '../src/defaultOptions';
-import { ISubject } from '../src/Observer';
+import { IObservable } from '../src/Observer';
 
 
 let sliderNode: HTMLDivElement;
 let testNode: HTMLDivElement;
 let view: IView;
 let model: IModel;
-let subject: ISubject;
+let Observable: IObservable;
 let presenter;
 let testOptions: IOptions;
 
@@ -33,8 +33,8 @@ beforeEach( function() {
     document.body.append(sliderNode);
     model = new Model(defaultOptions);
     view = new View(model, defaultOptions, sliderNode);
-    subject = new Subject( model.getVal() || model.getRange() );
-    presenter = new Presenter(model, view, subject);
+    Observable = new Observable( model.getVal() || model.getRange() );
+    presenter = new Presenter(model, view, Observable);
 });
 afterEach( function() {
     //view = null;
@@ -120,7 +120,7 @@ describe('Mousedown, mousemove, mouseup on thumb', function() {
 
         model = new Model(testOptions);
         view = new View(model, testOptions, testNode);
-        presenter = new Presenter(model, view, subject);
+        presenter = new Presenter(model, view, Observable);
 
     
         thumbOnDown = new MouseEvent("mousedown", {
@@ -209,7 +209,7 @@ describe('Click on slider', function() {
 
         model = new Model(testOptions);
         view = new View(model, testOptions, testNode);
-        presenter = new Presenter(model, view, subject);
+        presenter = new Presenter(model, view, Observable);
 
         sliderOnClick = new MouseEvent("click", {
             bubbles: true,

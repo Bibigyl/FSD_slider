@@ -1,18 +1,19 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 import Model, { IModel, IModelOptions } from './Model';
 import View, { IView } from './View';
-import { ISubject, Subject }  from './Observer';
+import { IObservable, Observable }  from './Observer';
 import { IWarnings } from './validations';
 
-interface IPresenter extends ISubject {
+
+interface IPresenter extends IObservable {
     //data(): IOptions;
-    update(config: any): void;
+    update(message: any): void;
 
     getOptions(): IOptions;
     getWarnings(): IWarnings;
 }
 
-class Presenter extends Subject implements IPresenter {
+class Presenter extends Observable implements IPresenter {
 
     private _model: IModel;
     private _view: IView;
@@ -30,32 +31,32 @@ class Presenter extends Subject implements IPresenter {
 
         let that = this;
 
-        this._model.attach(function(config: any): void {
-            that._view.update(config);
-            that.notify(config);
+        this._model.subscribe(function(message: any): void {
+            that._view.update(message);
+            that.emit(message);
         });
 
-        this._view.attach(function(config: any): void {
-            that._model.update(config);
-            that.notify(config);
+        this._view.subscribe(function(message: any): void {
+            that._model.update(message);
+            that.emit(message);
         });
     }
 
 
-    public update(config: any): void {
+    public update(message: any): void {
 
         let options: IOptions;
         let warnings: IWarnings;
 
 
-        this._model.update(config);
+        this._model.update(message);
 
-        config.options = Object.assign(config.options, this._model.getOptions());
+        message.options = Object.assign(message.options, this._model.getOptions());
 
-        this._view.update(config);
+        this._view.update(message);
 
         options = this.getOptions();
-        this.notify({
+        this.emit({
             type: 'NEW_DATA',
             options: options
         });
@@ -63,7 +64,7 @@ class Presenter extends Subject implements IPresenter {
         warnings = this.getWarnings();
         if ( Object.keys(warnings).length != 0 ) {
             //console.log('!!!!!')
-            this.notify({
+            this.emit({
                 type: 'WARNINGS',
                 warnings: warnings
             });            
@@ -71,7 +72,7 @@ class Presenter extends Subject implements IPresenter {
     }
 
 
-/*     update(config: any): void {
+/*     update(message: any): void {
 
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
@@ -79,14 +80,14 @@ class Presenter extends Subject implements IPresenter {
         let modelOptions: string[] = ['value', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
 
         modelOptions.forEach(function(item) {
-            if ( config.options.hasOwnProperty(item) ) {
+            if ( message.options.hasOwnProperty(item) ) {
                 isModelUpdated = true;
                 return;
             }
         });
 
         if (isModelUpdated) { 
-            this._model.update(config);
+            this._model.update(message);
             isViewUpdated = true;
         }
 
@@ -94,20 +95,20 @@ class Presenter extends Subject implements IPresenter {
         let viewOptions: string[] = ['length', 'vertical', 'tooltip', 'scale'];
 
         viewOptions.forEach(function(item) {
-            if ( config.options.hasOwnProperty(item) ) {
+            if ( message.options.hasOwnProperty(item) ) {
                 isViewUpdated = true;
                 return;
             }
         });
 
         if (isViewUpdated) {
-            config.options = Object.assign(config.options, this._model.getOptions());
-            this._view.update(config);
-            config.options = this.getOptions()
+            message.options = Object.assign(message.options, this._model.getOptions());
+            this._view.update(message);
+            message.options = this.getOptions()
         }
 
         if (isModelUpdated || isViewUpdated) {
-            //this.notify(config);
+            //this.emit(message);
         }
     } */
 

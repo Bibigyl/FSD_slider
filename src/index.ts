@@ -2,7 +2,7 @@ import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
-import { IConfig } from './Observer';
+import { IMessage } from './Observer';
 //import { IOuterObserver, OuterObserver } from './Observer';
 
 (function ($) {
@@ -47,12 +47,12 @@ import { IConfig } from './Observer';
 
     update: function (options: IOptions): void {
       return this.each(function () {
-        let config: IConfig = {
+        let message: IMessage = {
           type: 'NEW_DATA',
           options: options
         }
 
-        $(this).data('sliderData').presenter.update(config);
+        $(this).data('sliderData').presenter.update(message);
 
       });
     },
@@ -70,10 +70,10 @@ import { IConfig } from './Observer';
       });
     },
 
-    observe: function (callback: Function): void {
+    observe: function (listener: Function): void {
 
       let presenter = $(this).data('sliderData').presenter;
-      presenter.attach(callback);
+      presenter.subscribe(listener);
     }
   }
 
@@ -98,8 +98,6 @@ import { IConfig } from './Observer';
 })(jQuery);
 
 
-//let test = document.querySelector('.test') as HTMLDivElement;
-
 
 //let pres = new Presenter(defaultOptions, test);
 
@@ -117,15 +115,15 @@ import { IConfig } from './Observer';
   scale: true
 });
 
-$('.test').slider('observe', function(config) {
-  if (config.options && config.options.range) {
-    $('.input').val(config.options.range);
+$('.test').slider('observe', function(message) {
+  if (message.options && message.options.range) {
+    $('.input').val(message.options.range);
   }
 
-  if (config.type == 'WARNINGS') {
+  if (message.type == 'WARNINGS') {
 
-    for ( let key in config.warnings ) {
-      $('.wars').append('<p>' + config.warnings[key] + '</p>')
+    for ( let key in message.warnings ) {
+      $('.wars').append('<p>' + message.warnings[key] + '</p>')
     }
 
   }

@@ -1,8 +1,9 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 //import { IModel, IModelOptions } from './Model';
-import { ISubject, Subject } from './Observer';
+import { IObservable, Observable } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IWarnings } from './validations';
+import { IModel, IModelOptions } from './Model';
 
 
 interface IViewOptions {
@@ -12,14 +13,14 @@ interface IViewOptions {
     scale: boolean;
 }
 
-interface IView extends ISubject {
-    update(config: any): void;
+interface IView extends IObservable {
+    update(message: any): void;
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
 }
 
-class View extends Subject implements IView  {
+class View extends Observable implements IView  {
     [x: string]: any;
 
     private _length: string;
@@ -52,28 +53,45 @@ class View extends Subject implements IView  {
     }
 
 
-    public update(config: any): void {
+    public update(message: any): void {
 
-        switch (config.type) {
+        switch (message.type) {
 
             case 'NEW_VALUE':
 
-                this.setThumbs(config.options);
+                this.setThumbs(message.options);
                 this.setBarPosition();
                 if (this._tooltip || this._tooltipFirst) {
-                    this.setTooltipValues(config.options);
+                    this.setTooltipValues(message.options);
                 }
                 break;
 
             case 'NEW_DATA':
 
-                config.options = Object.assign({}, this.getOptions(), config.options);
+                message.options = Object.assign({}, this.getOptions(), message.options);
 
-                this.validate(config.options);
-                this.rebuild(config.options);
+                this.validate(message.options);
+                this.rebuild(message.options);
                 break;
         }
     }
+
+/*     public update(options: IOptions): void {
+        this.setThumbs(options);
+        this.setBarPosition();
+        if (this._tooltip || this._tooltipFirst) {
+            this.setTooltipValues(options);
+        }
+    }
+
+    public rerender(options: IOptions): void {
+        options = Object.assign({}, this.getOptions(), options);
+
+        this.validate(options);
+        this.rebuild(options);
+    } */
+
+
 
     public getOptions(): IViewOptions {
         let tooltip = !!this._tooltip || !!this._tooltipFirst;
@@ -121,7 +139,7 @@ class View extends Subject implements IView  {
         newThumbPosition = (eventPos - offset) / length * 100;
         index = this._activeThumb == this._thumbLast ? 1 : 0;
 
-        this.notify({
+        this.emit({
             type: 'NEW_VALUE_IN_PERCENT',
             index: index,
             percent: newThumbPosition
@@ -157,7 +175,7 @@ class View extends Subject implements IView  {
             index = isFirstCloser ? 0 : 1;
         }
 
-        this.notify({
+        this.emit({
             type: 'NEW_VALUE_IN_PERCENT',
             index: index,
             percent: newThumbPosition
@@ -249,7 +267,7 @@ class View extends Subject implements IView  {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-            this.notify({
+            this.emit({
                 type: 'WARNINGS',
                 warnings: warnings
             })

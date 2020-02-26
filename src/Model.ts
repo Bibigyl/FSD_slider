@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { ISubject, Subject, IConfig } from './Observer';
+import { IObservable, Observable, IMessage } from './Observer';
 import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
 import { validateModel, IWarnings } from './validations';
 
@@ -14,15 +14,15 @@ interface IModelOptions {
     reverse: boolean;
 }
 
-interface IModel extends ISubject {
-    update(config: IConfig): void;
+interface IModel extends IObservable {
+    update(message: IMessage): void;
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
 }
 
 
-class Model extends Subject implements IModel {
+class Model extends Observable implements IModel {
     private _value: number | null;
     private _min: number;
     private _max: number;   
@@ -46,15 +46,15 @@ class Model extends Subject implements IModel {
     }
 
     
-    public update(config: IConfig): void {
+    public update(message: IMessage): void {
 
-        switch (config.type) {
+        switch (message.type) {
 
             case 'NEW_VALUE_IN_PERCENT':
 
-                this.setValueByPercent(config.percent, config.index);
+                this.setValueByPercent(message.percent, message.index);
 
-                this.notify({ 
+                this.emit({ 
                     type: 'NEW_VALUE',
                     options: this.getOptions()
                 });
@@ -63,13 +63,13 @@ class Model extends Subject implements IModel {
             case 'NEW_DATA':
 
                 let prevOptions = this.getOptions();
-                this.validate(Object.assign({}, prevOptions, config.options))
-                let validOptions: IModelOptions = this.normalize(config.options, prevOptions);
+                this.validate(Object.assign({}, prevOptions, message.options))
+                let validOptions: IModelOptions = this.normalize(message.options, prevOptions);
 
                 if ( !deepEqual(prevOptions, validOptions) ) {
                     this.setOptions(validOptions);
 
-                    this.notify({
+                    this.emit({
                         type: 'NEW_DATA',
                         options: this.getOptions()
                     });
@@ -80,6 +80,17 @@ class Model extends Subject implements IModel {
                 return;
         }
     }
+
+/*     public update(options: IModelOptions): void {
+        let prevOptions = this.getOptions();
+        this.validate(Object.assign({}, prevOptions, options))
+        let validOptions: IModelOptions = this.normalize(options, prevOptions);
+        this.setOptions(validOptions);
+    } */
+
+
+
+    
 
     public getOptions(): IModelOptions {
         return {
@@ -116,7 +127,7 @@ class Model extends Subject implements IModel {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-            this.notify({
+            this.emit({
                 type: 'WARNINGS',
                 warnings: warnings
             })
