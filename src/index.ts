@@ -47,12 +47,13 @@ import { IMessage } from './Observer';
 
     update: function (options: IOptions): void {
       return this.each(function () {
-        let message: IMessage = {
+/*         let message: IMessage = {
           type: 'NEW_DATA',
           options: options
-        }
+        } */
 
-        $(this).data('sliderData').presenter.update(message);
+        //$(this).data('sliderData').presenter.update(message);
+        $(this).data('sliderData').presenter.update(options);
 
       });
     },

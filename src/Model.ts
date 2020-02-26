@@ -15,7 +15,9 @@ interface IModelOptions {
 }
 
 interface IModel extends IObservable {
-    update(message: IMessage): void;
+    //update(message: IMessage): void;
+    update(options: IModelOptions): void;
+    setValueByPercent(percent: number, index: number): void;
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
@@ -46,7 +48,7 @@ class Model extends Observable implements IModel {
     }
 
     
-    public update(message: IMessage): void {
+/*     public update(message: IMessage): void {
 
         switch (message.type) {
 
@@ -79,18 +81,55 @@ class Model extends Observable implements IModel {
             default:
                 return;
         }
-    }
+    } */
 
-/*     public update(options: IModelOptions): void {
+    public update(options: IModelOptions): void {
         let prevOptions = this.getOptions();
         this.validate(Object.assign({}, prevOptions, options))
         let validOptions: IModelOptions = this.normalize(options, prevOptions);
         this.setOptions(validOptions);
-    } */
+    }
+
+
+    public setValueByPercent(percent: number, index: number): void {
+
+        let newValue: number;
+
+        newValue = percent * (this._max - this._min) / 100;
+        newValue = !this._reverse ? 
+        this._min + newValue :
+        this._max - newValue;
+
+        newValue = this.findClosestStep(newValue, this.getOptions());
+
+        if ( !this._range ) {
+            this._value = newValue;
+
+        } else {
+
+            let isFirstInRange: boolean;
+            isFirstInRange = index == 0 && !this._reverse;
+            isFirstInRange = isFirstInRange || index == 1 && this._reverse;
+
+            if (isFirstInRange) {
+
+                newValue = Math.min(newValue, this._range[1]);
+                this._range[0] = newValue;
+
+            } else {
+                newValue = Math.max(newValue, this._range[0]);
+                this._range[1] = newValue;
+            }
+        }
+
+        this.emit({ 
+            type: 'NEW_VALUE',
+            options: this.getOptions()
+        });
+    }
 
 
 
-    
 
     public getOptions(): IModelOptions {
         return {
@@ -234,38 +273,6 @@ class Model extends Observable implements IModel {
         return step;
     }
 
-
-    private setValueByPercent(percent: number, index: number): void {
-
-        let newValue: number;
-
-        newValue = percent * (this._max - this._min) / 100;
-        newValue = !this._reverse ? 
-        this._min + newValue :
-        this._max - newValue;
-
-        newValue = this.findClosestStep(newValue, this.getOptions());
-
-        if ( !this._range ) {
-            this._value = newValue;
-
-        } else {
-
-            let isFirstInRange: boolean;
-            isFirstInRange = index == 0 && !this._reverse;
-            isFirstInRange = isFirstInRange || index == 1 && this._reverse;
-
-            if (isFirstInRange) {
-
-                newValue = Math.min(newValue, this._range[1]);
-                this._range[0] = newValue;
-
-            } else {
-                newValue = Math.max(newValue, this._range[0]);
-                this._range[1] = newValue;
-            }
-        }
-    }
 }
 
 

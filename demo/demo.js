@@ -142,11 +142,17 @@ $(document).ready( function() {
 
         slider.slider('observe', function(message) {
 
+            let error = demo.find('.error');
+            error.text('');
+            error.attr('hidden', '');
+            clearTimeout(timeout);
+
             let name;
             let opt;
             let val;
 
             if ( message.type == 'NEW_VALUE' || message.type == 'NEW_DATA' ) {
+
                 let options = message.options;
 
                 demo.find('.option').each(function() {
@@ -155,7 +161,6 @@ $(document).ready( function() {
                     name = opt.attr('name');
     
                     if (opt.hasAttr('disabled')) { return };
-
                     if (!options.hasOwnProperty(name)) { return };
     
                     if (opt.attr('type') == 'checkbox') {
@@ -167,7 +172,7 @@ $(document).ready( function() {
                         }
     
                     } else {
-    
+                        
                         opt.val(options[name]);
                     }
                 });
@@ -193,15 +198,9 @@ $(document).ready( function() {
 
             if ( message.type == 'WARNINGS' ) {
 
-                let error = demo.find('.error');
-                error.text('');
-
-                clearTimeout(timeout);
-
                 for ( let key in message.warnings ) {
                     error.append('<p>' + message.warnings[key] + '</p>')
                 }
-                //block.find('.error span').text(e);
                 error.removeAttr('hidden');
         
                 timeout = setTimeout(function() {

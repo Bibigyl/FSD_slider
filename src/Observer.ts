@@ -4,6 +4,11 @@ import { IOptions } from "./defaultOptions";
 import { IWarnings } from "./validations";
 
 
+type ModelMessage = {type: 'NEW_VALUE', options: IModelOptions};
+type ViewMessage = {type: 'NEW_POSITION', index: number, percent: number};
+type PresenterMessage = {type: 'NEW_DATA', options: IOptions};
+
+
 interface IObservable {
     subscribe(listener: any): void;
     //detach(listener: any): void;
@@ -11,7 +16,7 @@ interface IObservable {
 }
 
 class Observable implements IObservable {
-    protected listeners: any[] = [];
+    protected listeners: Function[] = [];
 
     public subscribe(listener: Function): void {
         this.listeners.push(listener);
@@ -22,12 +27,13 @@ class Observable implements IObservable {
         this.listeners.splice(listenerIndex, 1);
     } */
 
-    public emit(message: any): void {
+    public emit(message: IMessage): void {
         for (const listener of this.listeners) {
             listener(message);
         }
     }
 }
+
 
 interface IMessage {
     type: string,

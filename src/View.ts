@@ -14,7 +14,9 @@ interface IViewOptions {
 }
 
 interface IView extends IObservable {
-    update(message: any): void;
+    //update(message: any): void;
+    update(options: IOptions): void;
+    rerender(options: IOptions): void;
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
@@ -53,7 +55,7 @@ class View extends Observable implements IView  {
     }
 
 
-    public update(message: any): void {
+/*     public update(message: any): void {
 
         switch (message.type) {
 
@@ -74,9 +76,9 @@ class View extends Observable implements IView  {
                 this.rebuild(message.options);
                 break;
         }
-    }
+    } */
 
-/*     public update(options: IOptions): void {
+    public update(options: IOptions): void {
         this.setThumbs(options);
         this.setBarPosition();
         if (this._tooltip || this._tooltipFirst) {
@@ -89,7 +91,7 @@ class View extends Observable implements IView  {
 
         this.validate(options);
         this.rebuild(options);
-    } */
+    }
 
 
 
@@ -140,7 +142,7 @@ class View extends Observable implements IView  {
         index = this._activeThumb == this._thumbLast ? 1 : 0;
 
         this.emit({
-            type: 'NEW_VALUE_IN_PERCENT',
+            type: 'NEW_POSITION',
             index: index,
             percent: newThumbPosition
         });
@@ -176,7 +178,7 @@ class View extends Observable implements IView  {
         }
 
         this.emit({
-            type: 'NEW_VALUE_IN_PERCENT',
+            type: 'NEW_POSITION',
             index: index,
             percent: newThumbPosition
         });
