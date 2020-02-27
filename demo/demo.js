@@ -208,8 +208,6 @@ $(document).ready( function() {
         
                 return timeout;
             }
-
-
         });
     });
 

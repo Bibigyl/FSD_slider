@@ -100,7 +100,7 @@ class Model extends Observable implements IModel {
         this._min + newValue :
         this._max - newValue;
 
-        newValue = this.findClosestStep(newValue, this.getOptions());
+        newValue = this.findClosestValue(newValue, this.getOptions());
 
         if ( !this._range ) {
             this._value = newValue;
@@ -210,7 +210,7 @@ class Model extends Observable implements IModel {
 
         if ( !options.range ) {
             options.value = this.normalizeNumber(options.value, options.min);
-            options.value = this.findClosestStep(options.value, options)
+            options.value = this.findClosestValue(options.value, options)
             options.range = null;
 
         } else {
@@ -229,8 +229,8 @@ class Model extends Observable implements IModel {
                     return a - b;
                 });  
             }
-            options.range[0] = this.findClosestStep(options.range[0], options);
-            options.range[1] = this.findClosestStep(options.range[1], options);
+            options.range[0] = this.findClosestValue(options.range[0], options);
+            options.range[1] = this.findClosestValue(options.range[1], options);
             options.value = null;
         }
 
@@ -249,30 +249,31 @@ class Model extends Observable implements IModel {
     }
 
 
-    private findClosestStep(value: number, options: IModelOptions): number {
-        let step: number;
-        let ceilSteps: number;
-        let restOfStep: number;
+    private findClosestValue(value: number, options: IModelOptions): number {
+        let prevValue: number;
+        let nextValue: number;
+        let { min, max, step, reverse } = options;
+        
+        if (value <= min) { return min };
+        if (value >= max) { return max };
 
-        if ( !options.reverse ) {
-            ceilSteps = Math.trunc( (value - options.min) / options.step );
-            restOfStep = (value - options.min) % options.step;
-            step = options.min + ceilSteps * options.step;
-            step = restOfStep >= options.step/2 ? step + options.step : step;
+        if (!reverse) {
+            prevValue = Math.trunc( (value - min) / step ) * step;
+            nextValue = Math.trunc( (value - min) / step ) * step + step;
+
+            nextValue = nextValue < max ? nextValue : max;
+            value = value < prevValue + (nextValue - prevValue) / 2 ? prevValue : nextValue;
 
         } else {
-            ceilSteps = Math.trunc( (options.max - value) / options.step );
-            restOfStep = (options.max - value) % options.step;
-            step = options.max - ceilSteps * options.step;
-            step = restOfStep >= options.step/2 ? step - options.step : step;
+            prevValue = max - Math.trunc( (max - value) / step ) * step - step;
+            nextValue = max - Math.trunc( (max - value) / step ) * step;
+
+            prevValue = prevValue > min ? prevValue : min;
+            value = value < nextValue - (nextValue - prevValue) / 2 ? prevValue : nextValue;
         }
 
-        step = step > options.max ? options.max : step;
-        step = step < options.min ? options.min : step;
-
-        return step;
+        return value;
     }
-
 }
 
 

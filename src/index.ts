@@ -102,20 +102,13 @@ import { IMessage } from './Observer';
 
 //let pres = new Presenter(defaultOptions, test);
 
-/* $('.test').slider({
-  //value: 0,
-  //min: -7.6666,
-  range: 'hjk,',
-  //reverse: true,
-  //customValues: ['a', 'b', 'c', 'd'],
-  step: 'hg',
-  value: 'vxnxm',
-  min: 'fdgvhxjk',
-  max: 17.5,
+ $('.test').slider({
+  step: 9,
   tooltip: true,
-  scale: true
+  scale: true,
+  reverse: true
 });
-
+/*
 $('.test').slider('observe', function(message) {
   if (message.options && message.options.range) {
     $('.input').val(message.options.range);

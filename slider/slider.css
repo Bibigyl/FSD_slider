@@ -7,6 +7,7 @@
     margin: 40px;
     position: relative;
 }
+
 .slider__thumb {
     position: absolute;
     width: 20px;
@@ -17,14 +18,17 @@
     opacity: .3;
     overflow: visible;
 }
+
 .slider_horizontal .slider__thumb {
     top: -6px;
     transform: translateX(-50%);
 }
+
 .slider_vertical .slider__thumb {
     left: -6px;
     transform: translateY(-50%);
 }
+
 .slider__tooltip {
     width: fit-content;
     min-width: 22px;
@@ -38,58 +42,69 @@
     cursor: auto;
     white-space: nowrap;
 }
+
 .slider__tooltip::after {
     position: absolute;
     content: '';
     border-style: solid;
     border-width: 10px;
 }
+
 .slider_horizontal .slider__tooltip {
     transform: translateX(-50%);
     margin-left: 50%;
     max-width: 100px;
     margin-top: -34px;
 }
+
 .slider_horizontal .slider__tooltip::after {
     bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
     border-color: #333 #ffffff00 #ffffff00 #ffffff00;
 }
+
 .slider_vertical .slider__tooltip {
     transform: translateY(-50%);
     margin-top: 50%;
     max-width: 100px;
     margin-left: 34px;
 }
+
 .slider_vertical .slider__tooltip::after {
     left: -20px;
     top: 50%;
     transform: translateY(-50%);
     border-color: #ffffff00 #333 #ffffff00 #ffffff00;
 }
+
 .slider__scale {
     position: relative;
     height: 100%;
     width: 100%;
 }
+
 .slider__scale-division {
     position: absolute;
 }
+
 .slider__scale-division-text {
     color: #555;
     font-size: 14px;
     white-space: nowrap;
 }
+
 .slider__scale-division:last-child::before,
 .slider__scale-division:last-child::after,
 .slider__scale-division:first-child::before,
-.slider__scale-division:first-child::after   {
+.slider__scale-division:first-child::after {
     opacity: 0;
 }
+
 .slider_horizontal .slider__scale-division-text {
     margin-left: -50%;
 }
+
 .slider_horizontal .slider__scale-division::before {
     display: block;
     content: '';
@@ -98,11 +113,13 @@
     background-color: #ddd;
     margin-bottom: 5px;
 }
+
 .slider_vertical .slider__scale-division-text {
     position: absolute;
     left: 20px;
     top: -10px;
 }
+
 .slider_vertical .slider__scale-division::before {
     display: block;
     content: '';
@@ -110,6 +127,7 @@
     height: 1.2px;
     width: 10px;
 }
+
 .slider__bar {
     position: absolute;
     background-color: blue;
