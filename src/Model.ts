@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { IObservable, Observable, IMessage } from './Observer';
+import { IObservable, Observable, ModelMessage } from './Observer';
 import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
 import { validateModel, IWarnings } from './validations';
 
@@ -24,7 +24,7 @@ interface IModel extends IObservable {
 }
 
 
-class Model extends Observable implements IModel {
+class Model extends Observable<ModelMessage> implements IModel {
     private _begin: number | null;
     private _end: number | null;
     private _range: boolean;
@@ -54,16 +54,22 @@ class Model extends Observable implements IModel {
         this.validate(Object.assign({}, prevOptions, options))
         let validOptions: IModelOptions = this.normalize(options, prevOptions);
         this.setOptions(validOptions);
+
+        // можно убрать
+        this.notify({ 
+            type: 'NEW_DATA',
+            options: this.getOptions()
+        });
     }
 
 
-    
+
     public setEndByOffsetRacio(racio: number): void {
         let value: number = this.findValueByOffsetRacio(racio);
         if ( value < this._begin ) { value = this._begin }
         this._end = value;
 
-        this.emit({ 
+        this.notify({ 
             type: 'NEW_VALUE',
             options: this.getOptions()
         });
@@ -77,7 +83,7 @@ class Model extends Observable implements IModel {
         if ( value > this._end ) { value = this._end }
         this._begin = value;
 
-        this.emit({ 
+        this.notify({ 
             type: 'NEW_VALUE',
             options: this.getOptions()
         });
@@ -137,7 +143,7 @@ class Model extends Observable implements IModel {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-            this.emit({
+            this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
             })

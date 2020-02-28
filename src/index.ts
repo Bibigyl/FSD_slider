@@ -2,7 +2,7 @@ import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
-import { IMessage } from './Observer';
+import {  } from './Observer';
 //import { IOuterObserver, OuterObserver } from './Observer';
 
 (function ($) {

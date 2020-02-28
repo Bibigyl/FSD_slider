@@ -1,5 +1,5 @@
 import { IOptions, defaultOptions } from './defaultOptions';
-import { IObservable, Observable } from './Observer';
+import { IObservable, Observable, ViewMessage } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IWarnings } from './validations';
 import { IModel, IModelOptions } from './Model';
@@ -13,14 +13,14 @@ interface IViewOptions {
 }
 
 interface IView extends IObservable {
-    update(options: IOptions): void;
+    update(options: IModelOptions): void;
     rerender(options: IOptions): void;
 
     getOptions(): IViewOptions;
     getWarnings(): IWarnings;
 }
 
-class View extends Observable implements IView  {
+class View extends Observable<ViewMessage> implements IView  {
     [x: string]: any;
 
     private _length: string;
@@ -51,7 +51,7 @@ class View extends Observable implements IView  {
     }
 
 
-    public update(options: IOptions): void {
+    public update(options: IModelOptions): void {
         this.setThumbs(options);
         this.setBarPosition();
         if (this._tooltip || this._tooltipFirst) {
@@ -116,14 +116,14 @@ class View extends Observable implements IView  {
         
         if ( this._activeThumb == this._thumbLast ) {
 
-            this.emit({
+            this.notify({
                 type: 'LAST_THUMB_MOVED',
                 offsetRacio: newThumbPosition
             });
 
         } else {
 
-            this.emit({
+            this.notify({
                 type: 'FIRST_THUMB_MOVED',
                 offsetRacio: newThumbPosition
             });
@@ -166,14 +166,14 @@ class View extends Observable implements IView  {
 
         if ( isLastMoved ) {
 
-            this.emit({
+            this.notify({
                 type: 'LAST_THUMB_MOVED',
                 offsetRacio: newThumbPosition
             });
 
         } else {
 
-            this.emit({
+            this.notify({
                 type: 'FIRST_THUMB_MOVED',
                 offsetRacio: newThumbPosition
             });
@@ -263,7 +263,7 @@ class View extends Observable implements IView  {
 
             let warnings: IWarnings = Object.assign({}, this._warnings);
             
-            this.emit({
+            this.notify({
                 type: 'WARNINGS',
                 warnings: warnings
             })
@@ -286,7 +286,7 @@ class View extends Observable implements IView  {
         this.setThumbs(options);
     }
 
-    private setThumbs(options: IOptions): void {
+    private setThumbs(options: IModelOptions): void {
         let { begin, end, reverse } = options;
         let beginPosition: string = this.findThumbPosition(begin, options);
         let endPosition: string = this.findThumbPosition(end, options);
@@ -358,7 +358,7 @@ class View extends Observable implements IView  {
         this._scale = scale;
     }
 
-    private setTooltipValues(options: IOptions): void {
+    private setTooltipValues(options: IModelOptions): void {
         let { begin, end, reverse, customValues } = options;
         let beginValue = customValues ? customValues[begin] : begin;
         let endValue = customValues ? customValues[end] : end;
@@ -393,7 +393,7 @@ class View extends Observable implements IView  {
         }
     }
 
-    private findThumbPosition(value: number, options: IOptions): string {
+    private findThumbPosition(value: number, options: IModelOptions): string {
         let { min, max, reverse } = options;
         let pos: string;
         pos = !reverse ?

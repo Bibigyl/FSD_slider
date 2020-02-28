@@ -3,16 +3,67 @@ import { IViewOptions } from "./View";
 import { IOptions } from "./defaultOptions";
 import { IWarnings } from "./validations";
 
+// Messages
+type NewValue = {type: 'NEW_VALUE', options: IModelOptions};
+type NewData = {type: 'NEW_DATA', options: IModelOptions};
+type LastThumbMoved = {type: 'LAST_THUMB_MOVED', offsetRacio: number};
+type FirstThumbMoved = {type: 'FIRST_THUMB_MOVED', offsetRacio: number};
+type Warnings = {type: 'WARNINGS', warnings: IWarnings};
 
-type ModelMessage = {type: 'NEW_VALUE', options: IModelOptions};
-type ViewMessage = {type: 'NEW_POSITION', index: number, percent: number};
-type PresenterMessage = {type: 'NEW_DATA', options: IOptions};
+type ModelMessage = NewValue | NewData | Warnings;
+type ViewMessage = LastThumbMoved | FirstThumbMoved | Warnings;
 
 
+
+// Observe
+interface IObservable {
+    subscribe(listener: Function): void;
+    notify(...args: any): void;
+}
+
+
+type Fn<A, B> = (a: A) => B;
+
+class Observable<A> implements IObservable {
+    protected listeners: Fn<A, void>[] = [];
+
+    public subscribe(listener: Fn<A, void>): void {
+        this.listeners.push(listener);
+    }
+
+    public notify(message: A): void {
+        for (const listener of this.listeners) {
+            listener(message);
+        }
+    }
+}
+
+
+class ObservablePresenter implements IObservable {
+    protected listeners: Function[] = [];
+
+    public subscribe(listener: Function): void {
+        this.listeners.push(listener);
+    }
+
+    public notify(options?: IOptions, warnings?: IWarnings): void {
+        for (const listener of this.listeners) {
+            listener(options, warnings);
+        }
+    }
+}
+
+
+export { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter};
+
+
+
+/*
+// Observe
 interface IObservable {
     subscribe(listener: any): void;
     //detach(listener: any): void;
-    emit(message: any): void;
+    notify(message: any): void;
 }
 
 class Observable implements IObservable {
@@ -26,88 +77,10 @@ class Observable implements IObservable {
         const listenerIndex: number = this.listeners.indexOf(listener);
         this.listeners.splice(listenerIndex, 1);
     } */
-
-    public emit(message: IMessage): void {
+/*
+    public notify(message: IMessage): void {
         for (const listener of this.listeners) {
             listener(message);
         }
     }
-}
-
-
-interface IMessage {
-    type: string,
-    // ???????????????????????
-    //options?: IModelOptions | IViewOptions | IOptions,
-    options?: any,
-    offsetRacio?: number,
-    warnings?: IWarnings
-}
-
-
-export { IObservable, Observable, IMessage };
-
-
-
-
-
-
-
-
-/* 
-import { IOptions } from "./defaultOptions";
-
-//Интферфейс издателя объявляет набор методов для управлениями подпискичами.
-interface IObservable {
-
-    // Присоединяет наблюдателя к издателю.
-    subscribe(observer: any): void;
-
-    // Отсоединяет наблюдателя от издателя.
-    detach(observer: any): void;
-
-    // Уведомляет всех наблюдателей о событии.
-    emit(message: any): void;
-}
-
-class Observable implements IObservable {
-    protected observers: any[] = [];
-
-    subscribe(observer: any): void {
-        this.observers.push(observer);
-    }
-
-    detach(observer: any): void {
-        const observerIndex = this.observers.indexOf(observer);
-        this.observers.splice(observerIndex, 1);
-    }
-
-    emit() {
-        for (const observer of this.observers) {
-            observer.update(this);
-        }
-    }
-}
-
-
-interface IOuterObserver {
-    func: any;
-    update(options: IOptions): void;
-}
-
-class OuterObserver implements IOuterObserver {
-    func: any;
-
-    constructor(func: Function) {
-        this.func = func;
-    }
-
-    public update(options: IOptions): void {
-        this.func(options);
-    }
-}
-
-
-
-export { IObservable, Observable};
-export { IOuterObserver, OuterObserver} */
+}*/
