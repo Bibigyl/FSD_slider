@@ -99,40 +99,33 @@ import { IMessage } from './Observer';
 })(jQuery);
 
 
-let mod = new Model(Object.assign({}, defaultOptions, {
+/* let mod = new Model(Object.assign({}, defaultOptions, {
   begin: 5,
   end: 7,
   range: true
-}));
-mod.setEndByOffsetRacio(0.3454);
-console.log(mod);
+})); */
+//mod.setEndByOffsetRacio(0.3454);
+//console.log(mod.getOptions());
 
+/* let test = document.querySelector('.test') as HTMLDivElement;
+
+let view = new View(defaultOptions, test); */
 
 
 //let pres = new Presenter(defaultOptions, test);
 
-/*  $('.test').slider({
-  step: 9,
-  tooltip: true,
-  scale: true,
-  reverse: true
-}); */
+ $('.test').slider({
+   end: 6,
+   begin: 2,
+   step: 9,
+   tooltip: true,
+   scale: true,
+   range: true,
+   reverse: true
+ });
+
+
 /*
-$('.test').slider('observe', function(message) {
-  if (message.options && message.options.range) {
-    $('.input').val(message.options.range);
-  }
-
-  if (message.type == 'WARNINGS') {
-
-    for ( let key in message.warnings ) {
-      $('.wars').append('<p>' + message.warnings[key] + '</p>')
-    }
-
-  }
-
-})
-
 $('.test').slider('update', {
   min: 20,
   range: [3, 7],

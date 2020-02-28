@@ -4,22 +4,18 @@ import { isNumeric, getNumberOfSteps, deepEqual } from './commonFunctions';
 import { validateModel, IWarnings } from './validations';
 
 interface IModelOptions {
-    //[x: string]: any;
-    //value: number | null;
     begin: number;
     end: number;
     range: boolean;
     min: number;
     max: number;
     step: number;
-    //range: [number, number] | null;
     customValues?: string[];
     reverse: boolean;
 }
 
 interface IModel extends IObservable {
     update(options: IModelOptions): void;
-    //setValueByPercent(percent: number, index: number): void;
     setBeginByOffsetRacio(racio: number): void;
     setEndByOffsetRacio(racio: number): void
 
@@ -32,11 +28,9 @@ class Model extends Observable implements IModel {
     private _begin: number | null;
     private _end: number | null;
     private _range: boolean;
-    //private _value: number | null;
     private _min: number;
     private _max: number;   
     private _step: number;
-    //private _range: [number, number] | null;
     private _customValues?: string[] | undefined;
     private _reverse: boolean;
 
@@ -63,6 +57,7 @@ class Model extends Observable implements IModel {
     }
 
 
+    
     public setEndByOffsetRacio(racio: number): void {
         let value: number = this.findValueByOffsetRacio(racio);
         if ( value < this._begin ) { value = this._begin }
@@ -74,18 +69,20 @@ class Model extends Observable implements IModel {
         });
     }
 
+
     public setBeginByOffsetRacio(racio: number): void {
         if (!this._range) { return };
 
         let value: number = this.findValueByOffsetRacio(racio);
         if ( value > this._end ) { value = this._end }
         this._begin = value;
-        
+
         this.emit({ 
             type: 'NEW_VALUE',
             options: this.getOptions()
         });
     }
+
 
     private findValueByOffsetRacio(racio: number): number {
         let value: number;
@@ -100,50 +97,8 @@ class Model extends Observable implements IModel {
     }
 
 
-
-/*     public setValueByPercent(percent: number, index: number): void {
-
-        let newValue: number;
-
-        newValue = percent * (this._max - this._min) / 100;
-        newValue = !this._reverse ? 
-        this._min + newValue :
-        this._max - newValue;
-
-        newValue = this.findClosestValue(newValue, this.getOptions());
-
-        if ( !this._range ) {
-            this._value = newValue;
-
-        } else {
-
-            let isFirstInRange: boolean;
-            isFirstInRange = index == 0 && !this._reverse;
-            isFirstInRange = isFirstInRange || index == 1 && this._reverse;
-
-            if (isFirstInRange) {
-
-                newValue = Math.min(newValue, this._range[1]);
-                this._range[0] = newValue;
-
-            } else {
-                newValue = Math.max(newValue, this._range[0]);
-                this._range[1] = newValue;
-            }
-        }
-
-        this.emit({ 
-            type: 'NEW_VALUE',
-            options: this.getOptions()
-        });
-    } */
-
-
-
-
     public getOptions(): IModelOptions {
         return {
-            //value: this._value,
             begin: this._begin,
             end: this._end,
             range: this._range,
@@ -155,21 +110,23 @@ class Model extends Observable implements IModel {
         }
     }
 
+
     public getWarnings(): IWarnings {
         return Object.assign({}, this._warnings);
     }
+
 
     private setOptions(options: IModelOptions): void {
         this._begin = options.begin;
         this._end = options.end;
         this._range = options.range;
-        //this._value = options.value;
         this._min = options.min;
         this._max = options.max;
         this._step = options.step;
         this._customValues = options.customValues;      
         this._reverse = options.reverse;        
     }
+
 
     private validate(options: IModelOptions): void {
 
@@ -186,6 +143,7 @@ class Model extends Observable implements IModel {
             })
         }
     }
+
 
     private normalize(options: IModelOptions, baseOptions: IModelOptions): IModelOptions {
 

@@ -6,8 +6,6 @@ import { IWarnings } from './validations';
 
 
 interface IPresenter extends IObservable {
-    //data(): IOptions;
-    //update(message: any): void;
     update(options: IOptions): void;
 
     getOptions(): IOptions;
@@ -32,39 +30,39 @@ class Presenter extends Observable implements IPresenter {
 
         let that = this;
 
-/*         this._model.subscribe(function(message: any): void {
-            that._view.update(message);
-            that.emit(message);
-        });
-
-        this._view.subscribe(function(message: any): void {
-            that._model.update(message);
-            that.emit(message);
-        }); */
-
         this._model.subscribe(function(message: IMessage): void {
+
             switch (message.type) {
                 case 'NEW_VALUE':
                     that._view.update(message.options);
                     that.emit({
                         type: 'NEW_DATA',
-                        //options: that._model.getOptions() 
                         options: that.getOptions()                      
-                    })
-
+                    });
+                    break;
             }
         });
 
         this._view.subscribe(function(message: IMessage): void {
+
             switch (message.type) {
-                case 'NEW_POSITION':
-                    that._model.setValueByPercent(message.percent, message.index);
+                case 'LAST_THUMB_MOVED':
+                    !that._model.getOptions().reverse ?
+                    that._model.setEndByOffsetRacio(message.offsetRacio) :
+                    that._model.setBeginByOffsetRacio(message.offsetRacio);
+                    break;
+
+                case 'FIRST_THUMB_MOVED':
+                    !that._model.getOptions().reverse ?
+                    that._model.setBeginByOffsetRacio(message.offsetRacio) :
+                    that._model.setEndByOffsetRacio(message.offsetRacio);
+                    break;
             }
         });
     }
 
 
-    update(options: IOptions): void {
+    public update(options: IOptions): void {
 
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
@@ -113,37 +111,6 @@ class Presenter extends Observable implements IPresenter {
             }
         }
     }
-
-
-
-    /*     public update(message: any): void {
-
-        let options: IOptions;
-        let warnings: IWarnings;
-
-
-        this._model.update(message);
-
-        message.options = Object.assign(message.options, this._model.getOptions());
-
-        this._view.update(message);
-
-        options = this.getOptions();
-        this.emit({
-            type: 'NEW_DATA',
-            options: options
-        });
-
-        warnings = this.getWarnings();
-        if ( Object.keys(warnings).length != 0 ) {
-            //console.log('!!!!!')
-            this.emit({
-                type: 'WARNINGS',
-                warnings: warnings
-            });            
-        }
-    } */
-
 
 
     public getOptions(): IOptions {

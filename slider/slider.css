@@ -19,6 +19,10 @@
     overflow: visible;
 }
 
+.slider__thumb_disabled {
+    display: none;
+}
+
 .slider_horizontal .slider__thumb {
     top: -6px;
     transform: translateX(-50%);
@@ -41,6 +45,7 @@
     padding: 2px 6px;
     cursor: auto;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .slider__tooltip::after {
