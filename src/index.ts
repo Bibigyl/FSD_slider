@@ -99,15 +99,24 @@ import { IMessage } from './Observer';
 })(jQuery);
 
 
+let mod = new Model(Object.assign({}, defaultOptions, {
+  begin: 5,
+  end: 7,
+  range: true
+}));
+mod.setEndByOffsetRacio(0.3454);
+console.log(mod);
+
+
 
 //let pres = new Presenter(defaultOptions, test);
 
- $('.test').slider({
+/*  $('.test').slider({
   step: 9,
   tooltip: true,
   scale: true,
   reverse: true
-});
+}); */
 /*
 $('.test').slider('observe', function(message) {
   if (message.options && message.options.range) {

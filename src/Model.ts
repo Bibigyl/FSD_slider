@@ -5,19 +5,23 @@ import { validateModel, IWarnings } from './validations';
 
 interface IModelOptions {
     //[x: string]: any;
-    value: number | null;
+    //value: number | null;
+    begin: number;
+    end: number;
+    range: boolean;
     min: number;
     max: number;
     step: number;
-    range: [number, number] | null;
+    //range: [number, number] | null;
     customValues?: string[];
     reverse: boolean;
 }
 
 interface IModel extends IObservable {
-    //update(message: IMessage): void;
     update(options: IModelOptions): void;
-    setValueByPercent(percent: number, index: number): void;
+    //setValueByPercent(percent: number, index: number): void;
+    setBeginByOffsetRacio(racio: number): void;
+    setEndByOffsetRacio(racio: number): void
 
     getOptions(): IModelOptions;
     getWarnings(): IWarnings;
@@ -25,11 +29,14 @@ interface IModel extends IObservable {
 
 
 class Model extends Observable implements IModel {
-    private _value: number | null;
+    private _begin: number | null;
+    private _end: number | null;
+    private _range: boolean;
+    //private _value: number | null;
     private _min: number;
     private _max: number;   
     private _step: number;
-    private _range: [number, number] | null;
+    //private _range: [number, number] | null;
     private _customValues?: string[] | undefined;
     private _reverse: boolean;
 
@@ -47,41 +54,6 @@ class Model extends Observable implements IModel {
         this.setOptions(validOptions);
     }
 
-    
-/*     public update(message: IMessage): void {
-
-        switch (message.type) {
-
-            case 'NEW_VALUE_IN_PERCENT':
-
-                this.setValueByPercent(message.percent, message.index);
-
-                this.emit({ 
-                    type: 'NEW_VALUE',
-                    options: this.getOptions()
-                });
-                break;
-
-            case 'NEW_DATA':
-
-                let prevOptions = this.getOptions();
-                this.validate(Object.assign({}, prevOptions, message.options))
-                let validOptions: IModelOptions = this.normalize(message.options, prevOptions);
-
-                if ( !deepEqual(prevOptions, validOptions) ) {
-                    this.setOptions(validOptions);
-
-                    this.emit({
-                        type: 'NEW_DATA',
-                        options: this.getOptions()
-                    });
-                    break;                    
-                }
-
-            default:
-                return;
-        }
-    } */
 
     public update(options: IModelOptions): void {
         let prevOptions = this.getOptions();
@@ -91,7 +63,45 @@ class Model extends Observable implements IModel {
     }
 
 
-    public setValueByPercent(percent: number, index: number): void {
+    public setEndByOffsetRacio(racio: number): void {
+        let value: number = this.findValueByOffsetRacio(racio);
+        if ( value < this._begin ) { value = this._begin }
+        this._end = value;
+
+        this.emit({ 
+            type: 'NEW_VALUE',
+            options: this.getOptions()
+        });
+    }
+
+    public setBeginByOffsetRacio(racio: number): void {
+        if (!this._range) { return };
+
+        let value: number = this.findValueByOffsetRacio(racio);
+        if ( value > this._end ) { value = this._end }
+        this._begin = value;
+        
+        this.emit({ 
+            type: 'NEW_VALUE',
+            options: this.getOptions()
+        });
+    }
+
+    private findValueByOffsetRacio(racio: number): number {
+        let value: number;
+
+        value = racio * (this._max - this._min);
+        value = !this._reverse ? 
+        this._min + value :
+        this._max - value;
+
+        value = this.findClosestValue(value, this.getOptions());
+        return value;
+    }
+
+
+
+/*     public setValueByPercent(percent: number, index: number): void {
 
         let newValue: number;
 
@@ -126,18 +136,20 @@ class Model extends Observable implements IModel {
             type: 'NEW_VALUE',
             options: this.getOptions()
         });
-    }
+    } */
 
 
 
 
     public getOptions(): IModelOptions {
         return {
-            value: this._value,
+            //value: this._value,
+            begin: this._begin,
+            end: this._end,
+            range: this._range,
             min: this._min,
             max: this._max,   
             step: this._step,
-            range: this._range,
             customValues: this._customValues,
             reverse: this._reverse
         }
@@ -148,11 +160,13 @@ class Model extends Observable implements IModel {
     }
 
     private setOptions(options: IModelOptions): void {
-        this._value = options.value;
+        this._begin = options.begin;
+        this._end = options.end;
+        this._range = options.range;
+        //this._value = options.value;
         this._min = options.min;
         this._max = options.max;
         this._step = options.step;
-        this._range = options.range;
         this._customValues = options.customValues;      
         this._reverse = options.reverse;        
     }
@@ -173,68 +187,55 @@ class Model extends Observable implements IModel {
         }
     }
 
-    private normalize(options: IModelOptions, validOptions: IModelOptions): IModelOptions {
+    private normalize(options: IModelOptions, baseOptions: IModelOptions): IModelOptions {
 
-        options = Object.assign({}, validOptions, options);
+        options = Object.assign({}, baseOptions, options);
+        let { begin, end, range, min, max, step, reverse, customValues } = options;
 
         if ( this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall ) {
-            options.customValues = undefined;
+            customValues = undefined;
         }
 
-        if ( options.customValues ) {
-            options.min = 0;
-            options.max = options.customValues.length - 1;
+        if ( customValues ) {
+            min = 0;
+            max = customValues.length - 1;
         }
 
-        options.min = this.normalizeNumber(options.min, validOptions.min);
-        options.max = this.normalizeNumber(options.max, validOptions.max);
-        options.step = this.normalizeNumber(options.step, validOptions.step);
+        min = this.normalizeNumber(min, baseOptions.min);
+        max = this.normalizeNumber(max, baseOptions.max);
+        step = this.normalizeNumber(step, baseOptions.step);
 
         if ( this._warnings.minIsOverMax ) {
-            [options.min, options.max] = [options.max, options.min];
+            [min, max] = [max, min];
         }
 
         if ( this._warnings.minIsEqualToMax ) {
-            options.min = validOptions.min;
-            options.max = validOptions.max;
+            min = baseOptions.min;
+            max = baseOptions.max;
         }
 
         if ( this._warnings.stepIsNull || this._warnings.tooBigStep ) {
-            options.step = 1;
+            step = 1;
         }
 
-        
-        options.step = Math.abs(options.step);
-        options.reverse = !!options.reverse;
+        step = Math.abs(step);
+        reverse = !!reverse;
+        range = !!range;
 
+        if ( this._warnings.beginIsOverEnd ) {
+            [begin, end] = [end, begin];
+        }
+        end = this.normalizeNumber(end, max);
+        end = this.findClosestValue(end, options);
 
-        if ( !options.range ) {
-            options.value = this.normalizeNumber(options.value, options.min);
-            options.value = this.findClosestValue(options.value, options)
-            options.range = null;
-
+        if ( !range ) {
+            begin = min;
         } else {
-
-            if ( !Array.isArray(options.range) ) {
-                options.range = [options.min, options.max];
-            }
-
-            options.range = options.range.slice(0, 2) as [number, number];
-            
-            options.range[0] = this.normalizeNumber(options.range[0], options.min);
-            options.range[1] = this.normalizeNumber(options.range[1], options.max);
-
-            if ( this._warnings.wrongOrderInRange ) {
-                options.range.sort(function(a, b) {
-                    return a - b;
-                });  
-            }
-            options.range[0] = this.findClosestValue(options.range[0], options);
-            options.range[1] = this.findClosestValue(options.range[1], options);
-            options.value = null;
+            begin = this.normalizeNumber(begin, min);
+            begin = this.findClosestValue(begin, options);
         }
 
-        return options;
+        return { begin, end, range, min, max, step, reverse, customValues };
     }
 
 

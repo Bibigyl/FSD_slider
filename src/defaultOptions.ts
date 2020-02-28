@@ -7,12 +7,15 @@ let defaultOptions: IOptions = {
     // Model options
     // в начальных настройках не определены начальное значение или промежуток.
     // если они не указаны пользователем, начальное значение value == min 
-    value: null,
+    //value: null,
+    begin: null,
+    end: null,
+    range: false,
     min: 0,
     max: 10,
     step: 1,
     reverse: false,
-    range: null,
+    //range: null,
     
     length: '300px',
     vertical: false,
