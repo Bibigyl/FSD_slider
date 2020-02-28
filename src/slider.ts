@@ -5,6 +5,11 @@ import { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter
 import { IWarnings } from './validations';
 import Presenter, { IPresenter } from './Presenter';
 
+// import styles
+//import './slider.css';
+
+console.log('!!!!!!!')
+
 
 interface ISlider {
     update(options: IOptions): void;

@@ -1,31 +1,41 @@
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 
 module.exports = {
   watch: true,
   entry: './src/jqueryWrapper',
+  output: {
+    filename: 'slider.js',
+    path: path.resolve(__dirname, '/slider'),
+    path: path.resolve(__dirname, '/demo/slider'),
+  },
   devtool: 'inline-source-map',
-  mode: 'development',
+  //mode: 'development',
   module: {
     rules: [
       {
         test: /\.ts$/,
         use: 'ts-loader',
       },
+      {
+        //test: /\.css$/,
+        //use: ['style-loader', MiniCssExtractPlugin.loader, 'css-loader']
+      }
     ],
   },
+  plugins: [
+    //new MiniCssExtractPlugin({filename: 'slider.css'}),
+    //new CleanWebpackPlugin(),
+  ],
   resolve: {
     extensions: ['.ts', '.js'],
   },
-  output: {
-    filename: 'slider.js',
-    path: path.resolve(__dirname, './slider'),
-    path: path.resolve(__dirname, './demo/slider'),
-  },
   devServer: {
-    contentBase: path.join(__dirname, 'demo'),
+    contentBase: path.join(__dirname, '/demo'),
     compress: true,
     hot: true,
-    openPage: 'demo.html',
+    //openPage: 'demo.html',
     open: true,
   },
 };
