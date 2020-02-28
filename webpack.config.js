@@ -4,14 +4,15 @@ const path = require('path');
 
 module.exports = {
   watch: true,
-  entry: './src/jqueryWrapper',
+  //entry: './src/jqueryWrapper',
+  entry: './src/index',
   output: {
     filename: 'slider.js',
-    path: path.resolve(__dirname, '/slider'),
-    path: path.resolve(__dirname, '/demo/slider'),
+    path: path.resolve(__dirname, 'slider'),
+    path: path.resolve(__dirname, 'demo/slider'),
   },
   devtool: 'inline-source-map',
-  //mode: 'development',
+  mode: 'development',
   module: {
     rules: [
       {
@@ -32,10 +33,11 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   devServer: {
-    contentBase: path.join(__dirname, '/demo'),
+    contentBase: path.join(__dirname, 'slider'),
     compress: true,
     hot: true,
     //openPage: 'demo.html',
+    //index: 'index.html',
     open: true,
   },
 };

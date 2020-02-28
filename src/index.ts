@@ -5,6 +5,8 @@ import { IOptions, defaultOptions } from './defaultOptions';
 import { } from './Observer';
 import Slider from './slider';
 
+console.log('!!!!');
+
 (function ($) {
 
   interface IMethods {
