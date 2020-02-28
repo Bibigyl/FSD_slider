@@ -17,16 +17,12 @@ class Presenter extends ObservablePresenter implements IPresenter {
     private _model: IModel;
     private _view: IView;
 
-    constructor(options: IOptions, node: HTMLDivElement) {
+    constructor(model: IModel, view: IView) {
 
         super();
 
-        options = Object.assign({}, defaultOptions, options);
-        this._model = new Model(options);
-
-        options = Object.assign(options, this._model.getOptions());
-        this._view = new View(options, node);
-
+        this._model = model;
+        this._view = view;
 
         let that = this;
 
@@ -95,10 +91,11 @@ class Presenter extends ObservablePresenter implements IPresenter {
 
         if (isModelUpdated || isViewUpdated) {
 
-            //let warnings = this.getWarnings();
-            //if ( Object.keys(warnings).length != 0 ) { warnings = undefined }
+            //!!!!!
+            let warnings = this.getWarnings();
+            if ( Object.keys(warnings).length != 0 ) { warnings = undefined }
 
-            this.notify( this.getOptions(), this.getWarnings() );
+            this.notify( this.getOptions(), warnings );
         }
     }
 
@@ -112,4 +109,5 @@ class Presenter extends ObservablePresenter implements IPresenter {
     }
 }
 
+export { IPresenter };
 export default Presenter;

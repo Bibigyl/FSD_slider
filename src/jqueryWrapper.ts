@@ -3,7 +3,7 @@ import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
 import {  } from './Observer';
-//import { IOuterObserver, OuterObserver } from './Observer';
+import Slider from './slider';
 
 (function ($) {
 
@@ -23,18 +23,17 @@ import {  } from './Observer';
 
         let $this = $(this);
         let data = $this.data('sliderData');
-        let slider = $this;
+        let $node = $this;
 
         // Если плагин ещё не проинициализирован
         if (!data) {
 
           options = $.extend({}, defaultOptions, options);
-
-          let presenter = new Presenter(options, this);
+          let slider = new Slider(options, this);
 
           $(this).data('sliderData', {
-            slider: slider,
-            presenter: presenter
+            node: $node,
+            slider: slider
           });
 
         }
@@ -42,19 +41,12 @@ import {  } from './Observer';
     },
 
     getData: function (): IOptions {
-      return $(this).data('sliderData').presenter.getData();
+      return $(this).data('sliderData').slider.getData();
     },
 
     update: function (options: IOptions): void {
       return this.each(function () {
-/*         let message: IMessage = {
-          type: 'NEW_DATA',
-          options: options
-        } */
-
-        //$(this).data('sliderData').presenter.update(message);
-        $(this).data('sliderData').presenter.update(options);
-
+        $(this).data('sliderData').slider.update(options);
       });
     },
 
@@ -65,7 +57,7 @@ import {  } from './Observer';
         let data = $this.data('sliderData');
 
         $(window).unbind('.slider');
-        data.slider.remove();
+        data.node.remove();
         $this.removeData('sliderData');
 
       });
@@ -73,8 +65,8 @@ import {  } from './Observer';
 
     observe: function (listener: Function): void {
 
-      let presenter = $(this).data('sliderData').presenter;
-      presenter.subscribe(listener);
+      let slider = $(this).data('sliderData').slider;
+      slider.subscribe(listener);
     }
   }
 
