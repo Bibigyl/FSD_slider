@@ -2,7 +2,7 @@ import Model, { IModel } from './Model';
 import View, { IView } from './View';
 import Presenter from './Presenter';
 import { IOptions, defaultOptions } from './defaultOptions';
-import {  } from './Observer';
+import { } from './Observer';
 import Slider from './slider';
 
 (function ($) {
@@ -70,7 +70,7 @@ import Slider from './slider';
     }
   }
 
-// ?????????????
+  // ?????????????
   jQuery.fn.slider = function (method: string): JQuery {
 
     // логика вызова метода
@@ -106,15 +106,15 @@ let view = new View(defaultOptions, test); */
 
 //let pres = new Presenter(defaultOptions, test);
 
- $('.test').slider({
-   end: 6,
-   begin: 2,
-   step: 9,
-   tooltip: true,
-   scale: true,
-   range: true,
-   reverse: true
- });
+$('.test').slider({
+  end: 6,
+  begin: 2,
+  step: 9,
+  tooltip: true,
+  scale: true,
+  range: true,
+  reverse: true
+});
 
 
 /*
