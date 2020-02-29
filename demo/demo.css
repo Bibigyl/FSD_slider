@@ -40,16 +40,20 @@ input[type="checkbox"] {
     margin-bottom: 20px;
 }
 
-input.input-range {
-    display: inline-block;
-}
-
-.panel {
-    padding: 30px 10px;
+input[name='customValues'] {
+    width: 100%;
 }
 
 button {
     margin-left: 30px;
+}
+
+.demo {
+    margin-bottom: 150px;
+}
+
+.panel {
+    padding: 30px 10px;
 }
 
 .slider-wrap {
@@ -66,8 +70,9 @@ button {
     max-width: 400px;
 }
 
-.demo {
-    margin-bottom: 150px;
+.main-radio h6 {
+    display: inline-block;
+    margin-bottom: 15px;
 }
 
 /*------------------*/
@@ -89,15 +94,6 @@ button {
 
 .slider_vertical .slider__scale-division::before {
     width: 9px;
-}
-
-#demo3 .slider_vertical .slider__scale-division span {
-    left: auto;
-    right: 25px;
-}
-
-input[name='customValues'] {
-    width: 100%;
 }
 
 .row_with-margin-top {

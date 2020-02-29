@@ -50,6 +50,7 @@ class Model extends Observable<ModelMessage> implements IModel {
 
 
     public update(options: IModelOptions): void {
+
         let prevOptions = this.getOptions();
         this.validate(Object.assign({}, prevOptions, options))
         let validOptions: IModelOptions = this.normalize(options, prevOptions);
@@ -189,17 +190,21 @@ class Model extends Observable<ModelMessage> implements IModel {
         if ( this._warnings.beginIsOverEnd ) {
             [begin, end] = [end, begin];
         }
-        end = this.normalizeNumber(end, max);
-        end = this.findClosestValue(end, options);
+
+
+        options = { begin, end, range, min, max, step, reverse, customValues }
+
+        options.end = this.normalizeNumber(end, max);
+        options.end = this.findClosestValue(end, options);
 
         if ( !range ) {
-            begin = min;
+            options.begin = min;
         } else {
-            begin = this.normalizeNumber(begin, min);
-            begin = this.findClosestValue(begin, options);
+            options.begin = this.normalizeNumber(begin, min);
+            options.begin = this.findClosestValue(begin, options);
         }
 
-        return { begin, end, range, min, max, step, reverse, customValues };
+        return options;
     }
 
 
@@ -223,20 +228,21 @@ class Model extends Observable<ModelMessage> implements IModel {
         if (value >= max) { return max };
 
         if (!reverse) {
-            prevValue = Math.trunc( (value - min) / step ) * step;
-            nextValue = Math.trunc( (value - min) / step ) * step + step;
+
+            prevValue = Math.trunc( value / step ) * step;
+            nextValue = Math.trunc( value / step ) * step + step;
 
             nextValue = nextValue < max ? nextValue : max;
-            value = value < prevValue + (nextValue - prevValue) / 2 ? prevValue : nextValue;
 
         } else {
+
             prevValue = max - Math.trunc( (max - value) / step ) * step - step;
             nextValue = max - Math.trunc( (max - value) / step ) * step;
 
             prevValue = prevValue > min ? prevValue : min;
-            value = value < nextValue - (nextValue - prevValue) / 2 ? prevValue : nextValue;
         }
 
+        value = value < prevValue + (nextValue - prevValue) / 2 ? prevValue : nextValue;
         return value;
     }
 }

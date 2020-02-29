@@ -60,7 +60,7 @@ class Presenter extends ObservablePresenter implements IPresenter {
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
 
-        let modelOptions: string[] = ['value', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
+        let modelOptions: string[] = ['begin', 'end', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
 
         modelOptions.forEach(function(item) {
             if ( options.hasOwnProperty(item) ) {
@@ -93,7 +93,7 @@ class Presenter extends ObservablePresenter implements IPresenter {
 
             //!!!!!
             let warnings = this.getWarnings();
-            if ( Object.keys(warnings).length != 0 ) { warnings = undefined }
+            if ( Object.keys(warnings).length == 0 ) { warnings = undefined }
 
             this.notify( this.getOptions(), warnings );
         }

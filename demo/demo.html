@@ -1,135 +1,153 @@
 <!DOCTYPE html>
-<html lang='en'>
-  <head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <meta http-equiv='X-UA-Compatible' content='ie=edge'>
-    <title>Document</title>
-    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>
-    <link rel='stylesheet' type="text/css" href='slider.css'>
-    <link rel='stylesheet' type="text/css" href='demo.css'>
-  </head>
-  <body>
-    <div class='container'>
-      <h1>Демонстрация работы слайдера</h1>
+<html lang="en">
 
-      <div class='row demo' id='demo1'>
-        <div class='col-md-5'>
-          <div class='slider-wrap'>
-            <div id='slider1'></div>
-          </div>
-          <div class="error" hidden>
-<!--             <b>Ошибка</b>
-            <span></span> -->
-          </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="slider.css">
+  <link rel="stylesheet" type="text/css" href="demo.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Демонстрация работы слайдера</h1>
+
+    <div class="row demo" id="demo1">
+
+      <div class="col-md-5">
+        <div class="slider-wrap">
+          <div id="slider1"></div>
         </div>
-        <div class='col-md-7'>
-          <div class='panel' id='panel1'>
-            <div class='container'>
-              <div class='row'>
-                <div class='col-lg-6'>
-                  <label>
-                    <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='one' checked> Одно значение
-                  </label>
-                  <input class='option' type='number' name='value' value='5'>
-                  В пользовательском диапазоне
-                  <input class='option1' type='text' name='customValue' value='0' disabled readonly>
-                </div>
-                <div class='col-lg-6'>
-                  <label>
-                    <input class='radio radio-thumbs' type='radio' name='numeric-thumbs' value='two'> Промежуток
-                  </label>
-                  <input class='option' type='text' name='range' value='0,10' disabled>
-                  В пользовательском диапазоне
-                  <input class='option1' type='text' name='customRange' value='0' disabled readonly>
-                </div>
-              </div>
-              <hr>
-              <div class='row'>
-                <div class='container'>
-                  <h6>Данные модели</h6>
-                  <div class='row '>
-                    <div class='col-lg-6'>
-                      <span>Минимальное значение</span>  
-                      <input class='option' type='text' name='min' value='0'>
-
-                      Максимальное значение
-                      <input class='option' type='text' name='max' value='10'>
-                    </div>
-                    <div class='col-lg-6'>
-                      Шаг
-                      <input class='option' type='text' name='step' value='1'>
-                      <br>
-
-                      <label>
-                        <input class='option' type='checkbox' name='reverse'> В обратном порядке
-                      </label>
-                    </div>
-                  </div>
-
-                  <div class="row row_with-margin-top">
-                    <div class="col-lg-12">
-                      <label>
-                        <input class='' type='checkbox' name='hasCustomValues'> Пользовательские значения
-                      </label>
-
-                      <input class="option" type="text" name="customValues" value='one, two, three, four, five' disabled>
-                    </div>                    
-                  </div>
-                </div>
-              </div>
-              <hr>
-              <div class='row'>
-                <div class='container'>
-                  <h6>Вид слайдера</h6>
-                  <div class='row'>
-                    <div class='col-lg-6'>
-                      Ширина / Высота
-                      <input class='option' type='text' name='length' value="100%">
-
-                    </div>
-                    <div class='col-lg-6'>
-                      <label>
-                        <input class='option' type='checkbox' name='scale' checked> Шкала
-                      </label>
-                      <br>
-
-                      <label>
-                        <input class='option' type='checkbox' name='vertical'> Вертикальный вид
-                      </label>
-                      <br>
-
-                      <label>
-                        <input class='option' type='checkbox' name='tooltip' checked> Подсказки
-                      </label>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <hr>
-
-              <div class="row row_with-margin-top">
-                <div class="col-12">
-                  <b><label>
-                    <input type='checkbox' name='manyOptions'> Передать несколько опций
-                  </label></b>
-                  <button disabled>Изменить слайдер</button>                      
-                </div>
-              </div>
-            
-            </div>
-          </div>
+        <div class="error" hidden>
         </div>
       </div>
 
+      <div class="col-md-7">
+        <div class="panel" id="panel1">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-6">
+                <label class="main-radio">
+                  <input class="1option radio radio-thumbs" type="radio" name="range" value="true"> <h6>Промежуток</h6> 
+                </label>
+                <br>
+                Начало
+                <input class="option" type="number" name="begin" value="5" disabled>
+              </div>
+              <div class="col-lg-6">
+                <label class="main-radio">
+                  <input class="1option radio radio-thumbs" type="radio" name="range" value="3435" checked> <h6>Одно значение</h6> 
+                </label>
+                <br>
+                Конец
+                <input class="option" type="number" name="end" value="7">
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="container">
+                <h6>Данные модели</h6>
+                <div class="row ">
+                  <div class="col-lg-6">
+
+                    Минимальное значение
+                    <input class="option" type="number" name="min" value="0">
+
+                    Максимальное значение
+                    <input class="option" type="number" name="max" value="10">
+                  </div>
+                  <div class="col-lg-6">
+
+                    Шаг
+                    <input class="option" type="number" name="step" value="1">
+                    <br>
+
+                    <label>
+                      <input class="option" type="checkbox" name="reverse"> В обратном порядке
+                    </label>
+                  </div>
+                </div>
+
+
+                <div class="row row_with-margin-top">
+
+                  <div class="col-lg-12">
+                    <label>
+                      <input class="" type="checkbox" name="hasCustomValues"> Пользовательские значения
+                    </label>
+
+                    <input class="option" type="text" name="customValues" value="one, two, three, four, five" disabled>
+                  </div>
+
+                  <div class="col-lg-6">
+                    Начало (значение)
+                    <input class="" type="text" name="customBegin" disabled readonly>
+                  </div>
+                  <div class="col-lg-6">
+                    Конец (значение)
+                    <input class="" type="text" name="customEnd" disabled readonly>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="container">
+                <h6>Вид слайдера</h6>
+                <div class="row">
+                  <div class="col-lg-6">
+                    Ширина / Высота
+                    <input class="option" type="text" name="length" value="100%">
+
+                  </div>
+                  <div class="col-lg-6">
+                    <label>
+                      <input class="option" type="checkbox" name="scale" checked> Шкала
+                    </label>
+                    <br>
+
+                    <label>
+                      <input class="option" type="checkbox" name="vertical"> Вертикальный вид
+                    </label>
+                    <br>
+
+                    <label>
+                      <input class="option" type="checkbox" name="tooltip" checked> Подсказки
+                    </label>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+
+            <div class="row row_with-margin-top">
+              <div class="col-12">
+                <b><label>
+                    <input type="checkbox" name="manyOptions"> Передать несколько опций
+                  </label></b>
+                <button disabled>Изменить слайдер</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
-  <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
-  <script src='slider.js'></script>
-  <!-- <script src='slider.js'></script> -->
-  <!-- <script src='../slider/index.js'></script> -->
-  <script src='demo.js'></script>
+  </div>
 
-  </body>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="slider.js"></script>
+  <!-- <script src="slider.js"></script> -->
+  <!-- <script src="../slider/index.js"></script> -->
+  <script src="demo.js"></script>
+
+</body>
+
 </html>

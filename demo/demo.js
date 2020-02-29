@@ -1,19 +1,13 @@
 $(document).ready( function() {
 
     $('#slider1').slider({
-        value: 5,
+        begin: 5,
+        end: 7,
         step: 1,
         length: '100%',
         scale: true,
         tooltip: true,
     });
-
-/*     $('#slider1').slider('update', {
-        value: 6
-    })
-    $('#slider1').slider('update', {
-        value: 11
-    }) */
 
 
     $('.demo').each(function() {
@@ -22,60 +16,50 @@ $(document).ready( function() {
         let options = {};
         let instantChange = true;
         let timeout;
-        let prevOptions;
 
-        demo.find('.radio-thumbs').change(function() {
+        demo.find('input[name="range"]').change(function() {
 
-
-            let value;
-            if ( $(this).attr('value') == 'one' ) {
-                value = demo.find('input[name="value"]').val();
-                options.value = value;
-                options.range = null;
+            if ( $(this).attr('value') === 'true' ) {
+                options.range = true;
+                options.begin = demo.find('input[name="begin"]').val();
 
             } else {
-                value = demo.find('input[name="range"]').val();
-                value = value.split(',', 2);
-                options.range = value;
-                options.value = null;
+                options.range = false;
+                options.begin = null;
+                options.end = demo.find('input[name="end"]').val();
             }
 
-            demo.find('input[name="value"]').toggleAttr('disabled');
-            demo.find('input[name="range"]').toggleAttr('disabled');
-
+            demo.find('input[name="begin"]').toggleAttr('disabled');
 
             if (!demo.find('input[name="customValues"]').hasAttr('disabled')) {
-                demo.find('input[name="customValue"]').toggleAttr('disabled');                
-                demo.find('input[name="customRange"]').toggleAttr('disabled');
+                demo.find('input[name="customBegin"]').toggleAttr('disabled');
             }
 
             if (instantChange) {
-                //timeout = tryToChange(demo, options, timeout);
                 slider.slider('update', options);
                 options = {};
             }
         });
 
         demo.find('input[name="hasCustomValues"]').change(function() {
+
             demo.find('input[name="customValues"]').toggleAttr('disabled');
             demo.find('input[name="min"]').toggleAttr('disabled');
             demo.find('input[name="max"]').toggleAttr('disabled');
 
-            let range = !demo.find('input[name="range"]').hasAttr('disabled');
-            if (!range) {
-                demo.find('input[name="customValue"]').toggleAttr('disabled');
-            } else {
-                demo.find('input[name="customRange"]').toggleAttr('disabled');                
+            demo.find('input[name="customEnd"]').toggleAttr('disabled');
+            let isRange = demo.find('input[name="range"][value=true]').prop('checked');
+            if ( isRange ) {
+                demo.find('input[name="customBegin"]').toggleAttr('disabled');
             }
 
-            if ($(this).prop('checked')) {
+            if ( $(this).prop('checked') ) {
                 demo.find('input[name="customValues"]').trigger('change');
 
             } else {
                 options.customValues = undefined;
 
                 if (instantChange) {
-                    //timeout = tryToChange(demo, options, timeout);
                     slider.slider('update', options);
                     options = {};
                 }
@@ -88,7 +72,6 @@ $(document).ready( function() {
         });
 
         demo.find('button').on('click', function() {
-            //timeout = tryToChange(demo, options, timeout);
             slider.slider('update', options);
             options = {};
         });
@@ -104,12 +87,9 @@ $(document).ready( function() {
                     let bool = opt.prop('checked');
                     options[opt.attr('name')] = bool;
 
-
                 } else if ( opt.attr('name') == 'range' ) {
 
-                    let val;
-                    val = opt.val().split(',', 2);
-                    options.range = val;
+                    //options.range = opt.attr('value') === 'true';
 
                 } else if ( opt.attr('name') == 'customValues' ) {
 
@@ -130,15 +110,13 @@ $(document).ready( function() {
 
 
                 if (instantChange) {
-                    //timeout = tryToChange(demo, options, timeout);
-
                     slider.slider('update', options);
                     options = {};
                 }
             });
         });
 
-        slider.slider('observe', function(message) {
+        slider.slider('observe', function(options, warnings) {
 
             let error = demo.find('.error');
             error.text('');
@@ -147,57 +125,44 @@ $(document).ready( function() {
 
             let name;
             let opt;
-            let val;
 
-            if ( message.type == 'NEW_VALUE' || message.type == 'NEW_DATA' ) {
+            demo.find('.option').each(function() {
 
-                let options = message.options;
+                opt = $(this);
+                name = opt.attr('name');
 
-                demo.find('.option').each(function() {
+                if (opt.hasAttr('disabled')) { return };
+                if (!options.hasOwnProperty(name)) { return };
 
-                    opt = $(this);
-                    name = opt.attr('name');
-    
-                    if (opt.hasAttr('disabled')) { return };
-                    if (!options.hasOwnProperty(name)) { return };
-    
-                    if (opt.attr('type') == 'checkbox') {
-    
-                        if ( options[name] ) {
-                            opt.prop('checked', true)
-                        } else {
-                            opt.prop('checked', false)
-                        }
-    
-                    } else {
-                        
-                        opt.val(options[name]);
-                    }
-                });
+                if (opt.attr('type') == 'checkbox') {
 
+                    opt.prop('checked', options[name]);
 
-                if ( options.customValues ) {
-
-                    if ( !demo.find('input[name="customValue"]').hasAttr('disabled') ) {
-                        val = options.customValues[options.value];
-                        demo.find('input[name="customValue"]').val(val);     
-                    }
-        
-                    if ( !demo.find('input[name="customRange"]').hasAttr('disabled') ) {
-                        val = [];
-                        val[0] = options.customValues[options.range[0]];
-                        val[1] = options.customValues[options.range[1]];
-                        demo.find('input[name="customRange"]').val(val);                
-                    }
+                } else {
+                    
+                    opt.val(options[name]);
                 }
+            });
 
+            if ( options.customValues ) {
+                
+                demo.find('input[name="customValues"]').prop('checked', true);
+
+                let end = options.customValues[options.end];
+                demo.find('input[name="customEnd"]').val(end);
+
+                if ( options.range ) {
+                    let begin = options.customValues[options.begin];
+                    demo.find('input[name="customBegin"]').val(begin);
+                }
             }
 
 
-            if ( message.type == 'WARNINGS' ) {
+            if ( warnings && Object.keys(warnings).length != 0 ) {
+                console.log('fghj')
 
-                for ( let key in message.warnings ) {
-                    error.append('<p>' + message.warnings[key] + '</p>')
+                for ( let key in warnings ) {
+                    error.append('<p>' + warnings[key] + '</p>')
                 }
                 error.removeAttr('hidden');
         
