@@ -17,7 +17,7 @@ $(document).ready( function() {
 
     $('#slider3').slider({
         end: 2,
-        customValues: ['a', 'b', 'c', '0.5', true],
+        customValues: ['a', 'b', 'c', 'd', 'e'],
         length: '200px'
     });
 
@@ -29,29 +29,6 @@ $(document).ready( function() {
         let instantChange = true;
         let timeout;
 
-        $demo.find('input[name="range"]').change(function() {
-
-            if ( $(this).attr('value') === 'true' ) {
-                options.range = true;
-                options.begin = $demo.find('input[name="begin"]').val();
-
-            } else {
-                options.range = false;
-                options.begin = null;
-                options.end = $demo.find('input[name="end"]').val();
-            }
-
-            $demo.find('input[name="begin"]').toggleAttr('disabled');
-
-            if (!$demo.find('input[name="customValues"]').hasAttr('disabled')) {
-                $demo.find('input[name="customBegin"]').toggleAttr('disabled');
-            }
-
-            if (instantChange) {
-                $slider.slider('update', options);
-                options = {};
-            }
-        });
 
         $demo.find('input[name="hasCustomValues"]').change(function() {
 
@@ -60,8 +37,8 @@ $(document).ready( function() {
             $demo.find('input[name="max"]').toggleAttr('disabled');
 
             $demo.find('input[name="customEnd"]').toggleAttr('disabled');
-            let isRange = $demo.find('input[name="range"][value=true]').prop('checked');
-            if ( isRange ) {
+
+            if ( $demo.find('input[name="range"]').prop('checked') ) {
                 $demo.find('input[name="customBegin"]').toggleAttr('disabled');
             }
 
@@ -102,6 +79,15 @@ $(document).ready( function() {
 
                     let bool = $option.prop('checked');
                     options[$option.attr('name')] = bool;
+
+                    if ( $option.attr('name') == 'range' ) {
+
+                        options.begin = $demo.find('input[name="begin"]').val();
+                        $demo.find('input[name="begin"]').toggleAttr('disabled');
+                        if (!$demo.find('input[name="customValues"]').hasAttr('disabled')) {
+                            $demo.find('input[name="customBegin"]').toggleAttr('disabled');
+                        }
+                    }
 
                 } else if ( $option.attr('name') == 'customValues' ) {
 

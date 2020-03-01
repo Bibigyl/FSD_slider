@@ -57,8 +57,11 @@ class Presenter extends ObservablePresenter implements IPresenter {
 
     public update(options: IOptions): void {
 
+        // можно упростить
+
         let isModelUpdated: boolean = false;
         let isViewUpdated: boolean = false;
+        let isOnlyViewWarnings: boolean = true;
 
         let modelOptions: string[] = ['begin', 'end', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
 
@@ -72,6 +75,7 @@ class Presenter extends ObservablePresenter implements IPresenter {
         if (isModelUpdated) { 
             this._model.update(options);
             isViewUpdated = true;
+            isOnlyViewWarnings = false;
         }
 
 
@@ -91,7 +95,9 @@ class Presenter extends ObservablePresenter implements IPresenter {
 
         if (isModelUpdated || isViewUpdated) {
 
-            let warnings = this.getWarnings();
+            let warnings: IWarnings = isOnlyViewWarnings ?
+            this._view.getWarnings() :
+            this.getWarnings();
             if ( Object.keys(warnings).length == 0 ) { warnings = undefined }
 
             this.notify( this.getOptions(), warnings );

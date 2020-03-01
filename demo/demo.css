@@ -13,12 +13,13 @@ h1 {
 
 h3 {
     text-align: center;
-    margin: 30px auto;
+    margin: 10px auto 25px;
+    font-size: 23px;
 }
 
 h6 {
     text-align: center;
-    margin: 10px auto 30px;
+    /* margin: 10px auto 30px; */
 }
 
 hr {
@@ -58,7 +59,7 @@ button:not(:disabled) {
 }
 
 .panel {
-    padding: 30px 10px;
+    padding: 0px 10px 30px;
 }
 
 .slider-wrap {
@@ -79,9 +80,12 @@ button:not(:disabled) {
     max-width: 400px;
 }
 
-.main-radio h6 {
+.range_title {
     display: inline-block;
-    margin-bottom: 15px;
+}
+
+.choosen-values {
+    margin-bottom: 20px;
 }
 
 /*------------------*/
