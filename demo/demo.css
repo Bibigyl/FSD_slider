@@ -48,6 +48,11 @@ button {
     margin-left: 30px;
 }
 
+button:not(:disabled) {
+    outline: 2px solid #69d269cc;
+    outline-offset: 2px;
+}
+
 .demo {
     margin-bottom: 150px;
 }
@@ -58,7 +63,11 @@ button {
 
 .slider-wrap {
     margin: 70px 20px;
-    height: 150px;
+}
+
+.slider-wrap_vertical {
+    height: 100%;
+    max-height: 300px;
 }
 
 .error {

@@ -6,7 +6,6 @@ interface IWarnings {
     valuesAreNotInteger?: string,
     minIsOverMax?: string,
     minIsEqualToMax?: string,
-    beginIsIgnored?: string,
     beginIsOverEnd?: string,
     tooBigStep?: string,
     stepIsNull?: string,
@@ -25,7 +24,6 @@ let warnings: IWarnings = {
     valuesAreNotInteger: 'All values, instead of customValues, should be integer',
     minIsOverMax: 'Min value should be less then max value',
     minIsEqualToMax: 'Min value cant be equal to max value',
-    beginIsIgnored: 'If it is not range, options begin is ignored',
     beginIsOverEnd: 'Begin value should be less then end value',
     tooBigStep: 'Step should be less then difference of max and min values',
     stepIsNull: 'Step cant be equal to 0',
@@ -64,10 +62,6 @@ function validateModel(options: IModelOptions): IWarnings {
 
     if ( min == max ) {
         warns.minIsEqualToMax = warnings.minIsEqualToMax;
-    }
-
-    if ( !range && begin ) {
-        warns.beginIsIgnored = warnings.beginIsIgnored;
     }
 
 

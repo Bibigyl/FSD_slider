@@ -229,15 +229,15 @@ class Model extends Observable<ModelMessage> implements IModel {
 
         if (!reverse) {
 
-            prevValue = Math.trunc( value / step ) * step;
-            nextValue = Math.trunc( value / step ) * step + step;
+            prevValue = min + Math.floor( (value - min) / step ) * step;
+            nextValue = min + Math.floor( (value - min) / step ) * step + step;
 
             nextValue = nextValue < max ? nextValue : max;
 
         } else {
 
-            prevValue = max - Math.trunc( (max - value) / step ) * step - step;
-            nextValue = max - Math.trunc( (max - value) / step ) * step;
+            prevValue = max - Math.floor( (max - value) / step ) * step - step;
+            nextValue = max - Math.floor( (max - value) / step ) * step;
 
             prevValue = prevValue > min ? prevValue : min;
         }

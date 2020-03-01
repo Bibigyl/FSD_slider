@@ -91,7 +91,6 @@ class Presenter extends ObservablePresenter implements IPresenter {
 
         if (isModelUpdated || isViewUpdated) {
 
-            //!!!!!
             let warnings = this.getWarnings();
             if ( Object.keys(warnings).length == 0 ) { warnings = undefined }
 
