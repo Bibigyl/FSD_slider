@@ -14,8 +14,8 @@ let defaultOptions: IOptions = {
     
     length: '300px',
     vertical: false,
-    tooltip: false,
-    scale: false,
+    tooltip: true,
+    scale: true,
 }
 
 export { IOptions };

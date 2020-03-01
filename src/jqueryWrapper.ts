@@ -19,9 +19,9 @@ import Slider from './slider';
 
   var methods: IMethods = {
 
-    init: function (options?: IOptions): void {
+    init: function(options?: IOptions): void {
 
-      return this.each(function () {
+      return this.each(function() {
 
         let $this = $(this);
         let data = $this.data('sliderData');
@@ -30,11 +30,14 @@ import Slider from './slider';
         // Если плагин ещё не проинициализирован
         if (!data) {
 
-          options = $.extend({}, defaultOptions, options);
+          let newDefaultOptions = Object.assign({}, defaultOptions)
+          options = $.extend({}, newDefaultOptions, options);
           let slider = new Slider(options, this);
 
+          //console.log(defaultOptions);
+
           $(this).data('sliderData', {
-            node: $node,
+            $node: $node,
             slider: slider
           });
 

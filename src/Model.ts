@@ -41,6 +41,7 @@ class Model extends Observable<ModelMessage> implements IModel {
         super();
 
         let fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
+        //console.log(defaultOptions);
         let validOptions: IModelOptions;
 
         this.validate(fullOptions);
@@ -154,7 +155,10 @@ class Model extends Observable<ModelMessage> implements IModel {
 
     private normalize(options: IModelOptions, baseOptions: IModelOptions): IModelOptions {
 
+        //console.log(defaultOptions);
+
         options = Object.assign({}, baseOptions, options);
+        let thisBaseOptions: IModelOptions = Object.assign({}, baseOptions);
         let { begin, end, range, min, max, step, reverse, customValues } = options;
 
         if ( this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall ) {
@@ -166,17 +170,17 @@ class Model extends Observable<ModelMessage> implements IModel {
             max = customValues.length - 1;
         }
 
-        min = this.normalizeNumber(min, baseOptions.min);
-        max = this.normalizeNumber(max, baseOptions.max);
-        step = this.normalizeNumber(step, baseOptions.step);
+        min = this.normalizeNumber(min, thisBaseOptions.min);
+        max = this.normalizeNumber(max, thisBaseOptions.max);
+        step = this.normalizeNumber(step, thisBaseOptions.step);
 
         if ( this._warnings.minIsOverMax ) {
             [min, max] = [max, min];
         }
 
         if ( this._warnings.minIsEqualToMax ) {
-            min = baseOptions.min;
-            max = baseOptions.max;
+            min = thisBaseOptions.min;
+            max = thisBaseOptions.max;
         }
 
         if ( this._warnings.stepIsNull || this._warnings.tooBigStep ) {
@@ -203,6 +207,8 @@ class Model extends Observable<ModelMessage> implements IModel {
             options.begin = this.normalizeNumber(begin, min);
             options.begin = this.findClosestValue(begin, options);
         }
+
+        //console.log(defaultOptions);
 
         return options;
     }

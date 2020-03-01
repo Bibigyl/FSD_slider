@@ -41,7 +41,7 @@ class View extends Observable<ViewMessage> implements IView  {
 
         super();
 
-        options = Object.assign(defaultOptions, options);
+        options = Object.assign({}, defaultOptions, options);
         this.validate(options);
 
         this._slider = sliderNode;

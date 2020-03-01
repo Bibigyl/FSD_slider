@@ -2,24 +2,23 @@ $(document).ready( function() {
 
     $('#slider1').slider({
         end: 7,
-        step: 1,
-        //length: '100%',
-        scale: true,
-        tooltip: true,
+        length: '100%'
     });
 
     $('#slider2').slider({
-        end: 7,
-        step: 1,
+        begin: 2,
+        end: 8,
+        step: 2,
         range: true,
-        //length: '100%',
-        vertical: true
+        reverse: true,
+        length: '100%',
+        vertical: true,
     });
 
     $('#slider3').slider({
+        end: 2,
         customValues: ['a', 'b', 'c', '0.5', true],
-        scale: true,
-        tooltip: true,
+        length: '200px'
     });
 
 
