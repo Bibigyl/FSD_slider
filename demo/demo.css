@@ -66,8 +66,7 @@ button:not(:disabled) {
 }
 
 .slider-wrap_vertical {
-    height: 100%;
-    max-height: 300px;
+    height: 300px;
 }
 
 .error {

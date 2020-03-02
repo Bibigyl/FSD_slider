@@ -1,5 +1,5 @@
 
-import { IOptions, defaultOptions } from './defaultOptions';
+import { IOptions, defaultOptions } from './MVP/defaultOptions';
 import Slider from './Slider';
 
 

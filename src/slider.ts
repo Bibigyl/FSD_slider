@@ -2,10 +2,10 @@
 import './slider.css';
 
 
-import { IOptions, defaultOptions } from './defaultOptions';
-import Model, { IModel } from './Model';
-import View, { IView } from './View';
-import Presenter, { IPresenter } from './Presenter';
+import { IOptions, defaultOptions } from './MVP/defaultOptions';
+import Model, { IModel } from './MVP/Model';
+import View, { IView } from './MVP/View';
+import Presenter, { IPresenter } from './MVP/Presenter';
 
 
 interface ISlider {

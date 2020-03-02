@@ -1,4 +1,4 @@
-$(document).ready( function() {
+$(document).ready(function () {
 
     $('#slider1').slider({
         end: 7,
@@ -22,7 +22,7 @@ $(document).ready( function() {
     });
 
 
-    $('.demo').each(function() {
+    $('.demo').each(function () {
         let $demo = $(this);
         let $slider = $demo.find('.slider');
         let options = {};
@@ -30,7 +30,7 @@ $(document).ready( function() {
         let timeout;
 
 
-        $demo.find('input[name="hasCustomValues"]').change(function() {
+        $demo.find('input[name="hasCustomValues"]').change(function () {
 
             $demo.find('input[name="customValues"]').toggleAttr('disabled');
             $demo.find('input[name="min"]').toggleAttr('disabled');
@@ -38,11 +38,11 @@ $(document).ready( function() {
 
             $demo.find('input[name="customEnd"]').toggleAttr('disabled');
 
-            if ( $demo.find('input[name="range"]').prop('checked') ) {
+            if ($demo.find('input[name="range"]').prop('checked')) {
                 $demo.find('input[name="customBegin"]').toggleAttr('disabled');
             }
 
-            if ( $(this).prop('checked') ) {
+            if ($(this).prop('checked')) {
                 $demo.find('input[name="customValues"]').trigger('change');
 
             } else {
@@ -55,32 +55,32 @@ $(document).ready( function() {
             }
         });
 
-        $demo.find('input[name="manyOptions"]').change(function() {
+        $demo.find('input[name="manyOptions"]').change(function () {
             $demo.find('button').toggleAttr('disabled');
             instantChange = !instantChange;
         });
 
-        $demo.find('button').on('click', function() {
+        $demo.find('button').on('click', function () {
             $slider.slider('update', options);
             options = {};
         });
 
-        $demo.find('input[name="vertical"]').change(function() {
+        $demo.find('input[name="vertical"]').change(function () {
             $demo.find('.slider-wrap').toggleClass('slider-wrap_vertical');
         })
 
-        $demo.find('.option').each(function() {
+        $demo.find('.option').each(function () {
 
-            $(this).change(function() {
+            $(this).change(function () {
 
                 let $option = $(this);
 
-                if ( $option.attr('type') == 'checkbox') {
+                if ($option.attr('type') == 'checkbox') {
 
                     let bool = $option.prop('checked');
                     options[$option.attr('name')] = bool;
 
-                    if ( $option.attr('name') == 'range' ) {
+                    if ($option.attr('name') == 'range') {
 
                         options.begin = $demo.find('input[name="begin"]').val();
                         $demo.find('input[name="begin"]').toggleAttr('disabled');
@@ -89,11 +89,11 @@ $(document).ready( function() {
                         }
                     }
 
-                } else if ( $option.attr('name') == 'customValues' ) {
+                } else if ($option.attr('name') == 'customValues') {
 
                     let arr;
                     arr = $option.val().split(',');
-                    arr.forEach( function(elem, i, arr) {
+                    arr.forEach(function (elem, i, arr) {
                         arr[i] = elem.trim();
                     })
                     options.customValues = arr;
@@ -114,7 +114,7 @@ $(document).ready( function() {
             });
         });
 
-        $slider.slider('observe', function(options, warnings) {
+        $slider.slider('observe', function (options, warnings) {
 
             let $error = $demo.find('.error');
             $error.text('');
@@ -124,49 +124,53 @@ $(document).ready( function() {
             let name;
             let $option;
 
-            $demo.find('.option').each(function() {
+            $demo.find('.option').each(function () {
 
                 $option = $(this);
                 name = $option.attr('name');
 
-                if ($option.hasAttr('disabled')) { return };
-                if (!options.hasOwnProperty(name)) { return };
+                if ($option.hasAttr('disabled')) {
+                    return
+                };
+                if (!options.hasOwnProperty(name)) {
+                    return
+                };
 
                 if ($option.attr('type') == 'checkbox') {
 
                     $option.prop('checked', options[name]);
 
                 } else {
-                    
+
                     $option.val(options[name]);
                 }
             });
 
-            if ( options.customValues ) {
-                
+            if (options.customValues) {
+
                 $demo.find('input[name="customValues"]').prop('checked', true);
 
                 let end = options.customValues[options.end];
                 $demo.find('input[name="customEnd"]').val(end);
 
-                if ( options.range ) {
+                if (options.range) {
                     let begin = options.customValues[options.begin];
                     $demo.find('input[name="customBegin"]').val(begin);
                 }
             }
 
 
-            if ( warnings && Object.keys(warnings).length != 0 ) {
+            if (warnings && Object.keys(warnings).length != 0) {
 
-                for ( let key in warnings ) {
+                for (let key in warnings) {
                     $error.append('<p>' + warnings[key] + '</p>')
                 }
                 $error.removeAttr('hidden');
-        
-                timeout = setTimeout(function() {
+
+                timeout = setTimeout(function () {
                     $error.attr('hidden', '');
                 }, 5000);
-        
+
                 return timeout;
             }
         });
@@ -174,14 +178,14 @@ $(document).ready( function() {
 });
 
 
-$.fn.toggleAttr = function(a, b) {
+$.fn.toggleAttr = function (a, b) {
     var c = (b === undefined);
-    return this.each(function() {
-        if((c && !$(this).is("["+a+"]")) || (!c && b)) $(this).attr(a,a);
+    return this.each(function () {
+        if ((c && !$(this).is("[" + a + "]")) || (!c && b)) $(this).attr(a, a);
         else $(this).removeAttr(a);
     });
 }
 
-$.fn.hasAttr = function(name) {  
+$.fn.hasAttr = function (name) {
     return this.attr(name) !== undefined;
 }
