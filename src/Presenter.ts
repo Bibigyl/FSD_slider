@@ -54,60 +54,25 @@ class Presenter extends ObservablePresenter implements IPresenter {
         });
     }
 
-
+    
     public update(options: IOptions): void {
 
-        // можно упростить
+        this._model.update(options);
 
-        let isModelUpdated: boolean = false;
-        let isViewUpdated: boolean = false;
-        let isOnlyViewWarnings: boolean = true;
+        options = Object.assign(options, this._model.getOptions());
+        this._view.rerender(options);
 
-        let modelOptions: string[] = ['begin', 'end', 'min', 'max', 'step', 'reverse', 'range', 'customValues'];
+        let warnings: IWarnings = this.getWarnings();
+        if ( Object.keys(warnings).length == 0 ) { warnings = undefined }
 
-        modelOptions.forEach(function(item) {
-            if ( options.hasOwnProperty(item) ) {
-                isModelUpdated = true;
-                return;
-            }
-        });
-
-        if (isModelUpdated) { 
-            this._model.update(options);
-            isViewUpdated = true;
-            isOnlyViewWarnings = false;
-        }
-
-
-        let viewOptions: string[] = ['length', 'vertical', 'tooltip', 'scale'];
-
-        viewOptions.forEach(function(item) {
-            if ( options.hasOwnProperty(item) ) {
-                isViewUpdated = true;
-                return;
-            }
-        });
-
-        if (isViewUpdated) {
-            options = Object.assign(options, this._model.getOptions());
-            this._view.rerender(options);
-        }
-
-        if (isModelUpdated || isViewUpdated) {
-
-            let warnings: IWarnings = isOnlyViewWarnings ?
-            this._view.getWarnings() :
-            this.getWarnings();
-            if ( Object.keys(warnings).length == 0 ) { warnings = undefined }
-
-            this.notify( this.getOptions(), warnings );
-        }
+        this.notify( this.getOptions(), warnings );
     }
 
 
     public getOptions(): IOptions {
         return Object.assign({}, this._model.getOptions(), this._view.getOptions());
     }
+
 
     public getWarnings(): IWarnings {
         return Object.assign({}, this._model.getWarnings(), this._view.getWarnings());

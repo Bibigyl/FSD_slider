@@ -381,14 +381,13 @@ class View extends Observable<ViewMessage> implements IView  {
             thumbNode.style.top = position;
         }
 
+
         // z index
         if ( this._thumbFirst ) {
-            if ( !this._vertical ) {
-                if ( (this._thumbFirst.style.left == '100%') || (this._thumbFirst.style.top == '100%') ) {
-                    this._thumbFirst.style.zIndex = '1';
-                } else {
-                    this._thumbFirst.style.zIndex = null;
-                }  
+            if ( (this._thumbFirst.style.left == '100%') || (this._thumbFirst.style.top == '100%') ) {
+                this._thumbFirst.style.zIndex = '1';
+            } else {
+                this._thumbFirst.style.zIndex = null;
             }
         }
     }
