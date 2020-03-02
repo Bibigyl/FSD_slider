@@ -1,11 +1,7 @@
-import Model, { IModel } from './Model';
-import View, { IView } from './View';
-import Presenter from './Presenter';
-import { IOptions, defaultOptions } from './defaultOptions';
-import { } from './Observer';
-import Slider from './slider';
 
-//import './slider.css';
+import { IOptions, defaultOptions } from './defaultOptions';
+import Slider from './Slider';
+
 
 (function ($) {
 
@@ -33,8 +29,6 @@ import Slider from './slider';
           let newDefaultOptions = Object.assign({}, defaultOptions)
           options = $.extend({}, newDefaultOptions, options);
           let slider = new Slider(options, this);
-
-          //console.log(defaultOptions);
 
           $(this).data('sliderData', {
             $node: $node,
@@ -75,7 +69,6 @@ import Slider from './slider';
     }
   }
 
-  // ?????????????
   jQuery.fn.slider = function (method: string): JQuery {
 
     // логика вызова метода
@@ -94,53 +87,3 @@ import Slider from './slider';
   };
 
 })(jQuery);
-
-
-/* let mod = new Model(Object.assign({}, defaultOptions, {
-  begin: 5,
-  end: 7,
-  range: true
-})); */
-//mod.setEndByOffsetRacio(0.3454);
-//console.log(mod.getOptions());
-
-/* let test = document.querySelector('.test') as HTMLDivElement;
-
-let view = new View(defaultOptions, test); */
-
-
-//let pres = new Presenter(defaultOptions, test);
-
-$('.test').slider({
-  end: 6,
-  begin: 2,
-  step: 9,
-  tooltip: true,
-  scale: true,
-  range: true,
-  reverse: true
-});
-
-
-/*
-$('.test').slider('update', {
-  min: 20,
-  range: [3, 7],
-  max: -3
-})
-
-
-$('.test').slider('update', {
-  min: -5.8,
-  range: [3, 7, 'dgx ', 5],
-  max: 'vbn'
-}) */
-
-
-
-/* let mod = new Model(defaultOptions);
-console.log(mod.reverse)
-mod.makeFullChanges({reverse: true})
-console.log(mod.reverse)
-mod.makeFullChanges({reverse: false})
-console.log(mod.reverse) */

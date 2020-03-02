@@ -3,10 +3,8 @@ import './slider.css';
 
 
 import { IOptions, defaultOptions } from './defaultOptions';
-import Model, { IModel, IModelOptions } from './Model';
+import Model, { IModel } from './Model';
 import View, { IView } from './View';
-import { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter }  from './Observer';
-import { IWarnings } from './validations';
 import Presenter, { IPresenter } from './Presenter';
 
 

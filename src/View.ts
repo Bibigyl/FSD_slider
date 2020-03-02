@@ -2,7 +2,7 @@ import { IOptions, defaultOptions } from './defaultOptions';
 import { IObservable, Observable, ViewMessage } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IWarnings } from './validations';
-import { IModel, IModelOptions } from './Model';
+import { IModelOptions } from './Model';
 
 
 interface IViewOptions {

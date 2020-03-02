@@ -41,7 +41,6 @@ class Model extends Observable<ModelMessage> implements IModel {
         super();
 
         let fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
-        //console.log(defaultOptions);
         let validOptions: IModelOptions;
 
         this.validate(fullOptions);
@@ -155,8 +154,6 @@ class Model extends Observable<ModelMessage> implements IModel {
 
     private normalize(options: IModelOptions, baseOptions: IModelOptions): IModelOptions {
 
-        //console.log(defaultOptions);
-
         options = Object.assign({}, baseOptions, options);
         let thisBaseOptions: IModelOptions = Object.assign({}, baseOptions);
         let { begin, end, range, min, max, step, reverse, customValues } = options;
@@ -207,8 +204,6 @@ class Model extends Observable<ModelMessage> implements IModel {
             options.begin = this.normalizeNumber(begin, min);
             options.begin = this.findClosestValue(begin, options);
         }
-
-        //console.log(defaultOptions);
 
         return options;
     }

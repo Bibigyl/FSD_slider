@@ -1,7 +1,7 @@
-import { IOptions, defaultOptions } from './defaultOptions';
-import Model, { IModel, IModelOptions } from './Model';
-import View, { IView } from './View';
-import { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter }  from './Observer';
+import { IOptions} from './defaultOptions';
+import { IModel} from './Model';
+import { IView } from './View';
+import { IObservable, ModelMessage, ViewMessage, ObservablePresenter }  from './Observer';
 import { IWarnings } from './validations';
 
 
@@ -54,7 +54,7 @@ class Presenter extends ObservablePresenter implements IPresenter {
         });
     }
 
-    
+
     public update(options: IOptions): void {
 
         this._model.update(options);

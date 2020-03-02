@@ -55,32 +55,3 @@ class ObservablePresenter implements IObservable {
 
 
 export { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter};
-
-
-
-/*
-// Observe
-interface IObservable {
-    subscribe(listener: any): void;
-    //detach(listener: any): void;
-    notify(message: any): void;
-}
-
-class Observable implements IObservable {
-    protected listeners: Function[] = [];
-
-    public subscribe(listener: Function): void {
-        this.listeners.push(listener);
-    }
-
-/*     public detach(listener: Function): void {
-        const listenerIndex: number = this.listeners.indexOf(listener);
-        this.listeners.splice(listenerIndex, 1);
-    } */
-/*
-    public notify(message: IMessage): void {
-        for (const listener of this.listeners) {
-            listener(message);
-        }
-    }
-}*/
