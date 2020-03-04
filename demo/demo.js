@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    $('#slider1').slider({
+   $('#slider1').slider({
         end: 7,
         length: '100%'
     });
@@ -25,6 +25,7 @@ $(document).ready(function () {
     $('.demo').each(function () {
         let $demo = $(this);
         let $slider = $demo.find('.slider');
+        let $scale = $demo.find('.scale');
         let options = {};
         let instantChange = true;
         let timeout;
@@ -49,8 +50,11 @@ $(document).ready(function () {
                 options.customValues = undefined;
 
                 if (instantChange) {
+
                     $slider.slider('update', options);
                     options = {};
+
+                    checkSliderWrap();
                 }
             }
         });
@@ -64,10 +68,6 @@ $(document).ready(function () {
             $slider.slider('update', options);
             options = {};
         });
-
-        $demo.find('input[name="vertical"]').change(function () {
-            $demo.find('.slider-wrap').toggleClass('slider-wrap_vertical');
-        })
 
         $demo.find('.option').each(function () {
 
@@ -110,6 +110,8 @@ $(document).ready(function () {
                 if (instantChange) {
                     $slider.slider('update', options);
                     options = {};
+
+                    checkSliderWrap();
                 }
             });
         });
@@ -174,6 +176,19 @@ $(document).ready(function () {
                 return timeout;
             }
         });
+
+
+
+        function checkSliderWrap() {
+            let $sliderWrap = $demo.find('.slider-wrap');
+
+            if ($slider.hasClass('slider_vertical')) {
+                $sliderWrap.addClass('slider-wrap_vertical');
+            } else {
+                $sliderWrap.removeClass('slider-wrap_vertical');
+            }
+        }
+
     });
 });
 

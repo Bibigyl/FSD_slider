@@ -1,12 +1,12 @@
 import { IOptions} from './defaultOptions';
-import { IModel} from './Model';
+import { IModel, IModelOptions} from './Model';
 import { IView } from './View';
 import { IObservable, ModelMessage, ViewMessage, ObservablePresenter }  from './Observer';
 import { IWarnings } from './validations';
 
 
 interface IPresenter extends IObservable {
-    update(options: IOptions): void;
+    update(options: Object): void;
 
     getOptions(): IOptions;
     getWarnings(): IWarnings;
@@ -55,12 +55,13 @@ class Presenter extends ObservablePresenter implements IPresenter {
     }
 
 
-    public update(options: IOptions): void {
+    public update(options: Object): void {
 
-        this._model.update(options);
+        let optionsForModel: Object = Object.assign({}, options);
+        this._model.update(optionsForModel);
 
-        options = Object.assign(options, this._model.getOptions());
-        this._view.rerender(options);
+        let optionsForView: IModelOptions = Object.assign(options, this._model.getOptions());
+        this._view.rerender(optionsForView);
 
         let warnings: IWarnings = this.getWarnings();
         if ( Object.keys(warnings).length == 0 ) { warnings = undefined }

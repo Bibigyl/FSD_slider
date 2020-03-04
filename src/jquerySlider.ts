@@ -15,7 +15,7 @@ import Slider from './Slider';
 
   var methods: IMethods = {
 
-    init: function(options?: IOptions): void {
+    init: function(opts?: Object): void {
 
       return this.each(function() {
 
@@ -23,11 +23,10 @@ import Slider from './Slider';
         let data = $this.data('sliderData');
         let $node = $this;
 
-        // Если плагин ещё не проинициализирован
+        // If the plugin has not yet been initialized
         if (!data) {
 
-          let newDefaultOptions = Object.assign({}, defaultOptions)
-          options = $.extend({}, newDefaultOptions, options);
+          let options: Object = $.extend({}, defaultOptions, opts);
           let slider = new Slider(options, this);
 
           $(this).data('sliderData', {
@@ -71,7 +70,6 @@ import Slider from './Slider';
 
   jQuery.fn.slider = function (method: string): JQuery {
 
-    // логика вызова метода
     if (methods[method as string]) {
 
       return methods[method as string].apply(this, Array.prototype.slice.call(arguments, 1));

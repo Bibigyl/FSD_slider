@@ -1,8 +1,8 @@
 function isNumeric(n: any): boolean {
-    return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+    return !isNaN(parseFloat(String(n))) && !isNaN(n - 0);
 }
 
-function deepEqual(obj1, obj2) {
+function deepEqual(obj1: Object, obj2: Object) {
     return JSON.stringify(obj1)===JSON.stringify(obj2);
  }
 

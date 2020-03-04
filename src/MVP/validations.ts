@@ -1,7 +1,10 @@
 import { IModelOptions } from "./Model";
 import { isNumeric } from "./commonFunctions";
+import { IViewOptions } from "./View";
 
-interface IWarnings {
+interface IWarnings extends IModelWarnings, IViewWarnings {}
+
+interface IModelWarnings {
     valuesAreNotNumbers?: string,
     valuesAreNotInteger?: string,
     minIsOverMax?: string,
@@ -12,14 +15,16 @@ interface IWarnings {
     reverseIsNotBoolean?: string,
     customValuesIsNotArray?: string,
     customValuesIsTooSmall? : string,
+}
 
+interface IViewWarnings {
     invalidLength?: string,
     verticalIsNotBoolean?: string,
     tooltipIsNotBoolean?: string,
     scaleIsNotBoolean?: string,
 }
 
-let warnings: IWarnings = {
+let modelWarnings: IModelWarnings = {
     valuesAreNotNumbers: 'All values, instead of customValues, should be numbers',
     valuesAreNotInteger: 'All values, instead of customValues, should be integer',
     minIsOverMax: 'Min value should be less then max value',
@@ -29,19 +34,22 @@ let warnings: IWarnings = {
     stepIsNull: 'Step cant be equal to 0',
     reverseIsNotBoolean: 'Option reverse should be true or false',
     customValuesIsNotArray: 'CustomValues should be array',
-    customValuesIsTooSmall: 'CustomValues should contain at least two values',
+    customValuesIsTooSmall: 'CustomValues should contain at least two values'
+}
 
+let viewWarnings: IViewWarnings = {
     invalidLength: 'Length should be valid to CSS',
     verticalIsNotBoolean: 'Option vertical should be true or false',
     tooltipIsNotBoolean: 'Option tooltip should be true or false',
-    scaleIsNotBoolean: 'Option scale should be true or false',
+    scaleIsNotBoolean: 'Option scale should be true or false'
 }
 
-function validateModel(options: IModelOptions): IWarnings {
+
+function validateModel(options: IModelOptions): IModelWarnings {
 
     let {begin, end, range, min, max, step, reverse, customValues} = options;
 
-    let warns: IWarnings = {};
+    let warns: IModelWarnings = {};
 
     let numbers: number[] = [min, max, step];
     if (begin) { numbers.push(begin) }
@@ -49,45 +57,45 @@ function validateModel(options: IModelOptions): IWarnings {
 
 
     if ( !validateNumbers(numbers) ) { 
-        warns.valuesAreNotNumbers = warnings.valuesAreNotNumbers;
+        warns.valuesAreNotNumbers = modelWarnings.valuesAreNotNumbers;
     }
 
     if ( !validateIntegers(numbers) ) {
-        warns.valuesAreNotInteger = warnings.valuesAreNotInteger;
+        warns.valuesAreNotInteger = modelWarnings.valuesAreNotInteger;
     }
 
     if ( min > max ) {
-        warns.minIsOverMax = warnings.minIsOverMax;
+        warns.minIsOverMax = modelWarnings.minIsOverMax;
     }
 
     if ( min == max ) {
-        warns.minIsEqualToMax = warnings.minIsEqualToMax;
+        warns.minIsEqualToMax = modelWarnings.minIsEqualToMax;
     }
 
 
     if ( range && (begin > end) ) {
-        warns.beginIsOverEnd = warnings.beginIsOverEnd;
+        warns.beginIsOverEnd = modelWarnings.beginIsOverEnd;
     }
 
     if ( Math.abs(max - min) < Math.abs(step) ) {
-        warns.tooBigStep = warnings.tooBigStep;
+        warns.tooBigStep = modelWarnings.tooBigStep;
     }
     
     if ( step == 0 ) {
-        warns.stepIsNull = warnings.stepIsNull;
+        warns.stepIsNull = modelWarnings.stepIsNull;
     }
 
     if ( typeof reverse != 'boolean' ) {
-        warns.reverseIsNotBoolean = warnings.reverseIsNotBoolean;
+        warns.reverseIsNotBoolean = modelWarnings.reverseIsNotBoolean;
     }
 
     if ( customValues ) {
         if ( !Array.isArray(customValues) ) {
-            warns.customValuesIsNotArray = warnings.customValuesIsNotArray;
+            warns.customValuesIsNotArray = modelWarnings.customValuesIsNotArray;
         }
 
         if ( !warns.customValuesIsNotArray && customValues.length < 2 ) {
-            warns.customValuesIsTooSmall = warnings.customValuesIsTooSmall;
+            warns.customValuesIsTooSmall = modelWarnings.customValuesIsTooSmall;
         }
     }
 
@@ -116,27 +124,27 @@ function validateIntegers(numbers: number[]): boolean {
 
 
 
-function validateView(options): IWarnings {
-    let warns: IWarnings = {};
+function validateView(options: IViewOptions): IViewWarnings {
+    let warns: IViewWarnings = {};
     let {length, vertical, tooltip, scale} = options;
 
     if ( !length.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i) ) {
-        warns.invalidLength = warnings.invalidLength;
+        warns.invalidLength = viewWarnings.invalidLength;
     }
 
     if ( typeof vertical != 'boolean' ) {
-        warns.verticalIsNotBoolean = warnings.verticalIsNotBoolean;
+        warns.verticalIsNotBoolean = viewWarnings.verticalIsNotBoolean;
     }
 
     if ( typeof tooltip != 'boolean' ) {
-        warns.tooltipIsNotBoolean = warnings.tooltipIsNotBoolean;
+        warns.tooltipIsNotBoolean = viewWarnings.tooltipIsNotBoolean;
     }
 
     if ( typeof scale != 'boolean' ) {
-        warns.scaleIsNotBoolean = warnings.scaleIsNotBoolean;
+        warns.scaleIsNotBoolean = viewWarnings.scaleIsNotBoolean;
     }
 
     return warns;
 }
 
-export { validateModel, validateView, IWarnings }
+export { validateModel, validateView, IWarnings, IModelWarnings, IViewWarnings }

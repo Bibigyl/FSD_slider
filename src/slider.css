@@ -97,6 +97,7 @@
     color: #555;
     font-size: 14px;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .slider__scale-division:last-child::before,

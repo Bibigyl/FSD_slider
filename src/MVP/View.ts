@@ -1,7 +1,7 @@
 import { IOptions, defaultOptions } from './defaultOptions';
 import { IObservable, Observable, ViewMessage } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
-import { validateView, IWarnings } from './validations';
+import { validateView, IViewWarnings } from './validations';
 import { IModelOptions } from './Model';
 
 
@@ -14,10 +14,10 @@ interface IViewOptions {
 
 interface IView extends IObservable {
     update(options: IModelOptions): void;
-    rerender(options: IOptions): void;
+    rerender(options: IModelOptions): void;
 
     getOptions(): IViewOptions;
-    getWarnings(): IWarnings;
+    getWarnings(): IViewWarnings;
 }
 
 class View extends Observable<ViewMessage> implements IView  {
@@ -35,13 +35,13 @@ class View extends Observable<ViewMessage> implements IView  {
     private _scale?: HTMLDivElement | undefined;
 
     private _activeThumb: HTMLDivElement;
-    private _warnings: IWarnings;
+    private _warnings: IViewWarnings;
     
-    constructor(options: IOptions, sliderNode: HTMLDivElement) {
+    constructor(opts: Object, sliderNode: HTMLDivElement) {
 
         super();
 
-        options = Object.assign({}, defaultOptions, options);
+        let options: IOptions = Object.assign({}, defaultOptions, opts);
         this.validate(options);
 
         this._slider = sliderNode;
@@ -60,8 +60,8 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
 
-    public rerender(options: IOptions): void {
-        options = Object.assign({}, this.getOptions(), options);
+    public rerender(opts: IModelOptions): void {
+        let options: IOptions = Object.assign({}, this.getOptions(), opts);
 
         this.validate(options);
         this.rebuild(options);
@@ -69,8 +69,8 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     public getOptions(): IViewOptions {
-        let tooltip = !!this._tooltip || !!this._tooltipFirst;
-        let scale = !!this._scale;
+        let tooltip = Boolean(this._tooltip) || Boolean(this._tooltipFirst);
+        let scale = Boolean(this._scale);
 
         return {
             length:  this._length,
@@ -81,17 +81,16 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
 
-    public getWarnings(): IWarnings {
+    public getWarnings(): IViewWarnings {
         return Object.assign({}, this._warnings);
     }
 
 
-    private handleThumbDown(event): void {
-        // предотвратить запуск выделения (действие браузера)
+    private handleThumbDown(event: MouseEvent | TouchEvent): void {
         event.preventDefault();
         event.stopPropagation();
 
-        this._activeThumb = event.currentTarget;
+        this._activeThumb = event.currentTarget as HTMLDivElement;
 
         document.addEventListener('mousemove', this.handleThumbMove);
         document.addEventListener('mouseup', this.handleThumbUp);
@@ -100,20 +99,24 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
 
-    private handleThumbMove(event): void {
+    private handleThumbMove(event: MouseEvent | TouchEvent): void {
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
         let newThumbPosition: number;
-        
-        if (event.touches) {
-            eventPos = !this._vertical ? event.touches[0].clientX : event.touches[0].clientY;
+
+        if (event.type == 'mousemove') {
+            let mouseEvent: MouseEvent = event as MouseEvent;
+            eventPos = !this._vertical ? mouseEvent.clientX : mouseEvent.clientY;
+            
         } else {
-            eventPos = !this._vertical ? event.clientX : event.clientY;
+            let touchEvent: TouchEvent = event as TouchEvent;
+            eventPos = !this._vertical ? touchEvent.touches[0].clientX : touchEvent.touches[0].clientY;
         }
 
         newThumbPosition = (eventPos - offset) / length;
         
+
         if ( this._activeThumb == this._thumbLast ) {
 
             this.notify({
@@ -132,20 +135,14 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
 
-    private handleSliderClick(event): void {
+    private handleSliderClick(event: MouseEvent): void {
         let length: number = this.getLengthInPx();
         let offset: number = this.getOffsetInPx();
         let eventPos: number;
         let newThumbPosition: number;
         let isLastMoved: boolean;
-        
-        if (event.touches) {
-            eventPos = !this._vertical ? event.touches[0].clientX : event.touches[0].clientY;
-        } else {
-            eventPos = !this._vertical ? event.clientX : event.clientY;
-        }
 
-        // если возвр %, то * 100
+        eventPos = !this._vertical ? event.clientX : event.clientY;
         newThumbPosition = (eventPos - offset) / length;
 
         if ( this._thumbFirst.classList.contains('slider__thumb_disabled') ) {
@@ -181,7 +178,7 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
-    private handleThumbUp(event): void {
+    private handleThumbUp(): void {
         document.removeEventListener('mouseup', this.handleThumbUp);
         document.removeEventListener('mousemove', this.handleThumbMove);
         document.removeEventListener('touchend', this.handleThumbUp);
@@ -239,9 +236,9 @@ class View extends Observable<ViewMessage> implements IView  {
         this._slider.addEventListener('click', this.handleSliderClick);
     }
 
-    private rebuild(options: IOptions): void {
+    private rebuild(opts: IModelOptions): void {
         let prevOptions: IViewOptions = this.getOptions();
-        options = Object.assign({}, prevOptions, options);
+        let options: IOptions = Object.assign({}, prevOptions, opts);
 
         for (let key in this) {
             if (key != '_slider') {
@@ -259,15 +256,13 @@ class View extends Observable<ViewMessage> implements IView  {
         this._warnings = {};
         this._warnings = validateView(options);
 
-        if ( Object.keys(this._warnings).length != 0 ) {
-
-            let warnings: IWarnings = Object.assign({}, this._warnings);
-            
-            this.notify({
-                type: 'WARNINGS',
-                warnings: warnings
-            })
-        }
+        if ( Object.keys(this._warnings).length == 0 ) { return; }
+        let warnings: IViewWarnings = Object.assign({}, this._warnings);
+        
+        this.notify({
+            type: 'WARNINGS',
+            warnings: warnings
+        });
     }
 
     private buildThumbs(options: IOptions): void {
@@ -301,8 +296,8 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setBarPosition(): void {
-        let start: number | string;
-        let length: number | string;
+        let start: string;
+        let length: string;
         let topLeft: string = !this._vertical ? 'left' : 'top';
         let widthHeight: string = !this._vertical ? 'width' : 'height';
 
@@ -341,14 +336,14 @@ class View extends Observable<ViewMessage> implements IView  {
                 val = Math.max(val, min);
             }
 
-            indent = i * step < length ? i * step : length; 
+            indent = Math.min( i * step, length )
             indent = indent / length * 100 + '%';
 
             val = customValues ? customValues[val] : val;
 
             division = document.createElement('div');
             division.classList.add('slider__scale-division');
-            division.innerHTML = '<span class="slider__scale-division-text">' + val + '</span>';
+            division.innerHTML = `<span class="slider__scale-division-text">${val}</span>`;
             options.vertical ? division.style.top = indent : division.style.left = indent;
 
             scale.append(division);
@@ -360,15 +355,15 @@ class View extends Observable<ViewMessage> implements IView  {
 
     private setTooltipValues(options: IModelOptions): void {
         let { begin, end, reverse, customValues } = options;
-        let beginValue = customValues ? customValues[begin] : begin;
-        let endValue = customValues ? customValues[end] : end;
+        let beginValue: string = customValues ? customValues[begin] : String(begin);
+        let endValue: string = customValues ? customValues[end] : String(end);
 
         if (!reverse) {
-            this._tooltipFirst.textContent = beginValue as string;
-            this._tooltipLast.textContent = endValue as string;
+            this._tooltipFirst.textContent = beginValue;
+            this._tooltipLast.textContent = endValue;
         } else {
-            this._tooltipFirst.textContent = endValue as string;
-            this._tooltipLast.textContent = beginValue as string;
+            this._tooltipFirst.textContent = endValue;
+            this._tooltipLast.textContent = beginValue;
         }
     }
 
@@ -401,31 +396,34 @@ class View extends Observable<ViewMessage> implements IView  {
         return pos;
     }
 
-    private removeNode(node: HTMLDivElement): undefined {
+    private removeNode(node: HTMLElement): undefined {
         node.remove();
         return undefined;
     }
 
     private buildNode(parentNode: HTMLDivElement, ...classes: string[]): HTMLDivElement {
-        let node: HTMLDivElement = document.createElement('div');     
+        let node: HTMLDivElement = document.createElement('div');
 
-        for ( let i: number = 1; i < arguments.length; i++ ) {
-            node.classList.add(arguments[i]);
-        }
+        classes.forEach(function(currenClass: string) {
+            node.classList.add(currenClass);
+        });
+
         parentNode.append(node);
         return node;
     }
     
-    private getValidLength(str: any, validLength: string): string {
-        if ( typeof ('' + str) == 'string' ) {
-            let r = ('' + str).match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
-            if ( r && isNumeric(r[0]) ) { 
-                return r[0].toLowerCase().replace(',', '.') + 'px';
-            } else if ( r ) {
-                return r[0].toLowerCase().replace(',', '.');
-            } else {
-                return validLength
-            }
+    private getValidLength(str: string, validLength: string): string {
+
+        let CSSLength: string[] | number[] = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
+
+        if ( CSSLength && isNumeric(CSSLength[0]) ) { 
+            return CSSLength[0].toLowerCase().replace(',', '.') + 'px';
+
+        } else if ( CSSLength ) {
+            return CSSLength[0].toLowerCase().replace(',', '.');
+
+        } else {
+            return validLength;
         }
     }
 
