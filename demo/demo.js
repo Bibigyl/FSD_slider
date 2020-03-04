@@ -186,7 +186,7 @@ $(document).ready(function () {
 
 
         function checkSliderWrap() {
-
+            
             if ($slider.hasClass('slider_vertical')) {
                 $sliderWrap.addClass('slider-wrap_vertical');
             } else {

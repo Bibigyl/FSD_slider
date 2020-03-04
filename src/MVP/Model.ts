@@ -99,19 +99,6 @@ class Model extends Observable<ModelMessage> implements IModel {
     }
 
 
-    private findValueByOffsetRacio(racio: number): number {
-        let value: number;
-
-        value = racio * (this._max - this._min);
-        value = !this._reverse ? 
-        this._min + value :
-        this._max - value;
-
-        value = this.findClosestValue(value, this.getOptions());
-        return value;
-    }
-
-
     public getOptions(): IModelOptions {
         return {
             begin: this._begin,
@@ -251,6 +238,19 @@ class Model extends Observable<ModelMessage> implements IModel {
         }
 
         value = value < prevValue + (nextValue - prevValue) / 2 ? prevValue : nextValue;
+        return value;
+    }
+
+    
+    private findValueByOffsetRacio(racio: number): number {
+        let value: number;
+
+        value = racio * (this._max - this._min);
+        value = !this._reverse ? 
+        this._min + value :
+        this._max - value;
+
+        value = this.findClosestValue(value, this.getOptions());
         return value;
     }
 }

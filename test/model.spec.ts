@@ -4,15 +4,12 @@ import { IWarnings, validateModel } from '../src/MVP/validations';
 import { ModelMessage } from '../src/MVP/Observer';
 
 let model: IModel;
-let testOptions;
-let newOptions;
 
 beforeEach( function() {
     model = new Model(defaultOptions);
 });
 afterEach( function() {
     model = null;
-    //testOptions = null;
 });
 
 describe('Model creates with defaultOptions', () => {
@@ -77,9 +74,9 @@ describe('Model has public methods', () => {
                 if (message.type == 'NEW_DATA') {
                     isNotified = true;
                 }
-            })
+            });
             let optionsWithWarning: IModelOptions = Object.assign({}, defaultOptions, {
-                begin: 5
+                end: 5
             })
             model.update(optionsWithWarning);
 
@@ -340,6 +337,60 @@ describe('Model has private methods', () => {
 
             expect(newOptions.begin).toBe(1);
             expect(newOptions.end).toBe(6);
+        });
+    });
+
+    describe('method normalizeNumber', () => {
+        it('checks, if value is number, in other way returns default value', () => {
+            // @ts-ignore
+            let number: number = model.normalizeNumber(3, 1);
+            expect(number).toBe(3);
+            // @ts-ignore
+            let notNumber: number = model.normalizeNumber('abc', 1);
+            expect(notNumber).toBe(1);
+        });
+    });
+
+    describe('method findClosestValue', () => {
+        it('returns closest value by step between min and max', () => {
+            // @ts-ignore
+            let value: number = model.findClosestValue(5.4, defaultOptions);
+            expect(value).toBe(5);
+            // @ts-ignore
+            let value: number = model.findClosestValue(100, defaultOptions);
+             expect(value).toBe(defaultOptions.max);
+            // @ts-ignore
+            let value: number = model.findClosestValue(-100, defaultOptions);
+            expect(value).toBe(defaultOptions.min);
+        });
+
+        it('considers reverse to find steps', () => {
+            let newOptions = Object.assign({}, defaultOptions, {step: 3});
+            // @ts-ignore
+            let value: number = model.findClosestValue(2.8, newOptions);
+            expect(value).toBe(3);
+
+            let newOptionsReversed = Object.assign({}, defaultOptions, {
+                step: 3,
+                reverse: true
+            });
+            // @ts-ignore
+            let value: number = model.findClosestValue(2.8, newOptionsReversed);
+            expect(value).toBe(4);
+        });
+    });
+
+    describe('method findValueByOffsetRacio', () => {
+        it('returns value by racio considering to rreverse', () => {
+            // @ts-ignore
+            let value = model.findValueByOffsetRacio(0.18);
+            expect(value).toBe(2);
+
+            // @ts-ignore
+            model._reverse = true;
+            // @ts-ignore
+            let valueIfReverse = model.findValueByOffsetRacio(0.18);
+            expect(valueIfReverse).toBe(8);
         });
     });
 });
