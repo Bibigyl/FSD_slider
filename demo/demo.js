@@ -25,26 +25,36 @@ $(document).ready(function () {
     $('.demo').each(function () {
         let $demo = $(this);
         let $slider = $demo.find('.slider');
-        let $scale = $demo.find('.scale');
+        let $sliderWrap = $demo.find('.slider-wrap');
+        let $begin = $demo.find('input[name="begin"]')
+        let $max = $demo.find('input[name="max"]')
+        let $min = $demo.find('input[name="min"]')
+        let $customValues = $demo.find('input[name="customValues"]')
+        let $hasCustomValues = $demo.find('input[name="hasCustomValues"]')
+        let $customBegin = $demo.find('input[name="customBegin"]')
+        let $customEnd = $demo.find('input[name="customEnd"]')
+        let $button = $demo.find('button')
+        let $manyOptions = $demo.find('input[name="manyOptions"]')
+
         let options = {};
         let instantChange = true;
         let timeout;
 
 
-        $demo.find('input[name="hasCustomValues"]').change(function () {
+        $hasCustomValues.change(function () {
 
-            $demo.find('input[name="customValues"]').toggleAttr('disabled');
-            $demo.find('input[name="min"]').toggleAttr('disabled');
-            $demo.find('input[name="max"]').toggleAttr('disabled');
+            $customValues.toggleAttr('disabled');
+            $min.toggleAttr('disabled');
+            $max.toggleAttr('disabled');
 
-            $demo.find('input[name="customEnd"]').toggleAttr('disabled');
+            $customEnd.toggleAttr('disabled');
 
             if ($demo.find('input[name="range"]').prop('checked')) {
-                $demo.find('input[name="customBegin"]').toggleAttr('disabled');
+                $customBegin.toggleAttr('disabled');
             }
 
             if ($(this).prop('checked')) {
-                $demo.find('input[name="customValues"]').trigger('change');
+                $customValues.trigger('change');
 
             } else {
                 options.customValues = undefined;
@@ -59,12 +69,12 @@ $(document).ready(function () {
             }
         });
 
-        $demo.find('input[name="manyOptions"]').change(function () {
-            $demo.find('button').toggleAttr('disabled');
+        $manyOptions.change(function () {
+            $button.toggleAttr('disabled');
             instantChange = !instantChange;
         });
 
-        $demo.find('button').on('click', function () {
+        $button.on('click', function () {
             $slider.slider('update', options);
             options = {};
         });
@@ -82,10 +92,10 @@ $(document).ready(function () {
 
                     if ($option.attr('name') == 'range') {
 
-                        options.begin = $demo.find('input[name="begin"]').val();
-                        $demo.find('input[name="begin"]').toggleAttr('disabled');
-                        if (!$demo.find('input[name="customValues"]').hasAttr('disabled')) {
-                            $demo.find('input[name="customBegin"]').toggleAttr('disabled');
+                        options.begin = $begin.val();
+                        $begin.toggleAttr('disabled');
+                        if (!$customValues.hasAttr('disabled')) {
+                            $customBegin.toggleAttr('disabled');
                         }
                     }
 
@@ -131,12 +141,8 @@ $(document).ready(function () {
                 $option = $(this);
                 name = $option.attr('name');
 
-                if ($option.hasAttr('disabled')) {
-                    return
-                };
-                if (!options.hasOwnProperty(name)) {
-                    return
-                };
+                if ($option.hasAttr('disabled')) { return };
+                if (!options.hasOwnProperty(name)) { return };
 
                 if ($option.attr('type') == 'checkbox') {
 
@@ -150,14 +156,14 @@ $(document).ready(function () {
 
             if (options.customValues) {
 
-                $demo.find('input[name="customValues"]').prop('checked', true);
+                $customValues.prop('checked', true);
 
                 let end = options.customValues[options.end];
-                $demo.find('input[name="customEnd"]').val(end);
+                $customEnd.val(end);
 
                 if (options.range) {
                     let begin = options.customValues[options.begin];
-                    $demo.find('input[name="customBegin"]').val(begin);
+                    $customBegin.val(begin);
                 }
             }
 
@@ -180,7 +186,6 @@ $(document).ready(function () {
 
 
         function checkSliderWrap() {
-            let $sliderWrap = $demo.find('.slider-wrap');
 
             if ($slider.hasClass('slider_vertical')) {
                 $sliderWrap.addClass('slider-wrap_vertical');
