@@ -12,7 +12,7 @@ afterEach( function() {
     model = null;
 });
 
-describe('Model creates with defaultOptions', () => {
+describe('Model is created with defaultOptions', () => {
     it('can create', () => {
         expect(model).toBeDefined();
     });
@@ -69,7 +69,7 @@ describe('Model has public methods', () => {
         });
 
         it('notifies model observers, when data in model changed', () => {
-            let isNotified = false;
+            let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
                 if (message.type == 'NEW_DATA') {
                     isNotified = true;
@@ -85,7 +85,7 @@ describe('Model has public methods', () => {
     });
 
     describe('method setEndByOffsetRacio', () => {
-        it('sets new valid begin on closest step by offset racio of the whole range (max - min)', () => {
+        it('sets new valid end on closest step by offset racio of the whole range (max - min)', () => {
             let racio: number = 0.56
             model.setEndByOffsetRacio(racio);
     
@@ -94,7 +94,7 @@ describe('Model has public methods', () => {
         });
 
         it('notifies model observers, when end in model changed', () => {
-            let isNotified = false;
+            let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
                 if (message.type == 'NEW_VALUE') {
                     isNotified = true;
@@ -231,7 +231,7 @@ describe('Model has private methods', () => {
         });
 
         it('notifies models observers', () => {
-            let isNotified = false;
+            let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
                 if (message.type == 'WARNINGS') {
                     isNotified = true;
@@ -278,7 +278,7 @@ describe('Model has private methods', () => {
         });
 
         it('changes not right order in min/max, begin/end(if its range) by object _warnings', () => {
-            let invalidOptions = Object.assign({}, defaultOptions, {
+            let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 min: 10,
                 max: 0,
                 begin: 10,
@@ -295,7 +295,7 @@ describe('Model has private methods', () => {
         });
 
         it('canges step to integer absolute number, makes step == 1, if it too big by object _warnings', () => {
-            let invalidOptions = Object.assign({}, defaultOptions, {
+            let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 step: -5
             });
             // @ts-ignore
@@ -317,7 +317,7 @@ describe('Model has private methods', () => {
         });
 
         it('ignores option begin and sets begin to min, when its not range', () => {
-            let invalidOptions = Object.assign({}, defaultOptions, {
+            let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 begin: 5,
             });
             // @ts-ignore
@@ -327,7 +327,7 @@ describe('Model has private methods', () => {
         });
 
         it('sets end and begin (when its range) to closest step', () => {
-            let invalidOptions = Object.assign({}, defaultOptions, {
+            let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 range: true,
                 begin: 1.3,
                 end: 5.7
@@ -357,20 +357,20 @@ describe('Model has private methods', () => {
             let value: number = model.findClosestValue(5.4, defaultOptions);
             expect(value).toBe(5);
             // @ts-ignore
-            let value: number = model.findClosestValue(100, defaultOptions);
-             expect(value).toBe(defaultOptions.max);
+            let tppBigValue: number = model.findClosestValue(100, defaultOptions);
+             expect(tppBigValue).toBe(defaultOptions.max);
             // @ts-ignore
-            let value: number = model.findClosestValue(-100, defaultOptions);
-            expect(value).toBe(defaultOptions.min);
+            let tooSmallValue: number = model.findClosestValue(-100, defaultOptions);
+            expect(tooSmallValue).toBe(defaultOptions.min);
         });
 
         it('considers reverse to find steps', () => {
-            let newOptions = Object.assign({}, defaultOptions, {step: 3});
+            let newOptions: IModelOptions = Object.assign({}, defaultOptions, {step: 3});
             // @ts-ignore
             let value: number = model.findClosestValue(2.8, newOptions);
             expect(value).toBe(3);
 
-            let newOptionsReversed = Object.assign({}, defaultOptions, {
+            let newOptionsReversed: IModelOptions = Object.assign({}, defaultOptions, {
                 step: 3,
                 reverse: true
             });
@@ -383,13 +383,13 @@ describe('Model has private methods', () => {
     describe('method findValueByOffsetRacio', () => {
         it('returns value by racio considering to rreverse', () => {
             // @ts-ignore
-            let value = model.findValueByOffsetRacio(0.18);
+            let value: number = model.findValueByOffsetRacio(0.18);
             expect(value).toBe(2);
 
             // @ts-ignore
             model._reverse = true;
             // @ts-ignore
-            let valueIfReverse = model.findValueByOffsetRacio(0.18);
+            let valueIfReverse: number = model.findValueByOffsetRacio(0.18);
             expect(valueIfReverse).toBe(8);
         });
     });
