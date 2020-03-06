@@ -82,6 +82,21 @@ describe('Model has public methods', () => {
 
             expect(isNotified).toBeTruthy();
         });
+
+        it('notifies model observers, when there are any warnings', () => {
+            let isNotified = false;
+            model.subscribe((message: ModelMessage) => {
+                if (message.type == 'WARNINGS') {
+                    isNotified = true;
+                }
+            })
+            let optionsWithWarning: IModelOptions = Object.assign({}, defaultOptions, {
+                begin: 'sdfghjkl'
+            })
+            model.update(optionsWithWarning);
+
+            expect(isNotified).toBeTruthy();
+        });
     });
 
     describe('method setEndByOffsetRacio', () => {
@@ -172,21 +187,6 @@ describe('Model has public methods', () => {
             expect(Object.keys(warning).length).not.toBe(0);
         });
 
-        it('notifies model observers, when there are any warnings', () => {
-            let isNotified = false;
-            model.subscribe((message: ModelMessage) => {
-                if (message.type == 'WARNINGS') {
-                    isNotified = true;
-                }
-            })
-            let optionsWithWarning: IModelOptions = Object.assign({}, defaultOptions, {
-                begin: 'sdfghjkl'
-            })
-            model.update(optionsWithWarning);
-
-            expect(isNotified).toBeTruthy();
-        });
-
         it('returns empty object, when model inicializated or updated last time without warnings', () => {
             let warning: IWarnings = model.getWarnings()
 
@@ -212,15 +212,6 @@ describe('Model has private methods', () => {
             min: 10
         });
 
-        it('runs validateModel function', () => {
-            // @ts-ignore
-            model.validate(newOptions);
-            // @ts-ignore
-            expect(model._min).toBe(0);
-            // @ts-ignore
-            expect(model._max).toBe(10);
-        });
-
         it('changes property _warnings', () => {
             // @ts-ignore
             expect(Object.keys(model._warnings).length).toBe(0);
@@ -230,7 +221,7 @@ describe('Model has private methods', () => {
             expect(Object.keys(model._warnings).length).not.toBe(0);
         });
 
-        it('notifies models observers', () => {
+        it('notifies models observers if there are any warnings', () => {
             let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
                 if (message.type == 'WARNINGS') {
