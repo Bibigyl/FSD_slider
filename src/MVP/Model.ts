@@ -15,9 +15,9 @@ interface IModelOptions {
 }
 
 interface IModel extends IObservable {
-    update(options: Object): void;
+    update(options: Record<string, any>): void;
     setBeginByOffsetRacio(racio: number): void;
-    setEndByOffsetRacio(racio: number): void
+    setEndByOffsetRacio(racio: number): void;
 
     getOptions(): IModelOptions;
     getWarnings(): IModelWarnings;
@@ -25,39 +25,38 @@ interface IModel extends IObservable {
 
 
 class Model extends Observable<ModelMessage> implements IModel {
-    private _begin: number | null;
-    private _end: number | null;
-    private _range: boolean;
-    private _min: number;
-    private _max: number;   
-    private _step: number;
-    private _customValues?: string[] | undefined;
-    private _reverse: boolean;
+    private _begin: number = defaultOptions.min;
+    private _end: number = defaultOptions.max;
+    private _range: boolean = defaultOptions.range;
+    private _min: number = defaultOptions.min;
+    private _max: number = defaultOptions.max;   
+    private _step: number = defaultOptions.step;
+    private _customValues?: string[] | undefined = defaultOptions.customValues;
+    private _reverse: boolean = defaultOptions.reverse;
 
-    private _warnings: IModelWarnings;
+    private _warnings: IModelWarnings = {};
 
-    constructor(options: Object) {
+    constructor(options: Record<string, any>) {
 
         super();
 
-        let fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
-        let validOptions: IModelOptions;
-
+        const fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
         this.validate(fullOptions);
-        validOptions = this.normalize(fullOptions, defaultOptions);
+
+        const validOptions: IModelOptions = this.normalize(fullOptions, defaultOptions);
         this.setOptions(validOptions);
     }
 
 
-    public update(options: Object): void {
+    public update(options: Record<string, any>): void {
 
-        let prevOptions = this.getOptions();
-        let newInvalidOptions: IModelOptions = Object.assign({}, this.getOptions(), options);
+        const prevOptions: IModelOptions = this.getOptions();
+        const newInvalidOptions: IModelOptions = Object.assign({}, this.getOptions(), options);
 
         this.validate(Object.assign({}, prevOptions, newInvalidOptions))
-        let newValidOptions: IModelOptions = this.normalize(newInvalidOptions, prevOptions);
+        const newValidOptions: IModelOptions = this.normalize(newInvalidOptions, prevOptions);
 
-        if ( deepEqual(prevOptions, newValidOptions) ) { return; }
+        if ( deepEqual(prevOptions, newValidOptions) ) { return }
         this.setOptions(newValidOptions);
 
         this.notify({ 
@@ -69,11 +68,11 @@ class Model extends Observable<ModelMessage> implements IModel {
 
 
     public setEndByOffsetRacio(racio: number): void {
-        let prevEnd: number = this._end;
+        const prevEnd: number = this._end as number;
         let value: number = this.findValueByOffsetRacio(racio);
-        value = Math.max( value, this._begin );
+        value = Math.max( value, this._begin as number );
         
-        if ( value == prevEnd ) { return };
+        if ( value == prevEnd ) { return }
         this._end = value;
 
         this.notify({ 
@@ -84,12 +83,12 @@ class Model extends Observable<ModelMessage> implements IModel {
 
 
     public setBeginByOffsetRacio(racio: number): void {
-        let prevBegin: number = this._begin;
-        if (!this._range) { return };
+        const prevBegin: number = this._begin as number;
+        if (!this._range) { return }
         let value: number = this.findValueByOffsetRacio(racio);
-        value = Math.min( value, this._end );
+        value = Math.min( value, this._end as number );
 
-        if ( value == prevBegin ) { return };
+        if ( value == prevBegin ) { return }
         this._begin = value;
 
         this.notify({ 
@@ -135,8 +134,8 @@ class Model extends Observable<ModelMessage> implements IModel {
         this._warnings = {};
         this._warnings = validateModel(options);
 
-        if ( Object.keys(this._warnings).length == 0 ) { return; }
-        let warnings: IModelWarnings = Object.assign({}, this._warnings);
+        if ( Object.keys(this._warnings).length == 0 ) { return }
+        const warnings: IModelWarnings = Object.assign({}, this._warnings);
         
         this.notify({
             type: 'WARNINGS',
@@ -145,10 +144,10 @@ class Model extends Observable<ModelMessage> implements IModel {
     }
 
 
-    private normalize(opts: Object, baseOpts: IModelOptions): IModelOptions {
+    private normalize(opts: Record<string, any>, baseOpts: IModelOptions): IModelOptions {
 
         let options: IModelOptions = Object.assign({}, baseOpts, opts);
-        let baseOptions: IModelOptions = Object.assign({}, baseOpts);
+        const baseOptions: IModelOptions = Object.assign({}, baseOpts);
         let { begin, end, range, min, max, step, reverse, customValues } = options;
 
         if ( this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall ) {
@@ -186,7 +185,7 @@ class Model extends Observable<ModelMessage> implements IModel {
         }
 
 
-        options = { begin, end, range, min, max, step, reverse, customValues }
+        options = { begin, end, range, min, max, step, reverse, customValues };
         
         end = this.normalizeNumber(end, max);
         options.end = this.findClosestValue(end, options);
@@ -217,10 +216,10 @@ class Model extends Observable<ModelMessage> implements IModel {
     private findClosestValue(value: number, options: IModelOptions): number {
         let prevValue: number;
         let nextValue: number;
-        let { min, max, step, reverse } = options;
+        const { min, max, step, reverse } = options;
         
-        if (value <= min) { return min };
-        if (value >= max) { return max };
+        if (value <= min) { return min }
+        if (value >= max) { return max }
 
         if (!reverse) {
 

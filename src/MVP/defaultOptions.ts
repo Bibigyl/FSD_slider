@@ -3,9 +3,9 @@ import { IViewOptions } from "./View";
 
 interface IOptions extends IModelOptions, IViewOptions {}
 
-let defaultOptions: IOptions = {
-    begin: null,
-    end: null,
+const defaultOptions: IOptions = {
+    begin: 0,
+    end: 10,
     range: false,
     min: 0,
     max: 10,

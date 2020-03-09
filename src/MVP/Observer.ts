@@ -2,12 +2,12 @@ import { IModelOptions } from "./Model";
 import { IOptions } from "./defaultOptions";
 import { IWarnings, IModelWarnings, IViewWarnings } from "./validations";
 
-type NewValue = {type: 'NEW_VALUE', options: IModelOptions};
-type NewData = {type: 'NEW_DATA', options: IModelOptions};
-type LastThumbMoved = {type: 'LAST_THUMB_MOVED', offsetRacio: number};
-type FirstThumbMoved = {type: 'FIRST_THUMB_MOVED', offsetRacio: number};
-type ModelWarnings = {type: 'WARNINGS', warnings: IModelWarnings};
-type ViewWarnings = {type: 'WARNINGS', warnings: IViewWarnings};
+type NewValue = {type: 'NEW_VALUE'; options: IModelOptions};
+type NewData = {type: 'NEW_DATA'; options: IModelOptions};
+type LastThumbMoved = {type: 'LAST_THUMB_MOVED'; offsetRacio: number};
+type FirstThumbMoved = {type: 'FIRST_THUMB_MOVED'; offsetRacio: number};
+type ModelWarnings = {type: 'WARNINGS'; warnings: IModelWarnings};
+type ViewWarnings = {type: 'WARNINGS'; warnings: IViewWarnings};
 
 type ModelMessage = NewValue | NewData | ModelWarnings;
 type ViewMessage = LastThumbMoved | FirstThumbMoved | ViewWarnings;

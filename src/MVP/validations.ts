@@ -5,26 +5,26 @@ import { IViewOptions } from "./View";
 interface IWarnings extends IModelWarnings, IViewWarnings {}
 
 interface IModelWarnings {
-    valuesAreNotNumbers?: string,
-    valuesAreNotInteger?: string,
-    minIsOverMax?: string,
-    minIsEqualToMax?: string,
-    beginIsOverEnd?: string,
-    tooBigStep?: string,
-    stepIsNull?: string,
-    reverseIsNotBoolean?: string,
-    customValuesIsNotArray?: string,
-    customValuesIsTooSmall? : string,
+    valuesAreNotNumbers?: string;
+    valuesAreNotInteger?: string;
+    minIsOverMax?: string;
+    minIsEqualToMax?: string;
+    beginIsOverEnd?: string;
+    tooBigStep?: string;
+    stepIsNull?: string;
+    reverseIsNotBoolean?: string;
+    customValuesIsNotArray?: string;
+    customValuesIsTooSmall? : string;
 }
 
 interface IViewWarnings {
-    invalidLength?: string,
-    verticalIsNotBoolean?: string,
-    tooltipIsNotBoolean?: string,
-    scaleIsNotBoolean?: string,
+    invalidLength?: string;
+    verticalIsNotBoolean?: string;
+    tooltipIsNotBoolean?: string;
+    scaleIsNotBoolean?: string;
 }
 
-let modelWarnings: IModelWarnings = {
+const modelWarnings: IModelWarnings = {
     valuesAreNotNumbers: 'All values, instead of customValues, should be numbers',
     valuesAreNotInteger: 'All values, instead of customValues, should be integer',
     minIsOverMax: 'Min value should be less then max value',
@@ -37,7 +37,7 @@ let modelWarnings: IModelWarnings = {
     customValuesIsTooSmall: 'CustomValues should contain at least two values'
 }
 
-let viewWarnings: IViewWarnings = {
+const viewWarnings: IViewWarnings = {
     invalidLength: 'Length should be valid to CSS',
     verticalIsNotBoolean: 'Option vertical should be true or false',
     tooltipIsNotBoolean: 'Option tooltip should be true or false',
@@ -47,11 +47,11 @@ let viewWarnings: IViewWarnings = {
 
 function validateModel(options: IModelOptions): IModelWarnings {
 
-    let {begin, end, range, min, max, step, reverse, customValues} = options;
+    const {begin, end, range, min, max, step, reverse, customValues} = options;
 
-    let warns: IModelWarnings = {};
+    const warns: IModelWarnings = {};
 
-    let numbers: number[] = [min, max, step];
+    const numbers: number[] = [min, max, step];
     if (begin) { numbers.push(begin) }
     if (end) { numbers.push(end) }
 
@@ -103,7 +103,7 @@ function validateModel(options: IModelOptions): IModelWarnings {
 }
 
 function validateNumbers(numbers: number[]): boolean {
-    let isValid: boolean = true;
+    let isValid = true;
     numbers.forEach(function(item) { 
         if( !isNumeric(item) ) { 
             isValid = false;
@@ -113,7 +113,7 @@ function validateNumbers(numbers: number[]): boolean {
 }
 
 function validateIntegers(numbers: number[]): boolean {
-    let isValid: boolean = true;
+    let isValid = true;
     numbers.forEach(function(num) {
         if ( num % 1 != 0 ) { 
             isValid = false;
@@ -125,8 +125,8 @@ function validateIntegers(numbers: number[]): boolean {
 
 
 function validateView(options: IViewOptions): IViewWarnings {
-    let warns: IViewWarnings = {};
-    let {length, vertical, tooltip, scale} = options;
+    const warns: IViewWarnings = {};
+    const {length, vertical, tooltip, scale} = options;
 
     if ( !length.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i) ) {
         warns.invalidLength = viewWarnings.invalidLength;

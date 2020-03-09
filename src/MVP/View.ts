@@ -23,25 +23,25 @@ interface IView extends IObservable {
 class View extends Observable<ViewMessage> implements IView  {
     [x: string]: any;
 
-    private _length: string;
-    private _vertical: boolean;
+    private _length: string = defaultOptions.length;
+    private _vertical: boolean = defaultOptions.vertical;
 
     private _slider: HTMLDivElement;
-    private _thumbFirst?: HTMLDivElement | undefined;
-    private _thumbLast?: HTMLDivElement | undefined;
-    private _bar: HTMLDivElement;
+    private _thumbFirst!: HTMLDivElement;
+    private _thumbLast!: HTMLDivElement;
+    private _bar!: HTMLDivElement;
     private _tooltipFirst?: HTMLDivElement | undefined;
     private _tooltipLast?: HTMLDivElement | undefined;
     private _scale?: HTMLDivElement | undefined;
 
-    private _activeThumb: HTMLDivElement;
-    private _warnings: IViewWarnings;
+    private _activeThumb: HTMLDivElement | undefined = undefined;
+    private _warnings: IViewWarnings | undefined = undefined;
     
-    constructor(opts: Object, sliderNode: HTMLDivElement) {
+    constructor(opts: Record<string, any>, sliderNode: HTMLDivElement) {
 
         super();
 
-        let options: IOptions = Object.assign({}, defaultOptions, opts);
+        const options: IOptions = Object.assign({}, defaultOptions, opts);
         this.validate(options);
 
         this._slider = sliderNode;
@@ -61,7 +61,7 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     public rerender(opts: IModelOptions): void {
-        let options: IOptions = Object.assign({}, this.getOptions(), opts);
+        const options: IOptions = Object.assign({}, this.getOptions(), opts);
 
         this.validate(options);
         this.rebuild(options);
@@ -69,8 +69,8 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     public getOptions(): IViewOptions {
-        let tooltip = Boolean(this._tooltip) || Boolean(this._tooltipFirst);
-        let scale = Boolean(this._scale);
+        const tooltip = Boolean(this._tooltip) || Boolean(this._tooltipFirst);
+        const scale = Boolean(this._scale);
 
         return {
             length:  this._length,
@@ -100,21 +100,21 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     private handleThumbMove(event: MouseEvent | TouchEvent): void {
-        let length: number = this.getLengthInPx();
-        let offset: number = this.getOffsetInPx();
+
+        const length: number = this.getLengthInPx();
+        const offset: number = this.getOffsetInPx();
         let eventPos: number;
-        let newThumbPosition: number;
 
         if (event.type == 'mousemove') {
-            let mouseEvent: MouseEvent = event as MouseEvent;
+            const mouseEvent: MouseEvent = event as MouseEvent;
             eventPos = !this._vertical ? mouseEvent.clientX : mouseEvent.clientY;
             
         } else {
-            let touchEvent: TouchEvent = event as TouchEvent;
+            const touchEvent: TouchEvent = event as TouchEvent;
             eventPos = !this._vertical ? touchEvent.touches[0].clientX : touchEvent.touches[0].clientY;
         }
 
-        newThumbPosition = (eventPos - offset) / length;
+        const newThumbPosition: number = (eventPos - offset) / length;
         
 
         if ( this._activeThumb == this._thumbLast ) {
@@ -136,27 +136,24 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     private handleSliderClick(event: MouseEvent): void {
-        let length: number = this.getLengthInPx();
-        let offset: number = this.getOffsetInPx();
-        let eventPos: number;
-        let newThumbPosition: number;
+        const length: number = this.getLengthInPx();
+        const offset: number = this.getOffsetInPx();
+        const eventPos: number = !this._vertical ? event.clientX : event.clientY;
+        const newThumbPosition: number = (eventPos - offset) / length;
         let isLastMoved: boolean;
 
-        eventPos = !this._vertical ? event.clientX : event.clientY;
-        newThumbPosition = (eventPos - offset) / length;
 
         if ( this._thumbFirst.classList.contains('slider__thumb_disabled') ) {
             isLastMoved = true;
         } else if ( this._thumbLast.classList.contains('slider__thumb_disabled') ) {
             isLastMoved = false;
         } else {
-            let topLeft: string = !this._vertical ? 'left' : 'top';
+            const topLeft: 'left' | 'top' = !this._vertical ? 'left' : 'top';
 
-            let firstThumbPos: number = parseInt( this._thumbFirst.style[topLeft] );
-            let lastThumbPos: number = parseInt( this._thumbLast.style[topLeft] );
+            const firstThumbPos: number = parseInt( this._thumbFirst.style[topLeft] as string );
+            const lastThumbPos: number = parseInt( this._thumbLast.style[topLeft] as string );
 
-            let isLastCloser: boolean;
-            isLastCloser = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
+            const isLastCloser: boolean = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
 
             isLastMoved = isLastCloser;            
         }
@@ -189,19 +186,19 @@ class View extends Observable<ViewMessage> implements IView  {
 
     private build(options: IOptions): void {
 
-        let validLength: string = this._length || defaultOptions.length;
+        const validLength: string = this._length || defaultOptions.length;
         this._length = this.getValidLength(options.length, validLength);
 
         if ( !options.vertical ) {
             this._vertical = false;
             this._slider.style.width = this._length;
-            this._slider.style.height = null;
+            this._slider.style.height = '';
             this._slider.classList.add('slider_horizontal');
             this._slider.classList.remove('slider_vertical');
         } else {
             this._vertical = true;
             this._slider.style.height = this._length;
-            this._slider.style.width = null;
+            this._slider.style.width = '';
             this._slider.classList.add('slider_vertical');
             this._slider.classList.remove('slider_horizontal');          
         }
@@ -214,10 +211,15 @@ class View extends Observable<ViewMessage> implements IView  {
 
         if ( options.tooltip ) {
             this.buildTooltips(options);
+        } else {
+            this._tooltipFirst = undefined;
+            this._tooltipLast = undefined;
         }
         
         if ( options.scale ) {
             this.buildScale(options);
+        } else {
+            this._scale = undefined;
         }
 
 
@@ -237,13 +239,15 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private rebuild(opts: IModelOptions): void {
-        let prevOptions: IViewOptions = this.getOptions();
-        let options: IOptions = Object.assign({}, prevOptions, opts);
+        const prevOptions: IViewOptions = this.getOptions();
+        const options: IOptions = Object.assign({}, prevOptions, opts);
 
-        for (let key in this) {
+        for (const key in this) {
             if (key != '_slider') {
                 try {
-                    this[key] = this.removeNode(this[key]);
+                    //this[key] = this.removeNode(this[key]);
+                    //this.removeNode(this[key]);
+                    this[key].remove();
                 } catch {}                
             }
         }
@@ -256,8 +260,8 @@ class View extends Observable<ViewMessage> implements IView  {
         this._warnings = {};
         this._warnings = validateView(options);
 
-        if ( Object.keys(this._warnings).length == 0 ) { return; }
-        let warnings: IViewWarnings = Object.assign({}, this._warnings);
+        if ( Object.keys(this._warnings).length == 0 ) { return }
+        const warnings: IViewWarnings = Object.assign({}, this._warnings);
         
         this.notify({
             type: 'WARNINGS',
@@ -266,7 +270,7 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private buildThumbs(options: IOptions): void {
-        let { range, reverse } = options;
+        const { range, reverse } = options;
         this._thumbFirst = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_first');
         this._thumbLast = this.buildNode(this._slider, 'slider__thumb', 'slider__thumb_last');
 
@@ -282,9 +286,9 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setThumbs(options: IModelOptions): void {
-        let { begin, end, reverse } = options;
-        let beginPosition: string = this.findThumbPosition(begin, options);
-        let endPosition: string = this.findThumbPosition(end, options);
+        const { begin, end, reverse } = options;
+        const beginPosition: string = this.findThumbPosition(begin, options);
+        const endPosition: string = this.findThumbPosition(end, options);
 
         if ( !reverse ) {
             this.setThumbPosition(this._thumbFirst, beginPosition);
@@ -296,13 +300,11 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setBarPosition(): void {
-        let start: string;
-        let length: string;
-        let topLeft: string = !this._vertical ? 'left' : 'top';
-        let widthHeight: string = !this._vertical ? 'width' : 'height';
+        const topLeft: 'top' | 'left' = !this._vertical ? 'left' : 'top';
+        const widthHeight: 'width' | 'height' = !this._vertical ? 'width' : 'height';
 
-        start = this._thumbFirst.style[topLeft];
-        length = this._thumbLast.style[topLeft].slice(0, -1) - this._thumbFirst.style[topLeft].slice(0, -1)  + '%';
+        const start = String(this._thumbFirst.style[topLeft]);
+        const length: string = parseInt(String(this._thumbLast.style[topLeft]), 10) - parseInt(start, 10)  + '%';
 
         this._bar.style[topLeft] = start;
         this._bar.style[widthHeight] = length;
@@ -316,17 +318,16 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private buildScale(options: IOptions): void {
-        let { min, max, step, reverse, customValues } = options;
-        let scale: HTMLDivElement;
+        const { min, max, step, reverse, customValues } = options;
         let division: HTMLDivElement;
         let val: number | string;
         let indent: number | string;
-        let length: number = max - min;
+        const length: number = max - min;
 
-        scale = document.createElement('div');
+        const scale: HTMLDivElement = document.createElement('div');
         scale.classList.add('slider__scale');
 
-        for ( let i: number = 0; i <= getNumberOfSteps(min, max, step); i++ ) {
+        for ( let i = 0; i <= getNumberOfSteps(min, max, step); i++ ) {
 
             if ( !reverse ) {
                 val = min + step * i;
@@ -354,25 +355,27 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setTooltipValues(options: IModelOptions): void {
-        let { begin, end, reverse, customValues } = options;
-        let beginValue: string = customValues ? customValues[begin] : String(begin);
-        let endValue: string = customValues ? customValues[end] : String(end);
+        const { begin, end, reverse, customValues } = options;
+        const beginValue: string = customValues ? customValues[begin] : String(begin);
+        const endValue: string = customValues ? customValues[end] : String(end);
+        const first: HTMLDivElement = this._tooltipFirst as HTMLDivElement;
+        const last: HTMLDivElement = this._tooltipLast as HTMLDivElement;
 
         if (!reverse) {
-            this._tooltipFirst.textContent = beginValue;
-            this._tooltipLast.textContent = endValue;
+            first.textContent = beginValue;
+            last.textContent = endValue;
         } else {
-            this._tooltipFirst.textContent = endValue;
-            this._tooltipLast.textContent = beginValue;
+            first.textContent = endValue;
+            last.textContent = beginValue;
         }
     }
 
     private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
         if ( !this._vertical ) {
-            thumbNode.style.top = null;
+            thumbNode.style.top = '';
             thumbNode.style.left = position;
         } else {
-            thumbNode.style.left = null;
+            thumbNode.style.left = '';
             thumbNode.style.top = position;
         }
 
@@ -382,27 +385,26 @@ class View extends Observable<ViewMessage> implements IView  {
             if ( (this._thumbFirst.style.left == '100%') || (this._thumbFirst.style.top == '100%') ) {
                 this._thumbFirst.style.zIndex = '1';
             } else {
-                this._thumbFirst.style.zIndex = null;
+                this._thumbFirst.style.zIndex = '';
             }
         }
     }
 
     private findThumbPosition(value: number, options: IModelOptions): string {
-        let { min, max, reverse } = options;
-        let pos: string;
-        pos = !reverse ?
+        const { min, max, reverse } = options;
+        const position: string = !reverse ?
         (value - min) / (max - min) * 100 + '%' :
         (max - value) / (max - min) * 100 + '%'
-        return pos;
+        return position;
     }
 
-    private removeNode(node: HTMLElement): undefined {
+/*     private removeNode(node: HTMLElement): undefined {
         node.remove();
         return undefined;
-    }
+    } */
 
-    private buildNode(parentNode: HTMLDivElement, ...classes: string[]): HTMLDivElement {
-        let node: HTMLDivElement = document.createElement('div');
+    private buildNode(parentNode: HTMLElement, ...classes: string[]): HTMLDivElement {
+        const node: HTMLDivElement = document.createElement('div');
 
         classes.forEach(function(currenClass: string) {
             node.classList.add(currenClass);
@@ -414,7 +416,7 @@ class View extends Observable<ViewMessage> implements IView  {
     
     private getValidLength(str: string, validLength: string): string {
 
-        let CSSLength: string[] | number[] = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
+        const CSSLength: string[] | number[] | null = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
 
         if ( CSSLength && isNumeric(CSSLength[0]) ) { 
             return CSSLength[0].toLowerCase().replace(',', '.') + 'px';
@@ -428,7 +430,7 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private getLengthInPx(): number {
-        let length: number = !this._vertical ?
+        const length: number = !this._vertical ?
         this._slider.offsetWidth :
         this._slider.offsetHeight;
 
@@ -436,7 +438,7 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private getOffsetInPx(): number {
-        let offset: number = !this._vertical ?
+        const offset: number = !this._vertical ?
         this._slider.getBoundingClientRect().left :
         this._slider.getBoundingClientRect().top;
 

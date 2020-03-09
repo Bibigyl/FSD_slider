@@ -5,13 +5,13 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.config.js",
     "build": "webpack --config webpack.prod.config.js",
-    "test": "karma start karma.conf.js"
+    "test": "karma start karma.conf.js",
+    "lint": "eslint src/**/*.ts --fix"
   },
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/jasmine": "^3.3.13",
-    "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
     "clean-webpack-plugin": "^3.0.0",
     "eslint": "^6.7.1",

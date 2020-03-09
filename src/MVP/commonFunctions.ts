@@ -2,7 +2,7 @@ function isNumeric(n: any): boolean {
     return !isNaN(parseFloat(String(n))) && !isNaN(n - 0);
 }
 
-function deepEqual(obj1: Object, obj2: Object) {
+function deepEqual(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
     return JSON.stringify(obj1)===JSON.stringify(obj2);
  }
 

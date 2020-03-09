@@ -1,33 +1,33 @@
 
 import { IOptions, defaultOptions } from './MVP/defaultOptions';
-import Slider from './Slider';
+import Slider, { ISlider } from './Slider';
 
+interface IMethods {
+  init(options?: IOptions): void;
+  getData(): IOptions;
+  update(options: Object): void;
+  destroy(): void;
+  observe(func: Function): void;
+}
 
-(function ($) {
+//(function ($) {
+(function ($): void {
 
-  interface IMethods {
-    init(options?: IOptions): void;
-    getData(): IOptions;
-    update(options: any): void;
-    destroy(): void;
-    observe(func: Function): void;
-  }
-
-  var methods: IMethods = {
+  const methods: IMethods = {
 
     init: function(opts?: Object): void {
 
       return this.each(function() {
 
-        let $this = $(this);
-        let data = $this.data('sliderData');
-        let $node = $this;
+        const $this = $(this);
+        const data = $this.data('sliderData');
+        const $node = $this;
 
         // If the plugin has not yet been initialized
         if (!data) {
 
-          let options: Object = $.extend({}, defaultOptions, opts);
-          let slider = new Slider(options, this);
+          const options: Object = $.extend({}, defaultOptions, opts);
+          const slider: ISlider = new Slider(options, this);
 
           $(this).data('sliderData', {
             $node: $node,
@@ -51,8 +51,8 @@ import Slider from './Slider';
     destroy: function (): void {
       return this.each(function () {
 
-        let $this = $(this);
-        let data = $this.data('sliderData');
+        const $this = $(this);
+        const data = $this.data('sliderData');
 
         $(window).unbind('.slider');
         data.node.remove();
@@ -63,7 +63,7 @@ import Slider from './Slider';
 
     observe: function (listener: Function): void {
 
-      let slider = $(this).data('sliderData').slider;
+      const slider = $(this).data('sliderData').slider;
       slider.subscribe(listener);
     }
   }
@@ -85,3 +85,9 @@ import Slider from './Slider';
   };
 
 })(jQuery);
+
+
+/* const node: HTMLDivElement = document.querySelector('#slider1');
+const mod = new Model({})
+const modOpt = mod.getOptions()
+const view = new View(modOpt, node); */

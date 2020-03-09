@@ -2,14 +2,14 @@
 import './slider.css';
 
 
-import { IOptions, defaultOptions } from './MVP/defaultOptions';
+import { IOptions } from './MVP/defaultOptions';
 import Model, { IModel, IModelOptions } from './MVP/Model';
 import View, { IView } from './MVP/View';
 import Presenter, { IPresenter } from './MVP/Presenter';
 
 
 interface ISlider {
-    update(options: Object): void;
+    update(options: Record<string, any>): void;
     subscribe(func: Function): void;
 }
 
@@ -19,12 +19,12 @@ class Slider implements ISlider {
     private _view: IView;
     private _presenter: IPresenter;
 
-    constructor(options: Object, node: HTMLDivElement) {
+    constructor(options: Record<string, any>, node: HTMLDivElement) {
 
-        let optionsForModel: Object = Object.assign({}, options);
+        const optionsForModel: Record<string, any> = Object.assign({}, options);
         this._model = new Model(optionsForModel);
 
-        let optionsForView: IModelOptions = Object.assign({}, options, this._model.getOptions());
+        const optionsForView: IModelOptions = Object.assign({}, options, this._model.getOptions());
         this._view = new View(optionsForView, node);
 
         this._presenter = new Presenter(this._model, this._view);

@@ -4,8 +4,8 @@
     border: 1px solid #ddd;
     width: 10px;
     height: 10px;
-    margin: 40px;
     position: relative;
+    color: red
 }
 
 .slider__thumb {
