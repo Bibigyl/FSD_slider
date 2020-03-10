@@ -6,7 +6,7 @@ import { IWarnings } from './validations';
 
 
 interface IPresenter extends IObservable {
-    update(options: Record<string, any>): void;
+    update(options: {}): void;
 
     getOptions(): IOptions;
     getWarnings(): IWarnings;
@@ -55,9 +55,9 @@ class Presenter extends ObservablePresenter implements IPresenter {
     }
 
 
-    public update(options: Record<string, any>): void {
+    public update(options: {}): void {
 
-        const optionsForModel: Record<string, any> = Object.assign({}, options);
+        const optionsForModel: {} = Object.assign({}, options);
         this._model.update(optionsForModel);
 
         const optionsForView: IModelOptions = Object.assign(options, this._model.getOptions());

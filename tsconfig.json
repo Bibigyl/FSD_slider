@@ -14,7 +14,7 @@
     "declaration": true,
     "watch": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["src/jquerySlider.ts"],
+  "include": ["src/**/*.ts", "src/jquerySlider.js"],
+  "exclude": ["src/jquerySlider.js"],
   "typeRoots": ["node_modules/@types"]
 }

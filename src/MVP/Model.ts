@@ -15,7 +15,7 @@ interface IModelOptions {
 }
 
 interface IModel extends IObservable {
-    update(options: Record<string, any>): void;
+    update(options: {}): void;
     setBeginByOffsetRacio(racio: number): void;
     setEndByOffsetRacio(racio: number): void;
 
@@ -36,7 +36,7 @@ class Model extends Observable<ModelMessage> implements IModel {
 
     private _warnings: IModelWarnings = {};
 
-    constructor(options: Record<string, any>) {
+    constructor(options: {}) {
 
         super();
 
@@ -48,7 +48,7 @@ class Model extends Observable<ModelMessage> implements IModel {
     }
 
 
-    public update(options: Record<string, any>): void {
+    public update(options: {}): void {
 
         const prevOptions: IModelOptions = this.getOptions();
         const newInvalidOptions: IModelOptions = Object.assign({}, this.getOptions(), options);
@@ -144,7 +144,7 @@ class Model extends Observable<ModelMessage> implements IModel {
     }
 
 
-    private normalize(opts: Record<string, any>, baseOpts: IModelOptions): IModelOptions {
+    private normalize(opts: {}, baseOpts: IModelOptions): IModelOptions {
 
         let options: IModelOptions = Object.assign({}, baseOpts, opts);
         const baseOptions: IModelOptions = Object.assign({}, baseOpts);

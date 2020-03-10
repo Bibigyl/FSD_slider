@@ -37,7 +37,7 @@ class View extends Observable<ViewMessage> implements IView  {
     private _activeThumb: HTMLDivElement | undefined = undefined;
     private _warnings: IViewWarnings | undefined = undefined;
     
-    constructor(opts: Record<string, any>, sliderNode: HTMLDivElement) {
+    constructor(opts: {}, sliderNode: HTMLDivElement) {
 
         super();
 
@@ -304,7 +304,7 @@ class View extends Observable<ViewMessage> implements IView  {
         const widthHeight: 'width' | 'height' = !this._vertical ? 'width' : 'height';
 
         const start = String(this._thumbFirst.style[topLeft]);
-        const length: string = parseInt(String(this._thumbLast.style[topLeft]), 10) - parseInt(start, 10)  + '%';
+        const length: string = parseFloat(String(this._thumbLast.style[topLeft])) - parseFloat(start)  + '%';
 
         this._bar.style[topLeft] = start;
         this._bar.style[widthHeight] = length;

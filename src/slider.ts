@@ -9,7 +9,7 @@ import Presenter, { IPresenter } from './MVP/Presenter';
 
 
 interface ISlider {
-    update(options: Record<string, any>): void;
+    update(options: {}): void;
     subscribe(func: Function): void;
 }
 
@@ -19,9 +19,9 @@ class Slider implements ISlider {
     private _view: IView;
     private _presenter: IPresenter;
 
-    constructor(options: Record<string, any>, node: HTMLDivElement) {
+    constructor(options: {}, node: HTMLDivElement) {
 
-        const optionsForModel: Record<string, any> = Object.assign({}, options);
+        const optionsForModel: {} = Object.assign({}, options);
         this._model = new Model(optionsForModel);
 
         const optionsForView: IModelOptions = Object.assign({}, options, this._model.getOptions());
