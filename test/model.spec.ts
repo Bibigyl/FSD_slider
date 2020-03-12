@@ -63,7 +63,7 @@ describe('Model has public methods', () => {
             // @ts-ignore
             expect(model._step).toBe(newOptions.step);
             // @ts-ignore
-            expect(model._customValues).toBeUndefined();
+            expect(model._customValues).toBeNull();
             // @ts-ignore
             expect(model._reverse).toBe(newOptions.reverse);
         });

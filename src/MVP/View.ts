@@ -30,12 +30,12 @@ class View extends Observable<ViewMessage> implements IView  {
     private _thumbFirst!: HTMLDivElement;
     private _thumbLast!: HTMLDivElement;
     private _bar!: HTMLDivElement;
-    private _tooltipFirst?: HTMLDivElement | undefined;
-    private _tooltipLast?: HTMLDivElement | undefined;
-    private _scale?: HTMLDivElement | undefined;
+    private _tooltipFirst?: HTMLDivElement | null;
+    private _tooltipLast?: HTMLDivElement | null;
+    private _scale?: HTMLDivElement | null;
 
-    private _activeThumb: HTMLDivElement | undefined = undefined;
-    private _warnings: IViewWarnings | undefined = undefined;
+    private _activeThumb: HTMLDivElement | null = null;
+    private _warnings: IViewWarnings | null = null;
     
     constructor(opts: {}, sliderNode: HTMLDivElement) {
 
@@ -150,8 +150,8 @@ class View extends Observable<ViewMessage> implements IView  {
         } else {
             const topLeft: 'left' | 'top' = !this._vertical ? 'left' : 'top';
 
-            const firstThumbPos: number = parseInt( this._thumbFirst.style[topLeft] as string );
-            const lastThumbPos: number = parseInt( this._thumbLast.style[topLeft] as string );
+            const firstThumbPos: number = parseFloat( this._thumbFirst.style[topLeft] as string );
+            const lastThumbPos: number = parseFloat( this._thumbLast.style[topLeft] as string );
 
             const isLastCloser: boolean = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
 
@@ -181,7 +181,7 @@ class View extends Observable<ViewMessage> implements IView  {
         document.removeEventListener('touchend', this.handleThumbUp);
         document.removeEventListener('touchmove', this.handleThumbMove);
 
-        this._activeThumb = undefined;
+        this._activeThumb = null;
     }
 
     private build(options: IOptions): void {
@@ -212,14 +212,14 @@ class View extends Observable<ViewMessage> implements IView  {
         if ( options.tooltip ) {
             this.buildTooltips(options);
         } else {
-            this._tooltipFirst = undefined;
-            this._tooltipLast = undefined;
+            this._tooltipFirst = null;
+            this._tooltipLast = null;
         }
         
         if ( options.scale ) {
             this.buildScale(options);
         } else {
-            this._scale = undefined;
+            this._scale = null;
         }
 
 
@@ -245,10 +245,10 @@ class View extends Observable<ViewMessage> implements IView  {
         for (const key in this) {
             if (key != '_slider') {
                 try {
-                    //this[key] = this.removeNode(this[key]);
-                    //this.removeNode(this[key]);
                     this[key].remove();
-                } catch {}                
+                } catch {
+                    continue;
+                }                
             }
         }
         
@@ -397,11 +397,6 @@ class View extends Observable<ViewMessage> implements IView  {
         (max - value) / (max - min) * 100 + '%'
         return position;
     }
-
-/*     private removeNode(node: HTMLElement): undefined {
-        node.remove();
-        return undefined;
-    } */
 
     private buildNode(parentNode: HTMLElement, ...classes: string[]): HTMLDivElement {
         const node: HTMLDivElement = document.createElement('div');

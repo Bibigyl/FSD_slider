@@ -10,7 +10,7 @@ interface IModelOptions {
     min: number;
     max: number;
     step: number;
-    customValues?: string[];
+    customValues: string[] | null;
     reverse: boolean;
 }
 
@@ -31,7 +31,7 @@ class Model extends Observable<ModelMessage> implements IModel {
     private _min: number = defaultOptions.min;
     private _max: number = defaultOptions.max;   
     private _step: number = defaultOptions.step;
-    private _customValues?: string[] | undefined = defaultOptions.customValues;
+    private _customValues: string[] | null = defaultOptions.customValues;
     private _reverse: boolean = defaultOptions.reverse;
 
     private _warnings: IModelWarnings = {};
@@ -151,7 +151,7 @@ class Model extends Observable<ModelMessage> implements IModel {
         let { begin, end, range, min, max, step, reverse, customValues } = options;
 
         if ( this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall ) {
-            customValues = undefined;
+            customValues = null;
         }
 
         if ( customValues ) {

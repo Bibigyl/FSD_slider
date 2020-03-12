@@ -100,9 +100,9 @@ describe('View has public methods', () => {
             view.rerender(newOptions);
 
             // @ts-ignore
-            expect(view._scale).toBeUndefined();
+            expect(view._scale).toBeNull();
             // @ts-ignore
-            expect(view._tooltipLast).toBeUndefined();
+            expect(view._tooltipLast).toBeNull();
             // @ts-ignore
             expect(view._slider.classList.contains('slider_vertical')).toBeTruthy();
             // @ts-ignore
@@ -195,7 +195,7 @@ describe('View has private methods', () => {
 
             view._thumbLast.dispatchEvent(thumbOnUp);
             // @ts-ignore
-            expect(view._activeThumb).toBeUndefined();
+            expect(view._activeThumb).toBeNull();
         });
     });
 
@@ -286,21 +286,22 @@ describe('View has private methods', () => {
 
         it('builds nodes of thumbs, bar, tooltips, scale', () => {
 
-            sliderNode.textContent = '';
             // @ts-ignore
-            view._thumbLast = undefined;
+            view._thumbLast.remove();
             // @ts-ignore
-            view._bar = undefined;
+            view._bar.remove();
             // @ts-ignore
-            view._tooltipLast = undefined;
+            view._tooltipLast.remove();
             // @ts-ignore
-            view._scale = undefined;
-            
-            expect(document.querySelector('.slider__thumb_last')).toBeNull();
-            expect(document.querySelector('.slider__bar')).toBeNull();
-            expect(document.querySelector('.slider__tooltip_last')).toBeNull();
-            expect(document.querySelector('.slider__scale')).toBeNull();
+            view._scale.remove();
 
+            setTimeout(() => {
+                expect(document.querySelector('.slider__thumb_last')).toBeNull();
+                expect(document.querySelector('.slider__bar')).toBeNull();
+                expect(document.querySelector('.slider__tooltip_last')).toBeNull();
+                expect(document.querySelector('.slider__scale')).toBeNull();                
+            }, 3000)
+            
             // @ts-ignore
             view.build(defaultOptions);
 
@@ -335,10 +336,16 @@ describe('View has private methods', () => {
             // @ts-ignore
             view.rebuild(newOptions);
 
-            expect(document.querySelector('.slider__tooltip_last')).toBeNull();
-            expect(document.querySelector('.slider__scale')).toBeNull();
+            // @ts-ignore
+            expect(view._tooltipLast).toBeNull();
+            // @ts-ignore
+            expect(view._scale).toBeNull();
             // @ts-ignore
             expect(view._length).toBe(newOptions.length);
+            setTimeout(() => {
+            expect(document.querySelector('.slider__tooltip_last')).toBeNull();
+            expect(document.querySelector('.slider__scale')).toBeNull();                
+            }, 3000);
         });
     });
 
@@ -374,9 +381,9 @@ describe('View has private methods', () => {
         beforeEach( function() {
             sliderNode.textContent = '';
             // @ts-ignore
-            view._thumbFirst = undefined;
+            view._thumbFirst = null;
             // @ts-ignore
-            view._thumbLast = undefined;
+            view._thumbLast = null;
         });
 
         it('builds thumbs, adds classes slider__thumb, slider__thumb_first, slider__thumb_last', () => {
@@ -473,7 +480,7 @@ describe('View has private methods', () => {
             // @ts-ignore
             view.rebuild(optionsWithoutScale);
             // @ts-ignore
-            expect(view._scale).toBeUndefined();
+            expect(view._scale).toBeNull();
             
             // @ts-ignore
             view.buildScale(viewOptions);
@@ -537,16 +544,6 @@ describe('View has private methods', () => {
             let percent: string = view.findThumbPosition(4, viewOptions);
             // @ts-ignore
             expect(percent, viewOptions).toBe('40%')
-        });
-    });
-
-    describe('method removeNode', () => {
-        it('removes node from page, returns undefined', () => {
-            // @ts-ignore
-            view._thumbFirst = view.removeNode(view._thumbFirst);
-            expect(document.querySelector('.slider__thumb_first')).toBeNull();
-            // @ts-ignore
-            expect(view._thumbFirst).toBeUndefined();
         });
     });
 

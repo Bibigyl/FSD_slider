@@ -11,6 +11,7 @@ const defaultOptions: IOptions = {
     max: 10,
     step: 1,
     reverse: false,
+    customValues: null,
     
     length: '300px',
     vertical: false,

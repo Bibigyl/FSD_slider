@@ -12,3 +12,5 @@ README.1md
 /test/model.spec.ts1
 /test/view.spec.ts1
 /test/presenter.spec.ts1
+webpack.config.js
+/demo/demo2.html
