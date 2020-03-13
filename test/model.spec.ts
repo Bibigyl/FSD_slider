@@ -8,9 +8,6 @@ let model: IModel;
 beforeEach( function() {
     model = new Model(defaultOptions);
 });
-afterEach( function() {
-    model = null;
-});
 
 describe('Model is created with defaultOptions', () => {
     it('can create', () => {
@@ -46,7 +43,8 @@ describe('Model has public methods', () => {
                 min: -10,
                 max: 20,
                 step: 2,
-                reverse: true
+                reverse: true,
+                customValues: null
             };
             model.update(newOptions)
     

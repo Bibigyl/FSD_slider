@@ -11,7 +11,6 @@ let sliderNode: HTMLDivElement;
 let viewOptions: IOptions;
 
 
-
 beforeEach( function() {
     sliderNode = document.createElement('div');
     document.body.append(sliderNode);
@@ -20,9 +19,6 @@ beforeEach( function() {
     view = new View(viewOptions, sliderNode);
 });
 afterEach( function() {
-    model = null;
-    view = null;
-    viewOptions = null;
     sliderNode.remove();
 });
 

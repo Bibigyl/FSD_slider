@@ -2,7 +2,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
 module.exports = {
-    entry: './src/jquerySlider',
+    entry: './src/index',
     output: {
         filename: 'slider.js',
         path: path.resolve(__dirname, 'demo'),

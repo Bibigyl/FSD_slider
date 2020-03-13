@@ -34,7 +34,7 @@ var config = {
 
 var pluginConfig = Object.assign({}, config, {
     name: 'plugin',
-    entry: './src/jquerySlider',
+    entry: './src/index',
     output: {
         filename: 'slider.js',
         path: path.resolve(__dirname, 'slider'),
@@ -44,7 +44,7 @@ var pluginConfig = Object.assign({}, config, {
 
 var demoConfig = Object.assign({}, config, {
     name: 'demo',
-    entry: './src/jquerySlider',
+    entry: './src/index',
     output: {
         filename: 'slider.js',
         path: path.resolve(__dirname, 'demo'),

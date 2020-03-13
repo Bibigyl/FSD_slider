@@ -6,7 +6,7 @@ import Slider from './Slider';
 
     const methods = {
 
-        init: function(opts) {
+        init: function(opts = {}) {
 
             return this.each(function() {
 

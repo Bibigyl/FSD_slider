@@ -1,7 +1,3 @@
-// import styles
-import './slider.css';
-
-
 import { IOptions } from './MVP/defaultOptions';
 import Model, { IModel, IModelOptions } from './MVP/Model';
 import View, { IView } from './MVP/View';

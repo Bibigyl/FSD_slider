@@ -72,7 +72,6 @@ function validateModel(options: IModelOptions): IModelWarnings {
         warns.minIsEqualToMax = modelWarnings.minIsEqualToMax;
     }
 
-
     if ( range && (begin > end) ) {
         warns.beginIsOverEnd = modelWarnings.beginIsOverEnd;
     }
@@ -147,4 +146,4 @@ function validateView(options: IViewOptions): IViewWarnings {
     return warns;
 }
 
-export { validateModel, validateView, IWarnings, IModelWarnings, IViewWarnings }
+export { validateModel, validateView, IWarnings, IModelWarnings, IViewWarnings, validateNumbers, validateIntegers }

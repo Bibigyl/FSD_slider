@@ -20,11 +20,7 @@ beforeEach( function() {
     presenter = new Presenter(model, view);
 });
 afterEach( function() {
-    model = null;
-    view = null;
-    viewOptions = null;
     sliderNode.remove();
-    presenter = null;
 });
 
 describe('Presenter is created with defaultOptions', () => {
