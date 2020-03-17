@@ -3,6 +3,7 @@ import { IObservable, Observable, ViewMessage } from './Observer';
 import { isNumeric, getNumberOfSteps } from './commonFunctions';
 import { validateView, IViewWarnings } from './validations';
 import { IModelOptions } from './Model';
+import bind from 'bind-decorator';
 
 
 interface IViewOptions {
@@ -21,7 +22,7 @@ interface IView extends IObservable {
 }
 
 class View extends Observable<ViewMessage> implements IView  {
-    
+
     private _length: string = defaultOptions.length;
     private _vertical: boolean = defaultOptions.vertical;
 
@@ -84,7 +85,7 @@ class View extends Observable<ViewMessage> implements IView  {
         return Object.assign({}, this._warnings);
     }
 
-
+    @bind
     private handleThumbDown(event: MouseEvent | TouchEvent): void {
         event.preventDefault();
         event.stopPropagation();
@@ -97,7 +98,7 @@ class View extends Observable<ViewMessage> implements IView  {
         document.addEventListener('touchend', this.handleThumbUp);
     }
 
-
+    @bind
     private handleThumbMove(event: MouseEvent | TouchEvent): void {
 
         const length: number = this.getLengthInPx();
@@ -133,7 +134,7 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
-
+    @bind
     private handleSliderClick(event: MouseEvent): void {
         const length: number = this.getLengthInPx();
         const offset: number = this.getOffsetInPx();
@@ -174,6 +175,7 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
+    @bind
     private handleThumbUp(): void {
         document.removeEventListener('mouseup', this.handleThumbUp);
         document.removeEventListener('mousemove', this.handleThumbMove);
@@ -222,10 +224,10 @@ class View extends Observable<ViewMessage> implements IView  {
         }
 
 
-        this.handleThumbDown = this.handleThumbDown.bind(this);
-        this.handleThumbMove = this.handleThumbMove.bind(this);
-        this.handleThumbUp = this.handleThumbUp.bind(this);
-        this.handleSliderClick = this.handleSliderClick.bind(this);
+        this.handleThumbDown = this.handleThumbDown;
+        this.handleThumbMove = this.handleThumbMove;
+        this.handleThumbUp = this.handleThumbUp;
+        this.handleSliderClick = this.handleSliderClick;
 
 
         this._thumbFirst.addEventListener("mousedown", this.handleThumbDown);

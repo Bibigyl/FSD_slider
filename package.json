@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@types/jquery": "^3.3.31",
+    "bind-decorator": "^1.0.11",
     "css-loader": "^3.4.2",
     "mini-css-extract-plugin": "^0.9.0",
     "style-loader": "^1.1.3",
