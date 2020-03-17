@@ -21,8 +21,7 @@ interface IView extends IObservable {
 }
 
 class View extends Observable<ViewMessage> implements IView  {
-    [x: string]: any;
-
+    
     private _length: string = defaultOptions.length;
     private _vertical: boolean = defaultOptions.vertical;
 
@@ -54,7 +53,7 @@ class View extends Observable<ViewMessage> implements IView  {
     public update(options: IModelOptions): void {
         this.setThumbs(options);
         this.setBarPosition();
-        if (this._tooltip || this._tooltipFirst) {
+        if (this._tooltipLast) {
             this.setTooltipValues(options);
         }
     }
@@ -69,7 +68,7 @@ class View extends Observable<ViewMessage> implements IView  {
 
 
     public getOptions(): IViewOptions {
-        const tooltip = Boolean(this._tooltip) || Boolean(this._tooltipFirst);
+        const tooltip = Boolean(this._tooltipLast);
         const scale = Boolean(this._scale);
 
         return {
@@ -242,15 +241,7 @@ class View extends Observable<ViewMessage> implements IView  {
         const prevOptions: IViewOptions = this.getOptions();
         const options: IOptions = Object.assign({}, prevOptions, opts);
 
-        for (const key in this) {
-            if (key != '_slider') {
-                try {
-                    this[key].remove();
-                } catch {
-                    continue;
-                }                
-            }
-        }
+        this._slider.innerHTML = '';
         
         this.build(options);
     }
