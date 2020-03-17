@@ -411,13 +411,15 @@ class View extends Observable<ViewMessage> implements IView  {
     
     private getValidLength(str: string, validLength: string): string {
 
-        const CSSLength: string[] | number[] | null = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
+        const foundMatch: string[] | number[] | null = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
+        let isCSSLengthFound: Boolean = Boolean(foundMatch);
+        let CSSLength: string = foundMatch ? foundMatch[0].toLowerCase().replace(',', '.') : '';
 
-        if ( CSSLength && isNumeric(CSSLength[0]) ) { 
-            return CSSLength[0].toLowerCase().replace(',', '.') + 'px';
+        if ( isCSSLengthFound && isNumeric(CSSLength) ) { 
+            return CSSLength + 'px';
 
-        } else if ( CSSLength ) {
-            return CSSLength[0].toLowerCase().replace(',', '.');
+        } else if ( isCSSLengthFound ) {
+            return CSSLength;
 
         } else {
             return validLength;
