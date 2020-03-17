@@ -148,10 +148,10 @@ class View extends Observable<ViewMessage> implements IView  {
         } else if ( this._thumbLast.classList.contains('slider__thumb_disabled') ) {
             isLastMoved = false;
         } else {
-            const topLeft: 'left' | 'top' = !this._vertical ? 'left' : 'top';
+            const styleNameOfStart: 'left' | 'top' = !this._vertical ? 'left' : 'top';
 
-            const firstThumbPos: number = parseFloat( String(this._thumbFirst.style[topLeft]) );
-            const lastThumbPos: number = parseFloat( String(this._thumbLast.style[topLeft]) );
+            const firstThumbPos: number = parseFloat( String(this._thumbFirst.style[styleNameOfStart]) );
+            const lastThumbPos: number = parseFloat( String(this._thumbLast.style[styleNameOfStart]) );
 
             const isLastCloser: boolean = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
 
@@ -300,14 +300,14 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setBarPosition(): void {
-        const topLeft: 'top' | 'left' = !this._vertical ? 'left' : 'top';
-        const widthHeight: 'width' | 'height' = !this._vertical ? 'width' : 'height';
+        const styleNameOfStart: 'top' | 'left' = !this._vertical ? 'left' : 'top';
+        const styleNameOfLength: 'width' | 'height' = !this._vertical ? 'width' : 'height';
 
-        const start = String(this._thumbFirst.style[topLeft]);
-        const length: string = parseFloat( String(this._thumbLast.style[topLeft]) ) - parseFloat(start)  + '%';
+        const start = String(this._thumbFirst.style[styleNameOfStart]);
+        const length: string = parseFloat( String(this._thumbLast.style[styleNameOfStart]) ) - parseFloat(start)  + '%';
 
-        this._bar.style[topLeft] = start;
-        this._bar.style[widthHeight] = length;
+        this._bar.style[styleNameOfStart] = start;
+        this._bar.style[styleNameOfLength] = length;
     }
 
     private buildTooltips(options: IOptions): void {
