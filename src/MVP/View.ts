@@ -150,8 +150,8 @@ class View extends Observable<ViewMessage> implements IView  {
         } else {
             const topLeft: 'left' | 'top' = !this._vertical ? 'left' : 'top';
 
-            const firstThumbPos: number = parseFloat( this._thumbFirst.style[topLeft] as string );
-            const lastThumbPos: number = parseFloat( this._thumbLast.style[topLeft] as string );
+            const firstThumbPos: number = parseFloat( String(this._thumbFirst.style[topLeft]) );
+            const lastThumbPos: number = parseFloat( String(this._thumbLast.style[topLeft]) );
 
             const isLastCloser: boolean = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
 
@@ -304,7 +304,7 @@ class View extends Observable<ViewMessage> implements IView  {
         const widthHeight: 'width' | 'height' = !this._vertical ? 'width' : 'height';
 
         const start = String(this._thumbFirst.style[topLeft]);
-        const length: string = parseFloat(String(this._thumbLast.style[topLeft])) - parseFloat(start)  + '%';
+        const length: string = parseFloat( String(this._thumbLast.style[topLeft]) ) - parseFloat(start)  + '%';
 
         this._bar.style[topLeft] = start;
         this._bar.style[widthHeight] = length;
