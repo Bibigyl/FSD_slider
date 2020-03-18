@@ -30,19 +30,20 @@ class View extends Observable<ViewMessage> implements IView  {
     private _thumbFirst!: HTMLDivElement;
     private _thumbLast!: HTMLDivElement;
     private _bar!: HTMLDivElement;
-    private _tooltipFirst?: HTMLDivElement | null;
-    private _tooltipLast?: HTMLDivElement | null;
-    private _scale?: HTMLDivElement | null;
+    private _tooltipFirst!: HTMLDivElement | null;
+    private _tooltipLast!: HTMLDivElement | null;
+    private _scale!: HTMLDivElement | null;
 
-    private _activeThumb: HTMLDivElement | null = null;
-    private _warnings: IViewWarnings | null = null;
+    private _activeThumb: EventTarget | null = null;
+    private _warnings: IViewWarnings = {};
     
     constructor(opts: {}, sliderNode: HTMLDivElement) {
 
         super();
 
         const options: IOptions = Object.assign({}, defaultOptions, opts);
-        this.validate(options);
+        this._warnings = validateView(options);
+        this.handleWarnings();
 
         this._slider = sliderNode;
         this._slider.classList.add('slider');
@@ -63,7 +64,8 @@ class View extends Observable<ViewMessage> implements IView  {
     public rerender(opts: IModelOptions): void {
         const options: IOptions = Object.assign({}, this.getOptions(), opts);
 
-        this.validate(options);
+        this._warnings = validateView(options);
+        this.handleWarnings();
         this.rebuild(options);
     }
 
@@ -85,18 +87,20 @@ class View extends Observable<ViewMessage> implements IView  {
         return Object.assign({}, this._warnings);
     }
 
+
     @bind
     private handleThumbDown(event: MouseEvent | TouchEvent): void {
         event.preventDefault();
         event.stopPropagation();
 
-        this._activeThumb = event.currentTarget as HTMLDivElement;
+        this._activeThumb = event.currentTarget;
 
         document.addEventListener('mousemove', this.handleThumbMove);
         document.addEventListener('mouseup', this.handleThumbUp);
         document.addEventListener('touchmove', this.handleThumbMove);
         document.addEventListener('touchend', this.handleThumbUp);
     }
+
 
     @bind
     private handleThumbMove(event: MouseEvent | TouchEvent): void {
@@ -134,12 +138,13 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
+
     @bind
     private handleSliderClick(event: MouseEvent): void {
         const length: number = this.getLengthInPx();
         const offset: number = this.getOffsetInPx();
-        const eventPos: number = !this._vertical ? event.clientX : event.clientY;
-        const newThumbPosition: number = (eventPos - offset) / length;
+        const eventPosition: number = !this._vertical ? event.clientX : event.clientY;
+        const newThumbPosition: number = (eventPosition - offset) / length;
         let isLastMoved: boolean;
 
 
@@ -150,10 +155,10 @@ class View extends Observable<ViewMessage> implements IView  {
         } else {
             const styleNameOfStart: 'left' | 'top' = !this._vertical ? 'left' : 'top';
 
-            const firstThumbPos: number = parseFloat( String(this._thumbFirst.style[styleNameOfStart]) );
-            const lastThumbPos: number = parseFloat( String(this._thumbLast.style[styleNameOfStart]) );
+            const firstThumbPosition: number = parseFloat( String(this._thumbFirst.style[styleNameOfStart]) );
+            const lastThumbPosition: number = parseFloat( String(this._thumbLast.style[styleNameOfStart]) );
 
-            const isLastCloser: boolean = Math.abs(firstThumbPos/100 - newThumbPosition) > Math.abs(lastThumbPos/100 - newThumbPosition);
+            const isLastCloser: boolean = Math.abs(firstThumbPosition/100 - newThumbPosition) > Math.abs(lastThumbPosition/100 - newThumbPosition);
 
             isLastMoved = isLastCloser;            
         }
@@ -175,6 +180,7 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
+
     @bind
     private handleThumbUp(): void {
         document.removeEventListener('mouseup', this.handleThumbUp);
@@ -184,6 +190,7 @@ class View extends Observable<ViewMessage> implements IView  {
 
         this._activeThumb = null;
     }
+
 
     private build(options: IOptions): void {
 
@@ -248,17 +255,12 @@ class View extends Observable<ViewMessage> implements IView  {
         this.build(options);
     }
 
-    private validate(options: IViewOptions): void {
-        
-        this._warnings = {};
-        this._warnings = validateView(options);
-
+    private handleWarnings(): void {
         if ( Object.keys(this._warnings).length == 0 ) { return }
-        const warnings: IViewWarnings = Object.assign({}, this._warnings);
         
         this.notify({
             type: 'WARNINGS',
-            warnings: warnings
+            warnings: this.getWarnings()
         });
     }
 
@@ -311,6 +313,7 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private buildScale(options: IOptions): void {
+
         const { min, max, step, reverse, customValues } = options;
         let division: HTMLDivElement;
         let val: number | string;
@@ -348,18 +351,19 @@ class View extends Observable<ViewMessage> implements IView  {
     }
 
     private setTooltipValues(options: IModelOptions): void {
+        if ( this._tooltipFirst == null ) return;
+        if ( this._tooltipLast == null ) return;
+
         const { begin, end, reverse, customValues } = options;
         const beginValue: string = customValues ? customValues[begin] : String(begin);
         const endValue: string = customValues ? customValues[end] : String(end);
-        const first: HTMLDivElement = this._tooltipFirst as HTMLDivElement;
-        const last: HTMLDivElement = this._tooltipLast as HTMLDivElement;
 
         if (!reverse) {
-            first.textContent = beginValue;
-            last.textContent = endValue;
+            this._tooltipFirst.textContent = beginValue;
+            this._tooltipLast.textContent = endValue;
         } else {
-            first.textContent = endValue;
-            last.textContent = beginValue;
+            this._tooltipFirst.textContent = endValue;
+            this._tooltipLast.textContent = beginValue;
         }
     }
 
@@ -372,8 +376,6 @@ class View extends Observable<ViewMessage> implements IView  {
             thumbNode.style.top = position;
         }
 
-
-        // z index
         if ( this._thumbFirst ) {
             if ( (this._thumbFirst.style.left == '100%') || (this._thumbFirst.style.top == '100%') ) {
                 this._thumbFirst.style.zIndex = '1';

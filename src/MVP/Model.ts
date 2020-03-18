@@ -41,7 +41,8 @@ class Model extends Observable<ModelMessage> implements IModel {
         super();
 
         const fullOptions: IModelOptions = Object.assign({}, defaultOptions, options);
-        this.validate(fullOptions);
+        this._warnings = validateModel(fullOptions);
+        this.handleWarnings();
 
         const validOptions: IModelOptions = this.normalize(fullOptions, defaultOptions);
         this.setOptions(validOptions);
@@ -51,10 +52,12 @@ class Model extends Observable<ModelMessage> implements IModel {
     public update(options: {}): void {
 
         const prevOptions: IModelOptions = this.getOptions();
-        const newInvalidOptions: IModelOptions = Object.assign({}, this.getOptions(), options);
+        const newOptions: IModelOptions = Object.assign({}, this.getOptions(), options);
 
-        this.validate(Object.assign({}, prevOptions, newInvalidOptions))
-        const newValidOptions: IModelOptions = this.normalize(newInvalidOptions, prevOptions);
+        this._warnings = validateModel(newOptions);
+        this.handleWarnings();
+
+        const newValidOptions: IModelOptions = this.normalize(newOptions, prevOptions);
 
         if ( deepEqual(prevOptions, newValidOptions) ) { return }
         this.setOptions(newValidOptions);
@@ -129,17 +132,12 @@ class Model extends Observable<ModelMessage> implements IModel {
     }
 
 
-    private validate(options: IModelOptions): void {
-
-        this._warnings = {};
-        this._warnings = validateModel(options);
-
+    private handleWarnings(): void {
         if ( Object.keys(this._warnings).length == 0 ) { return }
-        const warnings: IModelWarnings = Object.assign({}, this._warnings);
         
         this.notify({
             type: 'WARNINGS',
-            warnings: warnings
+            warnings: this.getWarnings()
         });
     }
 
