@@ -10,11 +10,10 @@
     ],
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "pretty": true,
     "watch": true
   },
-  "include": ["src/**/*.ts", "src/jquerySlider.js"],
-  "exclude": ["src/jquerySlider.js"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/jquerySlider1.ts"],
   "typeRoots": ["node_modules/@types"]
 }

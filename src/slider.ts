@@ -15,7 +15,7 @@ class Slider implements ISlider {
     private _view: IView;
     private _presenter: IPresenter;
 
-    constructor(options: {}, node: HTMLDivElement) {
+    constructor(options: {}, node: HTMLElement) {
 
         const optionsForModel: {} = Object.assign({}, options);
         this._model = new Model(optionsForModel);

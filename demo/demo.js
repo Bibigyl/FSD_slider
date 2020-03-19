@@ -1,9 +1,10 @@
 $(document).ready(function () {
 
    $('#slider1').slider({
-        end: 7,
+        end: 5,
         length: '100%'
     });
+
 
     $('#slider2').slider({
         begin: 2,

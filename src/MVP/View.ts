@@ -26,18 +26,18 @@ class View extends Observable<ViewMessage> implements IView  {
     private _length: string = defaultOptions.length;
     private _vertical: boolean = defaultOptions.vertical;
 
-    private _slider: HTMLDivElement;
-    private _thumbFirst!: HTMLDivElement;
-    private _thumbLast!: HTMLDivElement;
-    private _bar!: HTMLDivElement;
-    private _tooltipFirst!: HTMLDivElement | null;
-    private _tooltipLast!: HTMLDivElement | null;
-    private _scale!: HTMLDivElement | null;
+    private _slider: HTMLElement;
+    private _thumbFirst!: HTMLElement;
+    private _thumbLast!: HTMLElement;
+    private _bar!: HTMLElement;
+    private _tooltipFirst!: HTMLElement | null;
+    private _tooltipLast!: HTMLElement | null;
+    private _scale!: HTMLElement | null;
 
     private _activeThumb: EventTarget | null = null;
     private _warnings: IViewWarnings = {};
     
-    constructor(opts: {}, sliderNode: HTMLDivElement) {
+    constructor(opts: {}, sliderNode: HTMLElement) {
 
         super();
 
@@ -315,12 +315,12 @@ class View extends Observable<ViewMessage> implements IView  {
     private buildScale(options: IOptions): void {
 
         const { min, max, step, reverse, customValues } = options;
-        let division: HTMLDivElement;
+        let division: HTMLElement;
         let val: number | string;
         let indent: number | string;
         const length: number = max - min;
 
-        const scale: HTMLDivElement = document.createElement('div');
+        const scale: HTMLElement = document.createElement('div');
         scale.classList.add('slider__scale');
 
         for ( let i = 0; i <= getNumberOfSteps(min, max, step); i++ ) {
@@ -367,7 +367,7 @@ class View extends Observable<ViewMessage> implements IView  {
         }
     }
 
-    private setThumbPosition(thumbNode: HTMLDivElement, position: string): void {
+    private setThumbPosition(thumbNode: HTMLElement, position: string): void {
         if ( !this._vertical ) {
             thumbNode.style.top = '';
             thumbNode.style.left = position;
@@ -393,8 +393,8 @@ class View extends Observable<ViewMessage> implements IView  {
         return position;
     }
 
-    private buildNode(parentNode: HTMLElement, ...classes: string[]): HTMLDivElement {
-        const node: HTMLDivElement = document.createElement('div');
+    private buildNode(parentNode: HTMLElement, ...classes: string[]): HTMLElement {
+        const node: HTMLElement = document.createElement('div');
 
         classes.forEach(function(currenClass: string) {
             node.classList.add(currenClass);

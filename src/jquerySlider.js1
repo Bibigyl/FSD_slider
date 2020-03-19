@@ -1,4 +1,3 @@
-
 import { defaultOptions } from './MVP/defaultOptions';
 import Slider from './Slider';
 
