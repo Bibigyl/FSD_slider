@@ -21,7 +21,6 @@ declare global {
     const methods: {[key: string]: Function} = {
 
         init: function(opts: {} = {}) {
-
             return this.each(function(i: number, item: HTMLElement) {
 
                 const $this = $(item);
@@ -42,11 +41,15 @@ declare global {
         },
 
         getData: function(): IOptions {
-            return $(this).data('sliderData').slider.getData();
+            return this.each(function (i: number, item: HTMLElement) {
+
+                $(item).data('sliderData').slider.getData();
+            });
         },
 
         update: function(options: {}): void {
             return this.each(function (i: number, item: HTMLElement) {
+
                 $(item).data('sliderData').slider.update(options);
             });
         },
@@ -64,11 +67,14 @@ declare global {
         },
 
         observe: function(listener: Function): void {
+            return this.each(function (i: number, item: HTMLElement) {
 
-            const slider = $(this).data('sliderData').slider;
-            slider.subscribe(listener);
+                const slider = $(item).data('sliderData').slider;
+                slider.subscribe(listener);
+            });
         }
     }
+
 
     jQuery.fn.slider = function(arg1: FirstSliderArgument, arg2?: SecondSliderArgument): JQuery | void | IOptions {
 
