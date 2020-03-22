@@ -69,7 +69,7 @@ describe('Model has public methods', () => {
         it('notifies model observers, when data in model changed', () => {
             let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
-                if (message.type == 'NEW_DATA') {
+                if (message.type === 'NEW_DATA') {
                     isNotified = true;
                 }
             });
@@ -84,7 +84,7 @@ describe('Model has public methods', () => {
         it('notifies model observers, when there are any warnings', () => {
             let isNotified = false;
             model.subscribe((message: ModelMessage) => {
-                if (message.type == 'WARNINGS') {
+                if (message.type === 'WARNINGS') {
                     isNotified = true;
                 }
             })
@@ -109,7 +109,7 @@ describe('Model has public methods', () => {
         it('notifies model observers, when end in model changed', () => {
             let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
-                if (message.type == 'NEW_VALUE') {
+                if (message.type === 'NEW_VALUE') {
                     isNotified = true;
                 }
             });
@@ -139,7 +139,7 @@ describe('Model has public methods', () => {
 
             let isNotified = false;
             model.subscribe((message: ModelMessage) => {
-                if (message.type == 'NEW_VALUE') {
+                if (message.type === 'NEW_VALUE') {
                     isNotified = true;
                 }
             });
@@ -222,7 +222,7 @@ describe('Model has private methods', () => {
         it('notifies models observers if there are any warnings', () => {
             let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
-                if (message.type == 'WARNINGS') {
+                if (message.type === 'WARNINGS') {
                     isNotified = true;
                 }
             });
@@ -283,7 +283,7 @@ describe('Model has private methods', () => {
             expect(newOptions.begin).toBeLessThan(newOptions.end);
         });
 
-        it('canges step to integer absolute number, makes step == 1, if it too big by object _warnings', () => {
+        it('canges step to integer absolute number, makes step === 1, if it too big by object _warnings', () => {
             let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 step: -5
             });

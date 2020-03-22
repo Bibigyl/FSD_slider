@@ -154,7 +154,7 @@ describe('View has private methods', () => {
             let isNotified: Boolean = false;
             let offsetRacio: number;
             view.subscribe((message: ViewMessage) => {
-                if (message.type == 'LAST_THUMB_MOVED') {
+                if (message.type === 'LAST_THUMB_MOVED') {
                     isNotified = true;
                     offsetRacio = message.offsetRacio
                 }
@@ -204,7 +204,7 @@ describe('View has private methods', () => {
             let isNotified: Boolean = false;
             let offsetRacio: number;
             view.subscribe((message: ViewMessage) => {
-                if (message.type == 'FIRST_THUMB_MOVED') {
+                if (message.type === 'FIRST_THUMB_MOVED') {
                     isNotified = true;
                     offsetRacio = message.offsetRacio
                 }
@@ -228,10 +228,10 @@ describe('View has private methods', () => {
             let isNotifiedLast: Boolean = false;
             let offsetRacio: number;
             view.subscribe((message: ViewMessage) => {
-                if (message.type == 'FIRST_THUMB_MOVED') {
+                if (message.type === 'FIRST_THUMB_MOVED') {
                     isNotifiedFirst = true;
                 }
-                if (message.type == 'LAST_THUMB_MOVED') {
+                if (message.type === 'LAST_THUMB_MOVED') {
                     isNotifiedLast = true;
                     offsetRacio = message.offsetRacio
                 }
@@ -362,7 +362,7 @@ describe('View has private methods', () => {
         it('notifies views observers if there are any warnings', () => {
             let isNotified: Boolean = false;
             view.subscribe((message: ViewMessage) => {
-                if (message.type == 'WARNINGS') {
+                if (message.type === 'WARNINGS') {
                     isNotified = true;
                 }
             });

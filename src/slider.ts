@@ -5,32 +5,30 @@ import Presenter, { IPresenter } from './MVP/Presenter';
 
 
 interface ISlider {
-    update(options: {}): void;
-    subscribe(func: Function): void;
+  update(options: {}): void;
+  subscribe(func: Function): void;
 }
 
 class Slider implements ISlider {
+  private _presenter: IPresenter;
 
-    private _presenter: IPresenter;
+  constructor(options: {}, node: HTMLElement) {
+    const optionsForModel: {} = { ...options };
+    const model: IModel = new Model(optionsForModel);
 
-    constructor(options: {}, node: HTMLElement) {
+    const optionsForView: IModelOptions = { ...options, ...model.getOptions() };
+    const view: IView = new View(optionsForView, node);
 
-        const optionsForModel: {} = Object.assign({}, options);
-        const model: IModel = new Model(optionsForModel);
+    this._presenter = new Presenter(model, view);
+  }
 
-        const optionsForView: IModelOptions = Object.assign({}, options, model.getOptions());
-        const view: IView = new View(optionsForView, node);
+  public subscribe(func: Function): void {
+    this._presenter.subscribe(func);
+  }
 
-        this._presenter = new Presenter(model, view);
-    }
-
-    public subscribe(func: Function): void {
-        this._presenter.subscribe(func);
-    }
-
-    public update(options: IOptions): void {
-        this._presenter.update(options);
-    }
+  public update(options: IOptions): void {
+    this._presenter.update(options);
+  }
 }
 
 export { ISlider };

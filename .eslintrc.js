@@ -1,3 +1,4 @@
+// https://www.npmjs.com/package/eslint-config-airbnb-typescript
 module.exports = {
     root: true,
     parser: '@typescript-eslint/parser',

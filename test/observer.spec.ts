@@ -23,7 +23,7 @@ describe('Class Observable is used for subscription in Model and View', () => {
         let anythingHappened: boolean = false;
 
         observable.subscribe(function(message: someMessage) {
-            if (message.type == 'SOME_MESSAGE') {
+            if (message.type === 'SOME_MESSAGE') {
                 anythingHappened = true;
             }
         });
