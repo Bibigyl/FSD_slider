@@ -11,19 +11,17 @@ interface ISlider {
 
 class Slider implements ISlider {
 
-    private _model: IModel;
-    private _view: IView;
     private _presenter: IPresenter;
 
     constructor(options: {}, node: HTMLElement) {
 
         const optionsForModel: {} = Object.assign({}, options);
-        this._model = new Model(optionsForModel);
+        const model: IModel = new Model(optionsForModel);
 
-        const optionsForView: IModelOptions = Object.assign({}, options, this._model.getOptions());
-        this._view = new View(optionsForView, node);
+        const optionsForView: IModelOptions = Object.assign({}, options, model.getOptions());
+        const view: IView = new View(optionsForView, node);
 
-        this._presenter = new Presenter(this._model, this._view);
+        this._presenter = new Presenter(model, view);
     }
 
     public subscribe(func: Function): void {
