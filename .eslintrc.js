@@ -5,10 +5,11 @@ module.exports = {
         '@typescript-eslint',
     ],
     extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/eslint-recommended',
-        'plugin:@typescript-eslint/recommended',
+        'airbnb-typescript/base',
     ],
+    parserOptions: {
+        project: './tsconfig.json',
+    },
     rules: {
         '@typescript-eslint/interface-name-prefix': 'off'
     }
