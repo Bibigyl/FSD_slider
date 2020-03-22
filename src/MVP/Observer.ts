@@ -36,19 +36,4 @@ class Observable<A, B> implements IObservable {
 }
 
 
-/* class ObservablePresenter implements IObservable {
-    protected listeners: Function[] = [];
-
-    public subscribe(listener: Function): void {
-        this.listeners.push(listener);
-    }
-
-    public notify(options?: IOptions, warnings?: IWarnings): void {
-        this.listeners.forEach(function(listener) {
-            listener(options, warnings);
-        });
-    }
-} */
-
-
 export { IObservable, Observable, ModelMessage, ViewMessage };
