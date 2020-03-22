@@ -18,8 +18,14 @@ $(document).ready(function () {
 
     $('#slider3').slider({
         end: 2,
-        customValues: ['a', 'b', 'c', 'd', 'e'],
-        length: '200px'
+        length: '200px',
+        customValues: ['1.5', '2', '2.5', '3', '3.5']
+    });
+
+    $('#slider4').slider({
+        end: 2,
+        length: '20em',
+        customValues: ['январь', 'февраль', 'март', 'апрель', 'май']
     });
 
 

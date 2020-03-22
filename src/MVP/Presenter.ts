@@ -1,7 +1,7 @@
 import { IOptions} from './defaultOptions';
 import { IModel, IModelOptions} from './Model';
 import { IView } from './View';
-import { IObservable, ModelMessage, ViewMessage, ObservablePresenter }  from './Observer';
+import { IObservable, ModelMessage, ViewMessage, Observable }  from './Observer';
 import { IWarnings } from './validations';
 
 
@@ -12,7 +12,7 @@ interface IPresenter extends IObservable {
     getWarnings(): IWarnings;
 }
 
-class Presenter extends ObservablePresenter implements IPresenter {
+class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
 
     private _model: IModel;
     private _view: IView;
@@ -31,7 +31,7 @@ class Presenter extends ObservablePresenter implements IPresenter {
             switch (message.type) {
                 case 'NEW_VALUE':
                     that._view.update(message.options);
-                    that.notify(that.getOptions());
+                    that.notify(that.getOptions(), {});
                     break;
             }
         });

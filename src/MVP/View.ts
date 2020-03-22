@@ -21,7 +21,7 @@ interface IView extends IObservable {
     getWarnings(): IViewWarnings;
 }
 
-class View extends Observable<ViewMessage> implements IView  {
+class View extends Observable<ViewMessage, void> implements IView  {
 
     private _length: string = defaultOptions.length;
     private _vertical: boolean = defaultOptions.vertical;
@@ -406,7 +406,7 @@ class View extends Observable<ViewMessage> implements IView  {
     
     private getValidLength(str: string, validLength: string): string {
 
-        const foundMatch: string[] | number[] | null = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i);
+        const foundMatch: string[] | number[] | null = str.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw|cm|ex|in|mm|pc|pt|vmin)?$/i);
         let isCSSLengthFound: Boolean = Boolean(foundMatch);
         let CSSLength: string = foundMatch ? foundMatch[0].toLowerCase().replace(',', '.') : '';
 

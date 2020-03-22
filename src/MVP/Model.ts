@@ -24,7 +24,7 @@ interface IModel extends IObservable {
 }
 
 
-class Model extends Observable<ModelMessage> implements IModel {
+class Model extends Observable<ModelMessage, void> implements IModel {
     private _begin: number = defaultOptions.min;
     private _end: number = defaultOptions.max;
     private _range: boolean = defaultOptions.range;

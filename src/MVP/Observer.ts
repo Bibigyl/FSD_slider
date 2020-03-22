@@ -1,6 +1,5 @@
 import { IModelOptions } from "./Model";
-import { IOptions } from "./defaultOptions";
-import { IWarnings, IModelWarnings, IViewWarnings } from "./validations";
+import { IModelWarnings, IViewWarnings } from "./validations";
 
 type NewValue = {type: 'NEW_VALUE'; options: IModelOptions};
 type NewData = {type: 'NEW_DATA'; options: IModelOptions};
@@ -20,24 +19,24 @@ interface IObservable {
 }
 
 
-type Fn<A, B> = (a: A) => B;
+type Fn<A, B, C> = (a: A, b?: B) => C;
 
-class Observable<A> implements IObservable {
-    protected listeners: Fn<A, void>[] = [];
+class Observable<A, B> implements IObservable {
+    protected listeners: Fn<A, B, void>[] = [];
 
-    public subscribe(listener: Fn<A, void>): void {
+    public subscribe(listener: Fn<A, B, void>): void {
         this.listeners.push(listener);
     }
 
-    public notify(message: A): void {
+    public notify(arg1: A, arg2: B): void {
         this.listeners.forEach(function(listener) {
-            listener(message);
+            listener(arg1, arg2);
         });
     }
 }
 
 
-class ObservablePresenter implements IObservable {
+/* class ObservablePresenter implements IObservable {
     protected listeners: Function[] = [];
 
     public subscribe(listener: Function): void {
@@ -49,7 +48,7 @@ class ObservablePresenter implements IObservable {
             listener(options, warnings);
         });
     }
-}
+} */
 
 
-export { IObservable, Observable, ModelMessage, ViewMessage, ObservablePresenter};
+export { IObservable, Observable, ModelMessage, ViewMessage };

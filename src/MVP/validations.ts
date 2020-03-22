@@ -127,7 +127,7 @@ function validateView(options: IViewOptions): IViewWarnings {
     const warns: IViewWarnings = {};
     const {length, vertical, tooltip, scale} = options;
 
-    if ( !length.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw)?$/i) ) {
+    if ( !length.match(/^\d{1,3}[.,]?\d*(px|em|rem|%|vh|vw|cm|ex|in|mm|pc|pt|vmin)?$/i) ) {
         warns.invalidLength = viewWarnings.invalidLength;
     }
 

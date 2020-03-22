@@ -41,15 +41,11 @@ declare global {
         },
 
         getData: function(): IOptions {
-            return this.each(function (i: number, item: HTMLElement) {
-
-                $(item).data('sliderData').slider.getData();
-            });
+            return $(this).data('sliderData').slider.getData();
         },
 
         update: function(options: {}): void {
             return this.each(function (i: number, item: HTMLElement) {
-
                 $(item).data('sliderData').slider.update(options);
             });
         },
@@ -67,16 +63,13 @@ declare global {
         },
 
         observe: function(listener: Function): void {
-            return this.each(function (i: number, item: HTMLElement) {
 
-                const slider = $(item).data('sliderData').slider;
-                slider.subscribe(listener);
-            });
+            const slider = $(this).data('sliderData').slider;
+            slider.subscribe(listener);
         }
     }
 
-
-    jQuery.fn.slider = function(arg1: FirstSliderArgument, arg2?: SecondSliderArgument): JQuery | void | IOptions {
+    jQuery.fn.slider = function(arg1: FirstSliderArgument, arg2?: SecondSliderArgument) {
 
         if (typeof arg1 === 'object' || !arg1) {
             return methods.init.call(this, arg1);
@@ -87,6 +80,7 @@ declare global {
         } else {
             $.error('Method called ' + arg1 + ' does not exist for JQuery.slider');
         }
+
     };
 
 })(jQuery);

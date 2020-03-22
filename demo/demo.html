@@ -48,7 +48,7 @@
                   </div>
                 </div>
                 <hr>
-                <div class="row 1row_with-margin-top">
+                <div class="row">
                   <div class="col-lg-6">
                     Минимальное значение
                     <input class="option" type="number" name="min" value="0">
@@ -157,7 +157,7 @@
                   </div>
                 </div>
                 <hr>
-                <div class="row 1row_with-margin-top">
+                <div class="row">
                   <div class="col-lg-6">
                     Минимальное значение
                     <input class="option" type="number" name="min" value="0">
@@ -265,7 +265,7 @@
                   </div>
                 </div>
                 <hr>
-                <div class="row 1row_with-margin-top">
+                <div class="row">
                   <div class="col-lg-6">
                     Минимальное значение
                     <input class="option" type="number" name="min" value=""  disabled>
@@ -286,7 +286,7 @@
                     <label>
                       <input type="checkbox" name="hasCustomValues" checked> Пользовательские значения
                     </label>
-                    <input class="option" type="text" name="customValues" value="a, b, c, d, e">
+                    <input class="option" type="text" name="customValues" value="1.5, 2, 2.5, 3, 3.5">
                   </div>
                   <div class="col-lg-6">
                     Начало (значение)
@@ -307,6 +307,114 @@
                   <div class="col-lg-6">
                     Ширина / Высота
                     <input class="option" type="text" name="length" value="200px">
+                  </div>
+                  <div class="col-lg-6">
+                    <label>
+                      <input class="option" type="checkbox" name="scale" checked> Шкала
+                    </label>
+                    <br>
+                    <label>
+                      <input class="option" type="checkbox" name="vertical"> Вертикальный вид
+                    </label>
+                    <br>
+                    <label>
+                      <input class="option" type="checkbox" name="tooltip" checked> Подсказки
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row row_with-margin-top">
+              <div class="col-12">
+                <b><label title="Отключить мнгновенное изменение слайдера. Новые опции будут отправлены после нажатия на кнопку.">
+                    <input type="checkbox" name="manyOptions"> Передать несколько опций
+                  </label></b>
+                <button disabled>Изменить слайдер</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="row demo">
+
+      <div class="col-md-5">
+        <h3>№4</h3>
+        <div class="slider-wrap">
+          <div id="slider4"></div>
+        </div>
+        <div class="error" hidden>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div class="panel">
+          <div class="container">
+            <div class="row">
+              <div class="container">
+                <h3>Данные модели</h3>
+                <div class="row">
+                  <div class="col-12">
+                    <label>
+                      <input class="option" type="checkbox" name="range"> <h6 class="range_title">Промежуток</h6> 
+                    </label>                    
+                  </div>
+                  <div class="col-lg-6">
+                    Начало
+                    <input class="option" type="number" name="begin" value="" disabled>
+                  </div>
+                  <div class="col-lg-6">
+                    Конец
+                    <input class="option" type="number" name="end" value="2">
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-lg-6">
+                    Минимальное значение
+                    <input class="option" type="number" name="min" value=""  disabled>
+                    Максимальное значение
+                    <input class="option" type="number" name="max" value=""  disabled>
+                  </div>
+                  <div class="col-lg-6">
+                    Шаг
+                    <input class="option" type="number" name="step" value="1">
+                    <br>
+                    <label>
+                      <input class="option" type="checkbox" name="reverse"> В обратном порядке
+                    </label>
+                  </div>
+                </div>
+                <div class="row row_with-margin-top">
+                  <div class="col-lg-12">
+                    <label>
+                      <input type="checkbox" name="hasCustomValues" checked> Пользовательские значения
+                    </label>
+                    <input class="option" type="text" name="customValues" value="январь, февраль, март, апрель, май">
+                  </div>
+                  <div class="col-lg-6">
+                    Начало (значение)
+                    <input type="text" name="customBegin" disabled readonly>
+                  </div>
+                  <div class="col-lg-6">
+                    Конец (значение)
+                    <input type="text" name="customEnd" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="container">
+                <h3>Вид слайдера</h3>
+                <div class="row">
+                  <div class="col-lg-6">
+                    Ширина / Высота
+                    <input class="option" type="text" name="length" value="20em">
                   </div>
                   <div class="col-lg-6">
                     <label>
