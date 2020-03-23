@@ -5,6 +5,7 @@ import {
   IObservable, ModelMessage, ViewMessage, Observable,
 } from './Observer';
 import { IWarnings } from './validations';
+import { findValueByOffsetRacio } from './commonFunctions';
 
 
 interface IPresenter extends IObservable {
@@ -39,17 +40,23 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
     });
 
     this._view.subscribe((message: ViewMessage): void => {
+      let value: number;
+
       switch (message.type) {
         case 'LAST_THUMB_MOVED':
+          value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
+
           !that._model.getOptions().reverse
-            ? that._model.setEndByOffsetRacio(message.offsetRacio)
-            : that._model.setBeginByOffsetRacio(message.offsetRacio);
+            ? that._model.setEnd(value)
+            : that._model.setBegin(value);
           break;
 
         case 'FIRST_THUMB_MOVED':
+          value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
+
           !that._model.getOptions().reverse
-            ? that._model.setBeginByOffsetRacio(message.offsetRacio)
-            : that._model.setEndByOffsetRacio(message.offsetRacio);
+            ? that._model.setBegin(value)
+            : that._model.setEnd(value);
           break;
       }
     });
