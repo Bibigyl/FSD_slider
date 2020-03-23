@@ -16,6 +16,7 @@ declare global {
 }
 
 
+// eslint-disable-next-line func-names
 (function ($) {
   const methods: {[key: string]: Function} = {
 
@@ -64,13 +65,13 @@ declare global {
     },
   };
 
+  // eslint-disable-next-line func-names
   jQuery.fn.slider = function (arg1: FirstSliderArgument, arg2?: SecondSliderArgument) {
     if (typeof arg1 === 'object' || !arg1) {
       return methods.init.call(this, arg1);
     } if (methods[arg1]) {
       return methods[arg1].call(this, arg2);
     }
-    // проверить с return
-    $.error(`Method called ${arg1} does not exist for JQuery.slider`);
+    return $.error(`Method called ${arg1} does not exist for JQuery.slider`);
   };
 }(jQuery));

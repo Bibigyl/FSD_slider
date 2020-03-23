@@ -5,7 +5,6 @@ $(document).ready(function () {
         length: '100%'
     });
 
-
     $('#slider2').slider({
         begin: 2,
         end: 8,

@@ -1,6 +1,6 @@
+import bind from 'bind-decorator';
 import { IModelOptions } from './Model';
 import { IModelWarnings, IViewWarnings } from './validations';
-import bind from 'bind-decorator';
 
 type NewValue = {type: 'NEW_VALUE'; options: IModelOptions};
 type NewData = {type: 'NEW_DATA'; options: IModelOptions};
@@ -30,7 +30,7 @@ class Observable<A, B> implements IObservable {
   }
 
   @bind
-  public notify(arg1: A, arg2: B): void {
+  public notify(arg1: A, arg2?: B): void {
     this.listeners.forEach((listener) => {
       listener(arg1, arg2);
     });

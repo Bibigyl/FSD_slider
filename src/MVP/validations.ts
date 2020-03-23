@@ -45,6 +45,27 @@ const viewWarnings: IViewWarnings = {
 };
 
 
+function validateNumbers(numbers: number[]): boolean {
+  let isValid = true;
+  numbers.forEach((item) => {
+    if (!isNumeric(item)) {
+      isValid = false;
+    }
+  });
+  return isValid;
+}
+
+function validateIntegers(numbers: number[]): boolean {
+  let isValid = true;
+  numbers.forEach((num) => {
+    if (num % 1 !== 0) {
+      isValid = false;
+    }
+  });
+  return isValid;
+}
+
+
 function validateModel(options: IModelOptions): IModelWarnings {
   const {
     begin, end, range, min, max, step, reverse, customValues,
@@ -102,26 +123,6 @@ function validateModel(options: IModelOptions): IModelWarnings {
   return warns;
 }
 
-function validateNumbers(numbers: number[]): boolean {
-  let isValid = true;
-  numbers.forEach((item) => {
-    if (!isNumeric(item)) {
-      isValid = false;
-    }
-  });
-  return isValid;
-}
-
-function validateIntegers(numbers: number[]): boolean {
-  let isValid = true;
-  numbers.forEach((num) => {
-    if (num % 1 !== 0) {
-      isValid = false;
-    }
-  });
-  return isValid;
-}
-
 
 function validateView(options: IViewOptions): IViewWarnings {
   const warns: IViewWarnings = {};
@@ -149,5 +150,11 @@ function validateView(options: IViewOptions): IViewWarnings {
 }
 
 export {
-  validateModel, validateView, IWarnings, IModelWarnings, IViewWarnings, validateNumbers, validateIntegers,
+  validateModel,
+  validateView,
+  IWarnings,
+  IModelWarnings,
+  IViewWarnings,
+  validateNumbers,
+  validateIntegers,
 };

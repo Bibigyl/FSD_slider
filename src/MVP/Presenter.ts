@@ -1,5 +1,5 @@
-import { IOptions } from './defaultOptions';
-import { IModel, IModelOptions } from './Model';
+import { IOptions, IModelOptions } from './defaultOptions';
+import { IModel } from './Model';
 import { IView } from './View';
 import {
   IObservable, ModelMessage, ViewMessage, Observable,
@@ -17,45 +17,55 @@ interface IPresenter extends IObservable {
 
 
 class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
-  private _model: IModel;
+  private model: IModel;
 
-  private _view: IView;
+  private view: IView;
 
   constructor(model: IModel, view: IView) {
     super();
 
-    this._model = model;
-    this._view = view;
+    this.model = model;
+    this.view = view;
 
 
-    this._model.subscribe((message: ModelMessage): void => {
+    this.model.subscribe((message: ModelMessage): void => {
       switch (message.type) {
         case 'NEW_VALUE':
-          
-          this._view.update(message.options);
+
+          this.view.update(message.options);
           this.notify(this.getOptions(), {});
+          break;
+
+        default:
           break;
       }
     });
 
-    this._view.subscribe((message: ViewMessage): void => {
+    this.view.subscribe((message: ViewMessage): void => {
       let value: number;
 
       switch (message.type) {
         case 'LAST_THUMB_MOVED':
           value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
 
-          !this._model.getOptions().reverse
-            ? this._model.setEnd(value)
-            : this._model.setBegin(value);
+          if (!this.model.getOptions().reverse) {
+            this.model.setEnd(value);
+          } else {
+            this.model.setBegin(value);
+          }
           break;
 
         case 'FIRST_THUMB_MOVED':
           value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
 
-          !this._model.getOptions().reverse
-            ? this._model.setBegin(value)
-            : this._model.setEnd(value);
+          if (!this.model.getOptions().reverse) {
+            this.model.setBegin(value);
+          } else {
+            this.model.setEnd(value);
+          }
+          break;
+
+        default:
           break;
       }
     });
@@ -64,10 +74,10 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
 
   public update(options: {}): void {
     const optionsForModel: {} = { ...options };
-    this._model.update(optionsForModel);
+    this.model.update(optionsForModel);
 
-    const optionsForView: IModelOptions = Object.assign(options, this._model.getOptions());
-    this._view.rerender(optionsForView);
+    const optionsForView: IModelOptions = Object.assign(options, this.model.getOptions());
+    this.view.rerender(optionsForView);
 
     const warnings: IWarnings = this.getWarnings();
 
@@ -76,12 +86,12 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
 
 
   public getOptions(): IOptions {
-    return { ...this._model.getOptions(), ...this._view.getOptions() };
+    return { ...this.model.getOptions(), ...this.view.getOptions() };
   }
 
 
   public getWarnings(): IWarnings {
-    return { ...this._model.getWarnings(), ...this._view.getWarnings() };
+    return { ...this.model.getWarnings(), ...this.view.getWarnings() };
   }
 }
 

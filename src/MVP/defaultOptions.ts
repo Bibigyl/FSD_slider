@@ -1,7 +1,23 @@
-import { IModelOptions } from './Model';
-import { IViewOptions } from './View';
+interface IModelOptions {
+  begin: number;
+  end: number;
+  range: boolean;
+  min: number;
+  max: number;
+  step: number;
+  customValues: string[] | null;
+  reverse: boolean;
+}
+
+interface IViewOptions {
+  length: string;
+  vertical: boolean;
+  tooltip: boolean;
+  scale: boolean;
+}
 
 interface IOptions extends IModelOptions, IViewOptions {}
+
 
 const defaultOptions: IOptions = {
   begin: 0,
@@ -19,5 +35,5 @@ const defaultOptions: IOptions = {
   scale: true,
 };
 
-export { IOptions };
+export { IOptions, IModelOptions, IViewOptions };
 export { defaultOptions };

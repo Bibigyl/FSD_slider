@@ -1,23 +1,12 @@
-import { defaultOptions } from './defaultOptions';
+import { defaultOptions, IModelOptions } from './defaultOptions';
 import { IObservable, Observable, ModelMessage } from './Observer';
-import { deepEqual, findClosestValue, normalizeNumber } from './commonFunctions';
+import { deepEqual, normalizeNumber } from './commonFunctions';
 import { validateModel, IModelWarnings } from './validations';
-
-interface IModelOptions {
-  begin: number;
-  end: number;
-  range: boolean;
-  min: number;
-  max: number;
-  step: number;
-  customValues: string[] | null;
-  reverse: boolean;
-}
 
 interface IModel extends IObservable {
   update(options: {}): void;
-  //setBeginByOffsetRacio(racio: number): void;
-  //setEndByOffsetRacio(racio: number): void;
+  // setBeginByOffsetRacio(racio: number): void;
+  // setEndByOffsetRacio(racio: number): void;
   setBegin(end: number): void;
   setEnd(end: number): void
 
@@ -26,31 +15,31 @@ interface IModel extends IObservable {
 }
 
 
-class Model extends Observable<ModelMessage, void> implements IModel {
-  private _begin: number = defaultOptions.min;
+class Model extends Observable<ModelMessage, undefined> implements IModel {
+  private begin: number = defaultOptions.min;
 
-  private _end: number = defaultOptions.max;
+  private end: number = defaultOptions.max;
 
-  private _range: boolean = defaultOptions.range;
+  private range: boolean = defaultOptions.range;
 
-  private _min: number = defaultOptions.min;
+  private min: number = defaultOptions.min;
 
-  private _max: number = defaultOptions.max;
+  private max: number = defaultOptions.max;
 
-  private _step: number = defaultOptions.step;
+  private step: number = defaultOptions.step;
 
-  private _customValues: string[] | null = defaultOptions.customValues;
+  private customValues: string[] | null = defaultOptions.customValues;
 
-  private _reverse: boolean = defaultOptions.reverse;
+  private reverse: boolean = defaultOptions.reverse;
 
-  private _warnings: IModelWarnings = {};
+  private warnings: IModelWarnings = {};
 
   constructor(options: {}) {
     super();
 
     const fullOptions: IModelOptions = { ...defaultOptions, ...options };
-    
-    this._warnings = validateModel(fullOptions);
+
+    this.warnings = validateModel(fullOptions);
     this.handleWarnings();
 
     const validOptions: IModelOptions = this.normalize(fullOptions, defaultOptions);
@@ -62,7 +51,7 @@ class Model extends Observable<ModelMessage, void> implements IModel {
     const prevOptions: IModelOptions = this.getOptions();
     const newOptions: IModelOptions = { ...this.getOptions(), ...options };
 
-    this._warnings = validateModel(newOptions);
+    this.warnings = validateModel(newOptions);
     this.handleWarnings();
 
     const newValidOptions: IModelOptions = this.normalize(newOptions, prevOptions);
@@ -78,11 +67,11 @@ class Model extends Observable<ModelMessage, void> implements IModel {
 
 
   public setEnd(end: number): void {
-    let newEnd: number = findClosestValue(end, this.getOptions());
-    newEnd = Math.max(newEnd, this._begin);
+    let newEnd: number = Model.findClosestValue(end, this.getOptions());
+    newEnd = Math.max(newEnd, this.begin);
 
-    if (newEnd === this._end) { return; }
-    this._end = newEnd;
+    if (newEnd === this.end) { return; }
+    this.end = newEnd;
 
     this.notify({
       type: 'NEW_VALUE',
@@ -92,13 +81,13 @@ class Model extends Observable<ModelMessage, void> implements IModel {
 
 
   public setBegin(begin: number): void {
-    if (!this._range) { return; }
+    if (!this.range) { return; }
 
-    let newBegin: number = findClosestValue(begin, this.getOptions());
-    newBegin = Math.min(newBegin, this._end);
+    let newBegin: number = Model.findClosestValue(begin, this.getOptions());
+    newBegin = Math.min(newBegin, this.end);
 
-    if (newBegin === this._begin) { return; }
-    this._begin = newBegin;
+    if (newBegin === this.begin) { return; }
+    this.begin = newBegin;
 
     this.notify({
       type: 'NEW_VALUE',
@@ -109,37 +98,37 @@ class Model extends Observable<ModelMessage, void> implements IModel {
 
   public getOptions(): IModelOptions {
     return {
-      begin: this._begin,
-      end: this._end,
-      range: this._range,
-      min: this._min,
-      max: this._max,
-      step: this._step,
-      customValues: this._customValues,
-      reverse: this._reverse,
+      begin: this.begin,
+      end: this.end,
+      range: this.range,
+      min: this.min,
+      max: this.max,
+      step: this.step,
+      customValues: this.customValues,
+      reverse: this.reverse,
     };
   }
 
 
   public getWarnings(): IModelWarnings {
-    return { ...this._warnings };
+    return { ...this.warnings };
   }
 
 
   private setOptions(options: IModelOptions): void {
-    this._begin = options.begin;
-    this._end = options.end;
-    this._range = options.range;
-    this._min = options.min;
-    this._max = options.max;
-    this._step = options.step;
-    this._customValues = options.customValues;
-    this._reverse = options.reverse;
+    this.begin = options.begin;
+    this.end = options.end;
+    this.range = options.range;
+    this.min = options.min;
+    this.max = options.max;
+    this.step = options.step;
+    this.customValues = options.customValues;
+    this.reverse = options.reverse;
   }
 
 
   private handleWarnings(): void {
-    if (Object.keys(this._warnings).length === 0) { return; }
+    if (Object.keys(this.warnings).length === 0) { return; }
 
     this.notify({
       type: 'WARNINGS',
@@ -155,7 +144,7 @@ class Model extends Observable<ModelMessage, void> implements IModel {
       begin, end, range, min, max, step, reverse, customValues,
     } = options;
 
-    if (this._warnings.customValuesIsNotArray || this._warnings.customValuesIsTooSmall) {
+    if (this.warnings.customValuesIsNotArray || this.warnings.customValuesIsTooSmall) {
       customValues = null;
     }
 
@@ -168,16 +157,16 @@ class Model extends Observable<ModelMessage, void> implements IModel {
     max = normalizeNumber(max, baseOptions.max);
     step = normalizeNumber(step, baseOptions.step);
 
-    if (this._warnings.minIsOverMax) {
+    if (this.warnings.minIsOverMax) {
       [min, max] = [max, min];
     }
 
-    if (this._warnings.minIsEqualToMax) {
+    if (this.warnings.minIsEqualToMax) {
       min = baseOptions.min;
       max = baseOptions.max;
     }
 
-    if (this._warnings.stepIsNull || this._warnings.tooBigStep) {
+    if (this.warnings.stepIsNull || this.warnings.tooBigStep) {
       step = 1;
     }
 
@@ -185,7 +174,7 @@ class Model extends Observable<ModelMessage, void> implements IModel {
     reverse = Boolean(reverse);
     range = Boolean(range);
 
-    if (this._warnings.beginIsOverEnd) {
+    if (this.warnings.beginIsOverEnd) {
       [begin, end] = [end, begin];
     }
 
@@ -195,16 +184,42 @@ class Model extends Observable<ModelMessage, void> implements IModel {
     };
 
     end = normalizeNumber(end, max);
-    options.end = findClosestValue(end, options);
+    options.end = Model.findClosestValue(end, options);
 
     if (!range) {
       options.begin = min;
     } else {
       begin = normalizeNumber(begin, min);
-      options.begin = findClosestValue(begin, options);
+      options.begin = Model.findClosestValue(begin, options);
     }
 
     return options;
+  }
+
+  static findClosestValue(value: number, options: IModelOptions): number {
+    let prev: number;
+    let next: number;
+    const {
+      min, max, step, reverse,
+    } = options;
+
+    if (value <= min) { return min; }
+    if (value >= max) { return max; }
+
+    if (!reverse) {
+      prev = min + Math.floor((value - min) / step) * step;
+      next = min + Math.floor((value - min) / step) * step + step;
+
+      next = next < max ? next : max;
+    } else {
+      prev = max - Math.floor((max - value) / step) * step - step;
+      next = max - Math.floor((max - value) / step) * step;
+
+      prev = prev > min ? prev : min;
+    }
+
+    const closestValue: number = value < prev + (next - prev) / 2 ? prev : next;
+    return closestValue;
   }
 }
 
@@ -213,17 +228,13 @@ export { IModel, IModelOptions };
 export default Model;
 
 
-
-
-
-
 /*   public setEndByOffsetRacio(racio: number): void {
-    const prevEnd: number = this._end;
+    const prevEnd: number = this.end;
     let value: number = this.findValueByOffsetRacio(racio);
-    value = Math.max(value, this._begin);
+    value = Math.max(value, this.begin);
 
     if (value === prevEnd) { return; }
-    this._end = value;
+    this.end = value;
 
     this.notify({
       type: 'NEW_VALUE',
@@ -233,13 +244,13 @@ export default Model;
 
 
 /*   public setBeginByOffsetRacio(racio: number): void {
-    const prevBegin: number = this._begin;
-    if (!this._range) { return; }
+    const prevBegin: number = this.begin;
+    if (!this.range) { return; }
     let value: number = this.findValueByOffsetRacio(racio);
-    value = Math.min(value, this._end);
+    value = Math.min(value, this.end);
 
     if (value === prevBegin) { return; }
-    this._begin = value;
+    this.begin = value;
 
     this.notify({
       type: 'NEW_VALUE',
@@ -248,59 +259,26 @@ export default Model;
   } */
 
 
-
-
-
-
-/*   private findClosestValue(value: number, options: IModelOptions): number {
-    let prevValue: number;
-    let nextValue: number;
-    const {
-      min, max, step, reverse,
-    } = options;
-
-    if (value <= min) { return min; }
-    if (value >= max) { return max; }
-
-    if (!reverse) {
-      prevValue = min + Math.floor((value - min) / step) * step;
-      nextValue = min + Math.floor((value - min) / step) * step + step;
-
-      nextValue = nextValue < max ? nextValue : max;
-    } else {
-      prevValue = max - Math.floor((max - value) / step) * step - step;
-      nextValue = max - Math.floor((max - value) / step) * step;
-
-      prevValue = prevValue > min ? prevValue : min;
-    }
-
-    value = value < prevValue + (nextValue - prevValue) / 2 ? prevValue : nextValue;
-    return value;
-  } */
-
-
 /*   private findValueByOffsetRacio(racio: number): number {
     let value: number;
 
-    value = racio * (this._max - this._min);
-    value = !this._reverse
-      ? this._min + value
-      : this._max - value;
+    value = racio * (this.max - this.min);
+    value = !this.reverse
+      ? this.min + value
+      : this.max - value;
 
     value = findClosestValue(value, this.getOptions());
     return value;
   } */
 
 
+/*   private normalizeNumber(value: number, defaultVal: number): number {
+  let newValue: number = value;
 
+  if (!isNumeric(value)) {
+    newValue = defaultVal;
+  }
 
-  /*   private normalizeNumber(value: number, defaultVal: number): number {
-    let newValue: number = value;
-
-    if (!isNumeric(value)) {
-      newValue = defaultVal;
-    }
-
-    newValue = Math.round(newValue);
-    return newValue;
-  } */
+  newValue = Math.round(newValue);
+  return newValue;
+} */

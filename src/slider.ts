@@ -10,7 +10,7 @@ interface ISlider {
 }
 
 class Slider implements ISlider {
-  private _presenter: IPresenter;
+  private presenter: IPresenter;
 
   constructor(options: {}, node: HTMLElement) {
     const optionsForModel: {} = { ...options };
@@ -19,15 +19,15 @@ class Slider implements ISlider {
     const optionsForView: IModelOptions = { ...options, ...model.getOptions() };
     const view: IView = new View(optionsForView, node);
 
-    this._presenter = new Presenter(model, view);
+    this.presenter = new Presenter(model, view);
   }
 
   public subscribe(func: Function): void {
-    this._presenter.subscribe(func);
+    this.presenter.subscribe(func);
   }
 
   public update(options: IOptions): void {
-    this._presenter.update(options);
+    this.presenter.update(options);
   }
 }
 
