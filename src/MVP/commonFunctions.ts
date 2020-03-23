@@ -1,4 +1,4 @@
-import { IModelOptions } from './Model';
+import { IModelOptions } from './options';
 
 function isNumeric(n: any): boolean {
   return !Number.isNaN(parseFloat(String(n))) && !Number.isNaN(n - 0);
@@ -24,7 +24,6 @@ function findValueByOffsetRacio(racio: number, options: IModelOptions): number {
     ? min + value
     : max - value;
 
-  // value = findClosestValue(value, options);
   return value;
 }
 

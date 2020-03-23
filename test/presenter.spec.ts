@@ -30,16 +30,16 @@ describe('Presenter is created with defaultOptions', () => {
 
     it('stores model and view as privet properites', () => {
         // @ts-ignore
-        expect(presenter._view).toBeDefined();
+        expect(presenter.#view).toBeDefined();
         // @ts-ignore
-        expect(presenter._model).toBeDefined();
+        expect(presenter.#model).toBeDefined();
     });
 
     it('adds callbacks to view and model, with react on current changes', () => {
         // @ts-ignore
-        expect(presenter._model.listeners.length).not.toBeNull();
+        expect(presenter.#model.listeners.length).not.toBeNull();
         // @ts-ignore
-        expect(presenter._view.listeners.length).not.toBeNull();
+        expect(presenter.#view.listeners.length).not.toBeNull();
     });
 });
 
@@ -55,11 +55,11 @@ describe('Presenter has public methods', () => {
             presenter.update(newOptions);
 
             // @ts-ignore
-            expect(presenter._model._min).toBe(-10);
+            expect(presenter.#model.#min).toBe(-10);
             // @ts-ignore
-            expect(presenter._model._step).toBe(2);
+            expect(presenter.#model.#step).toBe(2);
             // @ts-ignore
-            expect(presenter._view._length).toBe('20px');
+            expect(presenter.#view.#length).toBe('20px');
         });
 
         it('notifies listeners about new data and new warnings', () => {
@@ -96,7 +96,7 @@ describe('Presenter has public methods', () => {
     describe('method getWarnings', () => {
         it('returns an object with last gotten warnings', () => {
             // @ts-ignore
-            model._warnings = {warning: 'something'}
+            model.#warnings = {warning: 'something'}
 
             // @ts-ignore
             let warnings: {warning: 'something'} = presenter.getWarnings();

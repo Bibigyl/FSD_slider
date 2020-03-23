@@ -1,30 +1,8 @@
-import { IModelOptions } from './Model';
 import { isNumeric } from './commonFunctions';
-import { IViewOptions } from './View';
+import { IModelOptions, IViewOptions } from './options';
+import { IModelWarnings, IViewWarnings } from './warnings';
 
-interface IWarnings extends IModelWarnings, IViewWarnings {}
-
-interface IModelWarnings {
-  valuesAreNotNumbers?: string;
-  valuesAreNotInteger?: string;
-  minIsOverMax?: string;
-  minIsEqualToMax?: string;
-  beginIsOverEnd?: string;
-  tooBigStep?: string;
-  stepIsNull?: string;
-  reverseIsNotBoolean?: string;
-  customValuesIsNotArray?: string;
-  customValuesIsTooSmall? : string;
-}
-
-interface IViewWarnings {
-  invalidLength?: string;
-  verticalIsNotBoolean?: string;
-  tooltipIsNotBoolean?: string;
-  scaleIsNotBoolean?: string;
-}
-
-const modelWarnings: IModelWarnings = {
+const modelWarnings = {
   valuesAreNotNumbers: 'All values, instead of customValues, should be numbers',
   valuesAreNotInteger: 'All values, instead of customValues, should be integer',
   minIsOverMax: 'Min value should be less then max value',
@@ -37,7 +15,7 @@ const modelWarnings: IModelWarnings = {
   customValuesIsTooSmall: 'CustomValues should contain at least two values',
 };
 
-const viewWarnings: IViewWarnings = {
+const viewWarnings = {
   invalidLength: 'Length should be valid to CSS',
   verticalIsNotBoolean: 'Option vertical should be true or false',
   tooltipIsNotBoolean: 'Option tooltip should be true or false',
@@ -102,7 +80,7 @@ function validateModel(options: IModelOptions): IModelWarnings {
     warns.tooBigStep = modelWarnings.tooBigStep;
   }
 
-  if (step === 0) {
+  if (Number(step) === 0) {
     warns.stepIsNull = modelWarnings.stepIsNull;
   }
 
@@ -150,11 +128,5 @@ function validateView(options: IViewOptions): IViewWarnings {
 }
 
 export {
-  validateModel,
-  validateView,
-  IWarnings,
-  IModelWarnings,
-  IViewWarnings,
-  validateNumbers,
-  validateIntegers,
+  validateModel, validateView, validateNumbers, validateIntegers,
 };

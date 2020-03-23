@@ -1,10 +1,10 @@
-import { IOptions, IModelOptions } from './defaultOptions';
+import {
+  IObservable, Observable, ModelMessage, ViewMessage,
+} from './Observerable';
+import { IOptions, IModelOptions } from './options';
+import { IWarnings } from './warnings';
 import { IModel } from './Model';
 import { IView } from './View';
-import {
-  IObservable, ModelMessage, ViewMessage, Observable,
-} from './Observer';
-import { IWarnings } from './validations';
 import { findValueByOffsetRacio } from './commonFunctions';
 
 
@@ -95,5 +95,5 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
   }
 }
 
-export { IPresenter };
 export default Presenter;
+export { IPresenter };

@@ -1,12 +1,13 @@
-import { defaultOptions, IModelOptions } from './defaultOptions';
-import { IObservable, Observable, ModelMessage } from './Observer';
+import { IObservable, Observable, ModelMessage } from './Observerable';
+import { IModelOptions } from './options';
+import { IModelWarnings } from './warnings';
+import defaultOptions from './defaultOptions';
+import { validateModel } from './validations';
 import { deepEqual, normalizeNumber } from './commonFunctions';
-import { validateModel, IModelWarnings } from './validations';
+
 
 interface IModel extends IObservable {
   update(options: {}): void;
-  // setBeginByOffsetRacio(racio: number): void;
-  // setEndByOffsetRacio(racio: number): void;
   setBegin(end: number): void;
   setEnd(end: number): void
 
@@ -224,7 +225,7 @@ class Model extends Observable<ModelMessage, undefined> implements IModel {
 }
 
 
-export { IModel, IModelOptions };
+export { IModel };
 export default Model;
 
 

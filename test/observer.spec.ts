@@ -1,4 +1,4 @@
-import { Observable, IObservable, ObservablePresenter } from "../src/MVP/Observer"
+import { Observable, IObservable } from "../src/MVP/Observer"
 import { IOptions, defaultOptions } from "../src/MVP/defaultOptions";
 import { IWarnings } from "../src/MVP/validations";
 
@@ -8,8 +8,8 @@ type someMessage = {type: 'SOME_MESSAGE'};
 let message: someMessage = {type: 'SOME_MESSAGE'};
 
 beforeEach( function() {
-    observable = new Observable<someMessage>();
-    observablePresenter = new ObservablePresenter();
+    observable = new Observable<someMessage, undefined>();
+    observablePresenter = new Observable<IOptions, IWarnings>();
 })
 
 describe('Class Observable is used for subscription in Model and View', () => {
@@ -33,7 +33,7 @@ describe('Class Observable is used for subscription in Model and View', () => {
     });
 });
 
-describe('Class ObservablePresenter is used for subscription in Presenter for outer listeners', () => {
+describe('Class Observable is used for subscription in Presenter', () => {
     
     it('can subscribe listeners as callbacks and stores it as array listeners', () => {
         observablePresenter.subscribe(function() {});
@@ -41,16 +41,16 @@ describe('Class ObservablePresenter is used for subscription in Presenter for ou
         expect(observablePresenter.listeners.length).toBe(1);
     });
     it('can notify listeners when anything happened by function notify and send to listeners objects of options and warnings', () => {
-        let anythingHappened: boolean = false;
+        let presenterNotified: boolean = false;
         let gottenOptions: IOptions;
 
         observablePresenter.subscribe(function(options: IOptions, warnings: IWarnings) {
-            anythingHappened = true;
+            presenterNotified = true;
             gottenOptions = options;
         });
         observablePresenter.notify(defaultOptions, {});
 
-        expect(anythingHappened).toBeTruthy();
+        expect(presenterNotified).toBeTruthy();
         expect(gottenOptions).toEqual(defaultOptions);
     });
 });

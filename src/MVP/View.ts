@@ -1,10 +1,10 @@
 import bind from 'bind-decorator';
-import {
-  IOptions, defaultOptions, IViewOptions, IModelOptions,
-} from './defaultOptions';
-import { IObservable, Observable, ViewMessage } from './Observer';
-import { isNumeric, getNumberOfSteps } from './commonFunctions';
-import { validateView, IViewWarnings } from './validations';
+import { IObservable, Observable, ViewMessage } from './Observerable';
+import { IModelOptions, IViewOptions, IOptions } from './options';
+import { IViewWarnings } from './warnings';
+import defaultOptions from './defaultOptions';
+import { validateView } from './validations';
+import { getNumberOfSteps, isNumeric } from './commonFunctions';
 
 
 interface IView extends IObservable {
@@ -14,6 +14,7 @@ interface IView extends IObservable {
   getOptions(): IViewOptions;
   getWarnings(): IViewWarnings;
 }
+
 
 class View extends Observable<ViewMessage, undefined> implements IView {
   private length: string = defaultOptions.length;
@@ -427,5 +428,5 @@ class View extends Observable<ViewMessage, undefined> implements IView {
 }
 
 
-export { IView, IViewOptions };
+export { IView };
 export default View;

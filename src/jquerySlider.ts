@@ -1,5 +1,7 @@
-import { defaultOptions, IOptions } from './MVP/defaultOptions';
+import { IOptions } from './MVP/options';
+import defaultOptions from './MVP/defaultOptions';
 import Slider from './Slider';
+
 
 type SliderMethod = 'getData' | 'update' | 'destroy' | 'observe';
 type FirstSliderArgument = SliderMethod | Object;

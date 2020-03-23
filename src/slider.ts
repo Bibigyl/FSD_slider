@@ -1,8 +1,7 @@
-import { IOptions } from './MVP/defaultOptions';
-import Model, { IModel, IModelOptions } from './MVP/Model';
-import View, { IView } from './MVP/View';
 import Presenter, { IPresenter } from './MVP/Presenter';
-
+import Model, { IModel } from './MVP/Model';
+import { IModelOptions, IOptions } from './MVP/options';
+import View, { IView } from './MVP/View';
 
 interface ISlider {
   update(options: {}): void;

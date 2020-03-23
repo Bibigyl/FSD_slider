@@ -6,7 +6,7 @@
     "start": "webpack-dev-server --config webpack.dev.config.js",
     "build": "webpack --config webpack.prod.config.js",
     "test": "karma start karma.conf.js",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts --fix"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -21,6 +21,7 @@
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-cli": "^2.0.0",
+    "karma-coverage": "^2.0.1",
     "karma-jasmine": "^2.0.1",
     "karma-spec-reporter": "0.0.32",
     "karma-webpack": "^4.0.2",

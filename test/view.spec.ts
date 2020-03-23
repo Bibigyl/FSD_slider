@@ -1,7 +1,7 @@
 import Model, { IModel, IModelOptions } from '../src/MVP/Model';
 import { defaultOptions, IOptions } from '../src/MVP/defaultOptions';
 import { IWarnings } from '../src/MVP/validations';
-import { ViewMessage } from '../src/MVP/Observer';
+import { ViewMessage } from '../src/MVP/Observerable';
 import View, { IView, IViewOptions } from '../src/MVP/View';
 import { getNumberOfSteps } from '../src/MVP/commonFunctions';
 
@@ -28,21 +28,21 @@ describe('View is created with defaultOptions', () => {
     });
     it('has properties', () => {
         // @ts-ignore
-        expect(view._length).toBeDefined();
+        expect(view.#length).toBeDefined();
         // @ts-ignore
-        expect(view._vertical).toBeDefined();
+        expect(view.#vertical).toBeDefined();
         // @ts-ignore
-        expect(view._slider).toBeDefined();
+        expect(view.#slider).toBeDefined();
         // @ts-ignore
-        expect(view._thumbFirst).toBeDefined();
+        expect(view.#thumbFirst).toBeDefined();
         // @ts-ignore
-        expect(view._thumbLast).toBeDefined();
+        expect(view.#thumbLast).toBeDefined();
         // @ts-ignore
-        expect(view._bar).toBeDefined();
+        expect(view.#bar).toBeDefined();
         // @ts-ignore
-        expect(view._tooltipLast).toBeDefined();
+        expect(view.#tooltipLast).toBeDefined();
         // @ts-ignore
-        expect(view._scale).toBeDefined();
+        expect(view.#scale).toBeDefined();
     });
 });
 
@@ -50,7 +50,7 @@ describe('View has public methods', () => {
     describe('method update', () => {
         it('set thumbs on new positions, changes their left/top', () => {
             // @ts-ignore
-            let offset: string = view._thumbLast.style.left;
+            let offset: string = view.#thumbLast.style.left;
             expect(offset).toBe('100%');
 
             let newOptions: IModelOptions = Object.assign({}, viewOptions, {
@@ -58,7 +58,7 @@ describe('View has public methods', () => {
             })
             view.update(newOptions);
             // @ts-ignore
-            offset = view._thumbLast.style.left;
+            offset = view.#thumbLast.style.left;
             expect(offset).toBe('50%');
         });
     });
@@ -66,24 +66,24 @@ describe('View has public methods', () => {
     describe('method rerender', () => {
         it('removes previous HTML elements of slider', () => {
             // @ts-ignore
-            let node = view._thumbLast;
+            let node = view.#thumbLast;
             // @ts-ignore
-            expect(node).toEqual(view._thumbLast)
+            expect(node).toEqual(view.#thumbLast)
 
             view.rerender(defaultOptions);
             // @ts-ignore
-            expect(node).not.toEqual(view._thumbLast)
+            expect(node).not.toEqual(view.#thumbLast)
         });
 
         it('rebuilds slider by new options', () => {
             // @ts-ignore
-            expect(view._scale).toBeDefined();
+            expect(view.#scale).toBeDefined();
             // @ts-ignore
-            expect(view._tooltipLast).toBeDefined();
+            expect(view.#tooltipLast).toBeDefined();
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_vertical')).toBeFalsy();
+            expect(view.#slider.classList.contains('slider_vertical')).toBeFalsy();
             // @ts-ignore
-            expect(view._thumbFirst.style.left).toBe('0%');
+            expect(view.#thumbFirst.style.left).toBe('0%');
 
             let newOptions = Object.assign({}, viewOptions, {
                 scale: false,
@@ -96,13 +96,13 @@ describe('View has public methods', () => {
             view.rerender(newOptions);
 
             // @ts-ignore
-            expect(view._scale).toBeNull();
+            expect(view.#scale).toBeNull();
             // @ts-ignore
-            expect(view._tooltipLast).toBeNull();
+            expect(view.#tooltipLast).toBeNull();
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_vertical')).toBeTruthy();
+            expect(view.#slider.classList.contains('slider_vertical')).toBeTruthy();
             // @ts-ignore
-            expect(view._thumbFirst.style.left).not.toBe('0%');
+            expect(view.#thumbFirst.style.left).not.toBe('0%');
         });
     });
 
@@ -140,12 +140,12 @@ describe('View has public methods', () => {
 describe('View has private methods', () => {
 
     describe('method handleThumbDown', () => {
-        it('saves the target thumb to property _activeThumb for further processing', () => {
+        it('saves the target thumb to property #activeThumb for further processing', () => {
             let thumbOnDown: MouseEvent = new MouseEvent("mousedown");
             // @ts-ignore
-            view._thumbLast.dispatchEvent(thumbOnDown);
+            view.#thumbLast.dispatchEvent(thumbOnDown);
             // @ts-ignore
-            expect(view._activeThumb).toEqual(view._thumbLast);
+            expect(view.#activeThumb).toEqual(view.#thumbLast);
         });
     })
 
@@ -168,9 +168,9 @@ describe('View has private methods', () => {
                 clientY: 5
             });
             // @ts-ignore
-            view._thumbLast.dispatchEvent(thumbOnDown);
+            view.#thumbLast.dispatchEvent(thumbOnDown);
             // @ts-ignore
-            view._thumbLast.dispatchEvent(thumbOnMove);
+            view.#thumbLast.dispatchEvent(thumbOnMove);
 
             expect(isNotified).toBeTruthy();
             expect( parseFloat(offsetRacio.toFixed(1)) ).toBe(0.5);
@@ -178,20 +178,20 @@ describe('View has private methods', () => {
     });
 
     describe('method handleThumbUp', () => {
-        it('removes event listeners and clears property _activeThumb', () => {
+        it('removes event listeners and clears property #activeThumb', () => {
             let thumbOnDown: MouseEvent = new MouseEvent("mousedown", {});
             let thumbOnUp: MouseEvent = new MouseEvent("mouseup", {
                 bubbles: true,
             });
             // @ts-ignore
-            view._thumbLast.dispatchEvent(thumbOnDown);
+            view.#thumbLast.dispatchEvent(thumbOnDown);
             // @ts-ignore
-            expect(view._activeThumb).toBeDefined();
+            expect(view.#activeThumb).toBeDefined();
             // @ts-ignore
 
-            view._thumbLast.dispatchEvent(thumbOnUp);
+            view.#thumbLast.dispatchEvent(thumbOnUp);
             // @ts-ignore
-            expect(view._activeThumb).toBeNull();
+            expect(view.#activeThumb).toBeNull();
         });
     });
 
@@ -217,7 +217,7 @@ describe('View has private methods', () => {
                 clientY: 5
             });
             // @ts-ignore
-            view._slider.dispatchEvent(sliderOnClick);
+            view.#slider.dispatchEvent(sliderOnClick);
 
             expect(isNotified).toBeTruthy();
             expect(parseFloat(offsetRacio.toFixed(1))).toBe(0.1);
@@ -245,7 +245,7 @@ describe('View has private methods', () => {
             });
 
             // @ts-ignore
-            view._slider.dispatchEvent(sliderOnClick);
+            view.#slider.dispatchEvent(sliderOnClick);
 
             expect(isNotifiedFirst).toBeFalsy();
             expect(isNotifiedLast).toBeTruthy();
@@ -256,40 +256,40 @@ describe('View has private methods', () => {
     describe('method build', () => {
         it('sets valid length to slider', () => {
             // @ts-ignore
-            expect(view._length).toBe('300px');
+            expect(view.#length).toBe('300px');
             // @ts-ignore
             view.build(Object.assign({}, viewOptions, {
                 length: '400px'
             }));
             // @ts-ignore
-            expect(view._length).toBe('400px');
+            expect(view.#length).toBe('400px');
         });
 
         it('adds class slider_horizontal or class slider_vertivcal', () => {
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_horizontal')).toBeTruthy();
+            expect(view.#slider.classList.contains('slider_horizontal')).toBeTruthy();
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_vertical')).toBeFalsy();
+            expect(view.#slider.classList.contains('slider_vertical')).toBeFalsy();
             // @ts-ignore
             view.build(Object.assign({}, defaultOptions, model.getOptions(), {
                 vertical: true
             }));
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_horizontal')).toBeFalsy();
+            expect(view.#slider.classList.contains('slider_horizontal')).toBeFalsy();
             // @ts-ignore
-            expect(view._slider.classList.contains('slider_vertical')).toBeTruthy();
+            expect(view.#slider.classList.contains('slider_vertical')).toBeTruthy();
         });
 
         it('builds nodes of thumbs, bar, tooltips, scale', () => {
 
             // @ts-ignore
-            view._thumbLast.remove();
+            view.#thumbLast.remove();
             // @ts-ignore
-            view._bar.remove();
+            view.#bar.remove();
             // @ts-ignore
-            view._tooltipLast.remove();
+            view.#tooltipLast.remove();
             // @ts-ignore
-            view._scale.remove();
+            view.#scale.remove();
 
             setTimeout(() => {
                 expect(document.querySelector('.slider__thumb_last')).toBeNull();
@@ -307,13 +307,13 @@ describe('View has private methods', () => {
             expect(document.querySelector('.slider__scale')).not.toBeNull();
 
             // @ts-ignore
-            expect(view._thumbLast).toBeDefined();
+            expect(view.#thumbLast).toBeDefined();
             // @ts-ignore
-            expect(view._bar).toBeDefined();
+            expect(view.#bar).toBeDefined();
             // @ts-ignore
-            expect(view._tooltipLast).toBeDefined();
+            expect(view.#tooltipLast).toBeDefined();
             // @ts-ignore
-            expect(view._scale).toBeDefined();
+            expect(view.#scale).toBeDefined();
         });
     });
 
@@ -322,7 +322,7 @@ describe('View has private methods', () => {
             expect(document.querySelector('.slider__tooltip_last')).not.toBeNull();
             expect(document.querySelector('.slider__scale')).not.toBeNull();
             // @ts-ignore
-            expect(view._length).toBe(defaultOptions.length);
+            expect(view.#length).toBe(defaultOptions.length);
 
             let newOptions = Object.assign({}, viewOptions, {
                 tooltip: false,
@@ -333,11 +333,11 @@ describe('View has private methods', () => {
             view.rebuild(newOptions);
 
             // @ts-ignore
-            expect(view._tooltipLast).toBeNull();
+            expect(view.#tooltipLast).toBeNull();
             // @ts-ignore
-            expect(view._scale).toBeNull();
+            expect(view.#scale).toBeNull();
             // @ts-ignore
-            expect(view._length).toBe(newOptions.length);
+            expect(view.#length).toBe(newOptions.length);
             setTimeout(() => {
             expect(document.querySelector('.slider__tooltip_last')).toBeNull();
             expect(document.querySelector('.slider__scale')).toBeNull();                
@@ -350,13 +350,13 @@ describe('View has private methods', () => {
             length: 'dfghh'
         });
 
-        it('changes property _warnings', () => {
+        it('changes property #warnings', () => {
             // @ts-ignore
-            expect(Object.keys(view._warnings).length).toBe(0);
+            expect(Object.keys(view.#warnings).length).toBe(0);
             // @ts-ignore
             view.validate(newOptions);
             // @ts-ignore
-            expect(Object.keys(view._warnings).length).not.toBe(0);
+            expect(Object.keys(view.#warnings).length).not.toBe(0);
         });
 
         it('notifies views observers if there are any warnings', () => {
@@ -377,29 +377,29 @@ describe('View has private methods', () => {
         beforeEach( function() {
             sliderNode.textContent = '';
             // @ts-ignore
-            view._thumbFirst = null;
+            view.#thumbFirst = null;
             // @ts-ignore
-            view._thumbLast = null;
+            view.#thumbLast = null;
         });
 
         it('builds thumbs, adds classes slider__thumb, slider__thumb_first, slider__thumb_last', () => {
             // @ts-ignore
             view.buildThumbs(viewOptions);
             // @ts-ignore
-            expect(view._thumbFirst.classList.contains('slider__thumb')).toBeTruthy();
+            expect(view.#thumbFirst.classList.contains('slider__thumb')).toBeTruthy();
             // @ts-ignore
-            expect(view._thumbFirst.classList.contains('slider__thumb_first')).toBeTruthy();
+            expect(view.#thumbFirst.classList.contains('slider__thumb_first')).toBeTruthy();
             // @ts-ignore
-            expect(view._thumbLast.classList.contains('slider__thumb')).toBeTruthy();
+            expect(view.#thumbLast.classList.contains('slider__thumb')).toBeTruthy();
             // @ts-ignore
-            expect(view._thumbLast.classList.contains('slider__thumb_last')).toBeTruthy();
+            expect(view.#thumbLast.classList.contains('slider__thumb_last')).toBeTruthy();
         })
 
         it('adds class slider__thumb_disabled to first trumb, when its not range and not reverse', () => {
             // @ts-ignore
             view.buildThumbs(viewOptions);
             // @ts-ignore
-            expect(view._thumbFirst.classList.contains('slider__thumb_disabled')).toBeTruthy();
+            expect(view.#thumbFirst.classList.contains('slider__thumb_disabled')).toBeTruthy();
         });
 
         it('adds class slider__thumb_disabled to last trumb, when its not range and reverse', () => {
@@ -407,9 +407,9 @@ describe('View has private methods', () => {
             // @ts-ignore
             view.buildThumbs(newOptions);
             // @ts-ignore
-            expect(view._thumbFirst.classList.contains('slider__thumb_disabled')).toBeFalsy();
+            expect(view.#thumbFirst.classList.contains('slider__thumb_disabled')).toBeFalsy();
             // @ts-ignore
-            expect(view._thumbLast.classList.contains('slider__thumb_disabled')).toBeTruthy();
+            expect(view.#thumbLast.classList.contains('slider__thumb_disabled')).toBeTruthy();
         });
     });
 
@@ -422,7 +422,7 @@ describe('View has private methods', () => {
                 reverse: false
             }))
             // @ts-ignore
-            let pos: number = parseInt( parseFloat(view._thumbLast.style.left).toFixed(0), 10 )
+            let pos: number = parseInt( parseFloat(view.#thumbLast.style.left).toFixed(0), 10 )
             expect(pos).toBe(90);
 
             // @ts-ignore
@@ -432,7 +432,7 @@ describe('View has private methods', () => {
                 reverse: true
             }))
             // @ts-ignore
-            let pos: number = parseInt( parseFloat(view._thumbFirst.style.left).toFixed(0), 10 )
+            let pos: number = parseInt( parseFloat(view.#thumbFirst.style.left).toFixed(0), 10 )
             expect(pos).toBe(10);
         });
     });
@@ -440,33 +440,33 @@ describe('View has private methods', () => {
     describe('method setBarPosition', () => {
         it('Adds left and width to bar, when horizontal. Adds top and height, when vertical', () => {
             // @ts-ignore
-            view._bar.style.left = null;
+            view.#bar.style.left = null;
             // @ts-ignore
-            view._bar.style.width = null;
+            view.#bar.style.width = null;
 
             // @ts-ignore
             view.setBarPosition();
 
             // @ts-ignore
-            expect(view._bar.style.left).toBe('0%');
+            expect(view.#bar.style.left).toBe('0%');
             // @ts-ignore
-            expect(view._bar.style.width).toBe('100%');
+            expect(view.#bar.style.width).toBe('100%');
 
             // @ts-ignore
             view.rebuild(Object.assign({}, viewOptions, {vertical: true}))
             
             // @ts-ignore
-            view._bar.style.top = null;
+            view.#bar.style.top = null;
             // @ts-ignore
-            view._bar.style.height = null;
+            view.#bar.style.height = null;
 
             // @ts-ignore
             view.setBarPosition();
 
             // @ts-ignore
-            expect(view._bar.style.top).toBe('0%');
+            expect(view.#bar.style.top).toBe('0%');
             // @ts-ignore
-            expect(view._bar.style.height).toBe('100%');
+            expect(view.#bar.style.height).toBe('100%');
         });
     });
 
@@ -476,17 +476,17 @@ describe('View has private methods', () => {
             // @ts-ignore
             view.rebuild(optionsWithoutScale);
             // @ts-ignore
-            expect(view._scale).toBeNull();
+            expect(view.#scale).toBeNull();
             
             // @ts-ignore
             view.buildScale(viewOptions);
             // @ts-ignore
-            expect(view._scale).toBeDefined();
+            expect(view.#scale).toBeDefined();
             let numOfSteps = getNumberOfSteps(viewOptions.min, viewOptions.max, viewOptions.step);
             // @ts-ignore
-            expect(view._scale.children.length).toBe(numOfSteps + 1);
+            expect(view.#scale.children.length).toBe(numOfSteps + 1);
             // @ts-ignore
-            let firstDivision = view._scale.children[0];
+            let firstDivision = view.#scale.children[0];
             expect(firstDivision.classList.contains('slider__scale-division')).toBeTruthy();
             expect(firstDivision.firstChild.classList.contains('slider__scale-division-text')).toBeTruthy();
             expect(firstDivision.firstChild.textContent).toBe('0');
@@ -496,19 +496,19 @@ describe('View has private methods', () => {
     describe('method setTooltipValues', () => {
         it('sets values to tooltips accoding to reverse', () => {
             // @ts-ignore
-            expect(view._tooltipFirst.textContent).toBe('0')
+            expect(view.#tooltipFirst.textContent).toBe('0')
 
             // @ts-ignore
             view.rebuild(Object.assign({}, viewOptions, {reverse: true}));
             // @ts-ignore
-            expect(view._tooltipFirst.textContent).toBe('10');
+            expect(view.#tooltipFirst.textContent).toBe('10');
         });
 
         it('sets value from customValues, if this option is defined', () => {
             // @ts-ignore
             view.rebuild(Object.assign({}, viewOptions, {customValues: ['a', 'b', 'c']}));
             // @ts-ignore
-            expect(view._tooltipFirst.textContent).toBe('a');
+            expect(view.#tooltipFirst.textContent).toBe('a');
         });
     });
 
@@ -530,7 +530,7 @@ describe('View has private methods', () => {
                 end: 10
             }));
             // @ts-ignore
-            expect(view._thumbFirst.style.zIndex).not.toBeNull();
+            expect(view.#thumbFirst.style.zIndex).not.toBeNull();
         });
     });
 
