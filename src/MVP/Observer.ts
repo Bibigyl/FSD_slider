@@ -1,5 +1,6 @@
 import { IModelOptions } from './Model';
 import { IModelWarnings, IViewWarnings } from './validations';
+import bind from 'bind-decorator';
 
 type NewValue = {type: 'NEW_VALUE'; options: IModelOptions};
 type NewData = {type: 'NEW_DATA'; options: IModelOptions};
@@ -23,10 +24,12 @@ type Fn<A, B, C> = (a: A, b?: B) => C;
 class Observable<A, B> implements IObservable {
   protected listeners: Fn<A, B, void>[] = [];
 
+  @bind
   public subscribe(listener: Fn<A, B, void>): void {
     this.listeners.push(listener);
   }
 
+  @bind
   public notify(arg1: A, arg2: B): void {
     this.listeners.forEach((listener) => {
       listener(arg1, arg2);

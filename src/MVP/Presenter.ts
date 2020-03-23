@@ -15,7 +15,6 @@ interface IPresenter extends IObservable {
   getWarnings(): IWarnings;
 }
 
-// bind!!!!!!!!!!!!
 
 class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
   private _model: IModel;
@@ -28,13 +27,13 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
     this._model = model;
     this._view = view;
 
-    const that = this;
 
     this._model.subscribe((message: ModelMessage): void => {
       switch (message.type) {
         case 'NEW_VALUE':
-          that._view.update(message.options);
-          that.notify(that.getOptions(), {});
+          
+          this._view.update(message.options);
+          this.notify(this.getOptions(), {});
           break;
       }
     });
@@ -46,17 +45,17 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
         case 'LAST_THUMB_MOVED':
           value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
 
-          !that._model.getOptions().reverse
-            ? that._model.setEnd(value)
-            : that._model.setBegin(value);
+          !this._model.getOptions().reverse
+            ? this._model.setEnd(value)
+            : this._model.setBegin(value);
           break;
 
         case 'FIRST_THUMB_MOVED':
           value = findValueByOffsetRacio(message.offsetRacio, model.getOptions());
 
-          !that._model.getOptions().reverse
-            ? that._model.setBegin(value)
-            : that._model.setEnd(value);
+          !this._model.getOptions().reverse
+            ? this._model.setBegin(value)
+            : this._model.setEnd(value);
           break;
       }
     });

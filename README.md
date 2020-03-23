@@ -87,4 +87,4 @@ $('.some_div_element').slider('destroy');
 
 
 
-![UML](https://github.com/Bibigyl/FSD_slider/raw/master/UML.png)
+![UML](https://github.com/Bibigyl/FSD_slider/raw/master/UML_diagram.png)
