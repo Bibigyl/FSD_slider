@@ -1,4 +1,4 @@
-import { IObservable, Observable, ModelMessage } from './Observerable';
+import { IObservable, Observable, ModelMessage } from './Observable';
 import { IModelOptions } from './options';
 import { IModelWarnings } from './warnings';
 import defaultOptions from './defaultOptions';
@@ -8,7 +8,7 @@ import { deepEqual, normalizeNumber } from './commonFunctions';
 
 interface IModel extends IObservable {
   update(options: {}): void;
-  setBegin(end: number): void;
+  setBegin(begin: number): void;
   setEnd(end: number): void
 
   getOptions(): IModelOptions;
@@ -227,59 +227,3 @@ class Model extends Observable<ModelMessage, undefined> implements IModel {
 
 export { IModel };
 export default Model;
-
-
-/*   public setEndByOffsetRacio(racio: number): void {
-    const prevEnd: number = this.end;
-    let value: number = this.findValueByOffsetRacio(racio);
-    value = Math.max(value, this.begin);
-
-    if (value === prevEnd) { return; }
-    this.end = value;
-
-    this.notify({
-      type: 'NEW_VALUE',
-      options: this.getOptions(),
-    });
-  } */
-
-
-/*   public setBeginByOffsetRacio(racio: number): void {
-    const prevBegin: number = this.begin;
-    if (!this.range) { return; }
-    let value: number = this.findValueByOffsetRacio(racio);
-    value = Math.min(value, this.end);
-
-    if (value === prevBegin) { return; }
-    this.begin = value;
-
-    this.notify({
-      type: 'NEW_VALUE',
-      options: this.getOptions(),
-    });
-  } */
-
-
-/*   private findValueByOffsetRacio(racio: number): number {
-    let value: number;
-
-    value = racio * (this.max - this.min);
-    value = !this.reverse
-      ? this.min + value
-      : this.max - value;
-
-    value = findClosestValue(value, this.getOptions());
-    return value;
-  } */
-
-
-/*   private normalizeNumber(value: number, defaultVal: number): number {
-  let newValue: number = value;
-
-  if (!isNumeric(value)) {
-    newValue = defaultVal;
-  }
-
-  newValue = Math.round(newValue);
-  return newValue;
-} */

@@ -1,4 +1,5 @@
-import { defaultOptions, IOptions } from "../src/MVP/defaultOptions";
+import defaultOptions from "../src/MVP/defaultOptions";
+import { IOptions } from "../src/MVP/options";
 import { validateModel, validateView, validateNumbers, validateIntegers } from "../src/MVP/validations";
 
 let test: IOptions;

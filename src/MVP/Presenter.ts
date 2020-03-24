@@ -1,6 +1,6 @@
 import {
   IObservable, Observable, ModelMessage, ViewMessage,
-} from './Observerable';
+} from './Observable';
 import { IOptions, IModelOptions } from './options';
 import { IWarnings } from './warnings';
 import { IModel } from './Model';

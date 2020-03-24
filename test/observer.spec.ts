@@ -1,6 +1,7 @@
-import { Observable, IObservable } from "../src/MVP/Observer"
-import { IOptions, defaultOptions } from "../src/MVP/defaultOptions";
-import { IWarnings } from "../src/MVP/validations";
+import { Observable, IObservable } from "../src/MVP/Observable"
+import defaultOptions from "../src/MVP/defaultOptions";
+import { IOptions } from "../src/MVP/options";
+import { IWarnings } from "../src/MVP/warnings";
 
 let observable: IObservable;
 let observablePresenter: IObservable;
@@ -42,7 +43,7 @@ describe('Class Observable is used for subscription in Presenter', () => {
     });
     it('can notify listeners when anything happened by function notify and send to listeners objects of options and warnings', () => {
         let presenterNotified: boolean = false;
-        let gottenOptions: IOptions;
+        let gottenOptions: {} = {};
 
         observablePresenter.subscribe(function(options: IOptions, warnings: IWarnings) {
             presenterNotified = true;

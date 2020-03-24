@@ -129,4 +129,5 @@ function validateView(options: IViewOptions): IViewWarnings {
 
 export {
   validateModel, validateView, validateNumbers, validateIntegers,
+  modelWarnings, viewWarnings
 };

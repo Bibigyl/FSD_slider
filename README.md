@@ -7,7 +7,7 @@ npm install
 ```
 ### Режим работы
 ```
-// develop
+// development
 npm run start
 
 // production
@@ -15,6 +15,9 @@ npm run build
 
 // Запустить тесты
 npm run test
+
+// Запустить линтер
+npm run lint
 ```
 ## Использование
 Для подключения плагина необходимо:
@@ -38,7 +41,6 @@ $('.some_div_element').slider({
 | Название свойства | По умолчанию | Описание |
 | ------ | ------ | ------ |
 | Модель |
-| ------ | ------ | ------ |
 | end | 10 | Единственное значение или конец диапазона. Целое число |
 | begin | 0 | Начало диапазона. Доступно, только если range: true. Целое число |
 | range | false | Диапазон. Создает два бегунка. Булевое |
@@ -48,7 +50,6 @@ $('.some_div_element').slider({
 | reverse | false | В обратном порядке. Булевое |
 | customValues | null | Пользовательские значения. В customValues можно передать массив любых значений, например числа с плавающей точкой. Min и max будут проигнорированы |
 | Вид |
-| ------ | ------ | ------ |
 | length | 300px | Длина или высота. Принимает любые значения, валидные css |
 | vertical | false | Вертикальный вид. Булевое |
 | tooltip | false | Подсказки над бегунками. Булевое |
@@ -90,4 +91,4 @@ $('.some_div_element').slider('destroy');
 
 
 
-![UML](https://github.com/Bibigyl/FSD_slider/raw/master/UML_diagram.png)
+![UML](https://github.com/Bibigyl/FSD_slider/raw/master/UML.png)

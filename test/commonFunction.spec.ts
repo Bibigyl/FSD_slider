@@ -1,6 +1,6 @@
-import { isNumeric, deepEqual, getNumberOfSteps, findClosestValue, findValueByOffsetRacio, normalizeNumber } from "../src/MVP/commonFunctions";
-import { defaultOptions } from "../src/MVP/defaultOptions";
-import { IModelOptions } from "../src/MVP/Model";
+import { isNumeric, deepEqual, getNumberOfSteps,  findValueByOffsetRacio, normalizeNumber } from "../src/MVP/commonFunctions";
+import defaultOptions from "../src/MVP/defaultOptions";
+import { IModelOptions } from "../src/MVP/options";
 
 describe('function isNumeric', () => {
     it('checks if argument is number', () => {
@@ -22,7 +22,7 @@ describe('function deepEqual', () => {
     });
 });
 
-describe('function getNumberOfHSteps', () => {
+describe('function getNumberOfSteps', () => {
     it('returns ceil number of steps by min, max and step', () => {
         let number: number = getNumberOfSteps(1, 3, 1);
         expect(number).toBe(2);
@@ -32,6 +32,22 @@ describe('function getNumberOfHSteps', () => {
 
         number = getNumberOfSteps(1, 3, 2);
         expect(number).toBe(1);
+    });
+});
+
+describe('function findValueByOffsetRacio', () => {
+    it('returns value (witch can be float) by racio, considering to reverse', () => {
+        // @ts-ignore
+        let value: number = findValueByOffsetRacio(0.18, defaultOptions);
+        expect(Number(value.toFixed())).toBe(2);
+
+        // @ts-ignore
+        let optionsReversed: IModelOptions = Object.assign({}, defaultOptions, {
+            reverse: true
+        });
+        // @ts-ignore
+        let valueIfReverse: number = findValueByOffsetRacio(0.18, optionsReversed);
+        expect(Number(valueIfReverse.toFixed())).toBe(8);
     });
 });
 
@@ -46,7 +62,7 @@ describe('function normalizeNumber', () => {
     });
 });
 
-describe('function findClosestValue', () => {
+/* describe('function findClosestValue', () => {
     it('returns closest value by step between min and max', () => {
         // @ts-ignore
         let value: number = findClosestValue(5.4, defaultOptions);
@@ -73,20 +89,4 @@ describe('function findClosestValue', () => {
         let value: number = findClosestValue(2.8, optionsReversed);
         expect(value).toBe(4);
     });
-});
-
-describe('function findValueByOffsetRacio', () => {
-    it('returns value by racio considering to reverse', () => {
-        // @ts-ignore
-        let value: number = findValueByOffsetRacio(0.18, defaultOptions);
-        expect(value).toBe(2);
-
-        // @ts-ignore
-        let optionsReversed: IModelOptions = Object.assign({}, defaultOptions, {
-            reverse: true
-        });
-        // @ts-ignore
-        let valueIfReverse: number = findValueByOffsetRacio(0.18, optionsReversed);
-        expect(valueIfReverse).toBe(8);
-    });
-});
+}); */

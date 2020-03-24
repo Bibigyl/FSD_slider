@@ -1,8 +1,9 @@
 import Model, { IModel } from '../src/MVP/Model';
 import View, { IView } from '../src/MVP/View';
 import Presenter, { IPresenter } from '../src/MVP/Presenter';
-import { defaultOptions, IOptions } from '../src/MVP/defaultOptions';
-import { IWarnings } from '../src/MVP/validations';
+import defaultOptions from '../src/MVP/defaultOptions';
+import { IOptions } from '../src/MVP/options';
+import { IWarnings } from '../src/MVP/warnings';
 
 let model: IModel;
 let view: IView;
@@ -30,16 +31,16 @@ describe('Presenter is created with defaultOptions', () => {
 
     it('stores model and view as privet properites', () => {
         // @ts-ignore
-        expect(presenter.#view).toBeDefined();
+        expect(presenter.view).toBeDefined();
         // @ts-ignore
-        expect(presenter.#model).toBeDefined();
+        expect(presenter.model).toBeDefined();
     });
 
     it('adds callbacks to view and model, with react on current changes', () => {
         // @ts-ignore
-        expect(presenter.#model.listeners.length).not.toBeNull();
+        expect(presenter.model.listeners.length).not.toBeNull();
         // @ts-ignore
-        expect(presenter.#view.listeners.length).not.toBeNull();
+        expect(presenter.view.listeners.length).not.toBeNull();
     });
 });
 
@@ -55,17 +56,17 @@ describe('Presenter has public methods', () => {
             presenter.update(newOptions);
 
             // @ts-ignore
-            expect(presenter.#model.#min).toBe(-10);
+            expect(presenter.model.min).toBe(-10);
             // @ts-ignore
-            expect(presenter.#model.#step).toBe(2);
+            expect(presenter.model.step).toBe(2);
             // @ts-ignore
-            expect(presenter.#view.#length).toBe('20px');
+            expect(presenter.view.length).toBe('20px');
         });
 
         it('notifies listeners about new data and new warnings', () => {
             let isNotified: Boolean = false;
-            let newData: IOptions;
-            let newWarnings: IWarnings;
+            let newData: IOptions | undefined = undefined;
+            let newWarnings: IWarnings | undefined = undefined;
             presenter.subscribe((options: IOptions, warnings: IWarnings) => {
                 isNotified = true;
                 newData = options;
@@ -96,7 +97,7 @@ describe('Presenter has public methods', () => {
     describe('method getWarnings', () => {
         it('returns an object with last gotten warnings', () => {
             // @ts-ignore
-            model.#warnings = {warning: 'something'}
+            model.warnings = {warning: 'something'}
 
             // @ts-ignore
             let warnings: {warning: 'something'} = presenter.getWarnings();

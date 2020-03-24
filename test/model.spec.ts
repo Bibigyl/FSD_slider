@@ -1,7 +1,9 @@
-import Model, { IModel, IModelOptions } from '../src/MVP/Model';
-import { defaultOptions } from '../src/MVP/defaultOptions';
-import { IWarnings, validateModel } from '../src/MVP/validations';
-import { ModelMessage } from '../src/MVP/Observerable';
+import Model, { IModel } from '../src/MVP/Model';
+import { IModelOptions } from '../src/MVP/options';
+import defaultOptions from '../src/MVP/defaultOptions';
+import { validateModel, modelWarnings } from '../src/MVP/validations';
+import { IWarnings } from '../src/MVP/warnings';
+import { ModelMessage } from '../src/MVP/Observable';
 
 let model: IModel;
 
@@ -15,23 +17,23 @@ describe('Model is created with defaultOptions', () => {
     });
     it('stores model defaultOptions', () => {
         // @ts-ignore
-        expect(model.#end).toBe(defaultOptions.max);
+        expect(model.end).toBe(defaultOptions.max);
         // @ts-ignore
-        expect(model.#begin).toBe(defaultOptions.min);
+        expect(model.begin).toBe(defaultOptions.min);
         // @ts-ignore
-        expect(model.#range).toBe(defaultOptions.range);
+        expect(model.range).toBe(defaultOptions.range);
         // @ts-ignore
-        expect(model.#min).toBe(defaultOptions.min);
+        expect(model.min).toBe(defaultOptions.min);
         // @ts-ignore
-        expect(model.#max).toBe(defaultOptions.max);
+        expect(model.max).toBe(defaultOptions.max);
         // @ts-ignore
-        expect(model.#step).toBe(defaultOptions.step);
+        expect(model.step).toBe(defaultOptions.step);
         // @ts-ignore
-        expect(model.#customValues).toBe(defaultOptions.customValues);
+        expect(model.customValues).toBe(defaultOptions.customValues);
         // @ts-ignore
-        expect(model.#reverse).toBe(defaultOptions.reverse);
-    })
-})
+        expect(model.reverse).toBe(defaultOptions.reverse);
+    });
+});
 
 describe('Model has public methods', () => {
     describe('method update', () => {
@@ -49,21 +51,21 @@ describe('Model has public methods', () => {
             model.update(newOptions)
     
             // @ts-ignore
-            expect(model.#end).toBe(newOptions.end);
+            expect(model.end).toBe(newOptions.end);
             // @ts-ignore
-            expect(model.#begin).toBe(newOptions.begin);
+            expect(model.begin).toBe(newOptions.begin);
             // @ts-ignore
-            expect(model.#range).toBe(newOptions.range);
+            expect(model.range).toBe(newOptions.range);
             // @ts-ignore
-            expect(model.#min).toBe(newOptions.min);
+            expect(model.min).toBe(newOptions.min);
             // @ts-ignore
-            expect(model.#max).toBe(newOptions.max);
+            expect(model.max).toBe(newOptions.max);
             // @ts-ignore
-            expect(model.#step).toBe(newOptions.step);
+            expect(model.step).toBe(newOptions.step);
             // @ts-ignore
-            expect(model.#customValues).toBeNull();
+            expect(model.customValues).toBeNull();
             // @ts-ignore
-            expect(model.#reverse).toBe(newOptions.reverse);
+            expect(model.reverse).toBe(newOptions.reverse);
         });
 
         it('notifies model observers, when data in model changed', () => {
@@ -91,19 +93,22 @@ describe('Model has public methods', () => {
             let optionsWithWarning: IModelOptions = Object.assign({}, defaultOptions, {
                 begin: 'sdfghjkl'
             })
+
             model.update(optionsWithWarning);
 
             expect(isNotified).toBeTruthy();
+            // @ts-ignore
+            expect(model.warnings.length).not.toBe(0);
         });
     });
 
     describe('method setEnd', () => {
-        it('finds closest value and sets it to #end, if it is not equal to #end', () => {
+        it('finds closest value and sets it to end, if they are not equal', () => {
             let value: number = 5.6
             model.setEnd(value);
     
             // @ts-ignore
-            expect(model.#end).toBe(6);
+            expect(model.end).toBe(6);
         });
 
         it('notifies model observers, when end in model changed', () => {
@@ -122,7 +127,7 @@ describe('Model has public methods', () => {
     });
 
     describe('method setBegin', () => {
-        it('finds closest value and sets it to #begin, if it is not equal to #begin, only when it is range', () => {
+        it('finds closest value and sets it to begin, if they are not equal, only when it is range', () => {
             let optionsWithRange: IModelOptions = Object.assign({}, defaultOptions, {range: true});
             model = new Model(optionsWithRange);
 
@@ -130,7 +135,7 @@ describe('Model has public methods', () => {
             model.setBegin(value);
 
             // @ts-ignore  
-            expect(model.#begin).toBe(6);
+            expect(model.begin).toBe(6);
         });
 
         it('notifies model observers, when begin in model changed', () => {
@@ -155,7 +160,7 @@ describe('Model has public methods', () => {
             model.setBegin(value);
 
             // @ts-ignore 
-            expect(model.#begin).toBe(defaultOptions.min);
+            expect(model.begin).toBe(defaultOptions.min);
         });
     });
 
@@ -177,7 +182,7 @@ describe('Model has public methods', () => {
     describe('method getWarning', () => {
         it('returns object of last saved warning, gotten when model inicializated or updated', () => {
             let optionsWithWarning: IModelOptions = Object.assign({}, defaultOptions, {
-                begin: 'sdfghjkl'
+                begin: 'NOT_VALID'
             })
             model.update(optionsWithWarning);
             let warning: IWarnings = model.getWarnings();
@@ -200,25 +205,11 @@ describe('Model has private methods', () => {
             model.setOptions(Object.assign({}, defaultOptions, {begin: 'a'}));
 
             // @ts-ignore
-            expect(model.#begin).toBe('a');
+            expect(model.begin).toBe('a');
         });
     });
 
-    describe('method validate', () => {
-        let newOptions: IModelOptions = Object.assign({}, defaultOptions, {
-            max: 0,
-            min: 10
-        });
-
-        it('changes property #warnings', () => {
-            // @ts-ignore
-            expect(Object.keys(model.#warnings).length).toBe(0);
-            // @ts-ignore
-            model.validate(newOptions);
-            // @ts-ignore
-            expect(Object.keys(model.#warnings).length).not.toBe(0);
-        });
-
+    describe('method handleWarnings', () => {
         it('notifies models observers if there are any warnings', () => {
             let isNotified: Boolean = false;
             model.subscribe((message: ModelMessage) => {
@@ -227,7 +218,9 @@ describe('Model has private methods', () => {
                 }
             });
             // @ts-ignore
-            model.validate(newOptions);
+            model.warnings = modelWarnings;
+            // @ts-ignore
+            model.handleWarnings();
             // @ts-ignore
             expect(isNotified).toBeTruthy();
         });
@@ -266,7 +259,7 @@ describe('Model has private methods', () => {
             expect(newOptions.step).toBe(defaultOptions.step)
         });
 
-        it('changes not right order in min/max, begin/end(if its range) by object #warnings', () => {
+        it('changes not right order in min/max, begin/end(if its range) by object warnings', () => {
             let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 min: 10,
                 max: 0,
@@ -275,7 +268,7 @@ describe('Model has private methods', () => {
                 range: true
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -283,12 +276,12 @@ describe('Model has private methods', () => {
             expect(newOptions.begin).toBeLessThan(newOptions.end);
         });
 
-        it('canges step to integer absolute number, makes step === 1, if it too big by object #warnings', () => {
+        it('canges step to integer absolute number, makes step === 1, if it too big by object warnings', () => {
             let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 step: -5
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -298,7 +291,7 @@ describe('Model has private methods', () => {
                 step: 100
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -330,6 +323,37 @@ describe('Model has private methods', () => {
     });
 });
 
+describe('Model has static methods', () => {
+    describe('method findClosestValue', () => {
+        it('returns closest value by step between min and max', () => {
+            // @ts-ignore
+            let value: number = Model.findClosestValue(5.4, defaultOptions);
+            expect(value).toBe(5);
+            // @ts-ignore
+            let tppBigValue: number = Model.findClosestValue(100, defaultOptions);
+             expect(tppBigValue).toBe(defaultOptions.max);
+            // @ts-ignore
+            let tooSmallValue: number = Model.findClosestValue(-100, defaultOptions);
+            expect(tooSmallValue).toBe(defaultOptions.min);
+        });
+
+        it('considers option reverse to find steps', () => {
+            let newOptions: IModelOptions = Object.assign({}, defaultOptions, {step: 3});
+            // @ts-ignore
+            let value: number = Model.findClosestValue(2.8, newOptions);
+            expect(value).toBe(3);
+
+            let newOptionsReversed: IModelOptions = Object.assign({}, defaultOptions, {
+                step: 3,
+                reverse: true
+            });
+            // @ts-ignore
+            let value: number = Model.findClosestValue(2.8, newOptionsReversed);
+            expect(value).toBe(4);
+        });
+    });
+});
+
 
 
 
@@ -353,21 +377,21 @@ describe('Model is created with defaultOptions', () => {
     });
     it('stores model defaultOptions', () => {
         // @ts-ignore
-        expect(model.#end).toBe(defaultOptions.max);
+        expect(model.end).toBe(defaultOptions.max);
         // @ts-ignore
-        expect(model.#begin).toBe(defaultOptions.min);
+        expect(model.begin).toBe(defaultOptions.min);
         // @ts-ignore
-        expect(model.#range).toBe(defaultOptions.range);
+        expect(model.range).toBe(defaultOptions.range);
         // @ts-ignore
-        expect(model.#min).toBe(defaultOptions.min);
+        expect(model.min).toBe(defaultOptions.min);
         // @ts-ignore
-        expect(model.#max).toBe(defaultOptions.max);
+        expect(model.max).toBe(defaultOptions.max);
         // @ts-ignore
-        expect(model.#step).toBe(defaultOptions.step);
+        expect(model.step).toBe(defaultOptions.step);
         // @ts-ignore
-        expect(model.#customValues).toBe(defaultOptions.customValues);
+        expect(model.customValues).toBe(defaultOptions.customValues);
         // @ts-ignore
-        expect(model.#reverse).toBe(defaultOptions.reverse);
+        expect(model.reverse).toBe(defaultOptions.reverse);
     })
 })
 
@@ -387,21 +411,21 @@ describe('Model has public methods', () => {
             model.update(newOptions)
     
             // @ts-ignore
-            expect(model.#end).toBe(newOptions.end);
+            expect(model.end).toBe(newOptions.end);
             // @ts-ignore
-            expect(model.#begin).toBe(newOptions.begin);
+            expect(model.begin).toBe(newOptions.begin);
             // @ts-ignore
-            expect(model.#range).toBe(newOptions.range);
+            expect(model.range).toBe(newOptions.range);
             // @ts-ignore
-            expect(model.#min).toBe(newOptions.min);
+            expect(model.min).toBe(newOptions.min);
             // @ts-ignore
-            expect(model.#max).toBe(newOptions.max);
+            expect(model.max).toBe(newOptions.max);
             // @ts-ignore
-            expect(model.#step).toBe(newOptions.step);
+            expect(model.step).toBe(newOptions.step);
             // @ts-ignore
-            expect(model.#customValues).toBeNull();
+            expect(model.customValues).toBeNull();
             // @ts-ignore
-            expect(model.#reverse).toBe(newOptions.reverse);
+            expect(model.reverse).toBe(newOptions.reverse);
         });
 
         it('notifies model observers, when data in model changed', () => {
@@ -441,7 +465,7 @@ describe('Model has public methods', () => {
             model.setEndByOffsetRacio(racio);
     
             // @ts-ignore
-            expect(model.#end).toBe(6);
+            expect(model.end).toBe(6);
         });
 
         it('notifies model observers, when end in model changed', () => {
@@ -468,7 +492,7 @@ describe('Model has public methods', () => {
             model.setBeginByOffsetRacio(racio);
 
             // @ts-ignore  
-            expect(model.#begin).toBe(6);
+            expect(model.begin).toBe(6);
         });
 
         it('notifies model observers, when begin in model changed', () => {
@@ -493,7 +517,7 @@ describe('Model has public methods', () => {
             model.setBeginByOffsetRacio(racio);
 
             // @ts-ignore 
-            expect(model.#begin).toBe(defaultOptions.min);
+            expect(model.begin).toBe(defaultOptions.min);
         });
     });
 
@@ -538,7 +562,7 @@ describe('Model has private methods', () => {
             model.setOptions(Object.assign({}, defaultOptions, {begin: 'a'}));
 
             // @ts-ignore
-            expect(model.#begin).toBe('a');
+            expect(model.begin).toBe('a');
         });
     });
 
@@ -548,13 +572,13 @@ describe('Model has private methods', () => {
             min: 10
         });
 
-        it('changes property #warnings', () => {
+        it('changes property warnings', () => {
             // @ts-ignore
-            expect(Object.keys(model.#warnings).length).toBe(0);
+            expect(Object.keys(model.warnings).length).toBe(0);
             // @ts-ignore
             model.validate(newOptions);
             // @ts-ignore
-            expect(Object.keys(model.#warnings).length).not.toBe(0);
+            expect(Object.keys(model.warnings).length).not.toBe(0);
         });
 
         it('notifies models observers if there are any warnings', () => {
@@ -604,7 +628,7 @@ describe('Model has private methods', () => {
             expect(newOptions.step).toBe(defaultOptions.step)
         });
 
-        it('changes not right order in min/max, begin/end(if its range) by object #warnings', () => {
+        it('changes not right order in min/max, begin/end(if its range) by object warnings', () => {
             let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 min: 10,
                 max: 0,
@@ -613,7 +637,7 @@ describe('Model has private methods', () => {
                 range: true
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -621,12 +645,12 @@ describe('Model has private methods', () => {
             expect(newOptions.begin).toBeLessThan(newOptions.end);
         });
 
-        it('canges step to integer absolute number, makes step === 1, if it too big by object #warnings', () => {
+        it('canges step to integer absolute number, makes step === 1, if it too big by object warnings', () => {
             let invalidOptions: IModelOptions = Object.assign({}, defaultOptions, {
                 step: -5
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -636,7 +660,7 @@ describe('Model has private methods', () => {
                 step: 100
             });
             // @ts-ignore
-            model.#warnings = validateModel(invalidOptions);
+            model.warnings = validateModel(invalidOptions);
             // @ts-ignore
             let newOptions: IModelOptions = model.normalize(invalidOptions, defaultOptions);
 
@@ -714,7 +738,7 @@ describe('Model has private methods', () => {
             expect(value).toBe(2);
 
             // @ts-ignore
-            model.#reverse = true;
+            model.reverse = true;
             // @ts-ignore
             let valueIfReverse: number = model.findValueByOffsetRacio(0.18);
             expect(valueIfReverse).toBe(8);

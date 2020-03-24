@@ -1,5 +1,5 @@
 import bind from 'bind-decorator';
-import { IObservable, Observable, ViewMessage } from './Observerable';
+import { IObservable, Observable, ViewMessage } from './Observable';
 import { IModelOptions, IViewOptions, IOptions } from './options';
 import { IViewWarnings } from './warnings';
 import defaultOptions from './defaultOptions';
@@ -55,7 +55,7 @@ class View extends Observable<ViewMessage, undefined> implements IView {
 
   public update(options: IModelOptions): void {
     this.setThumbs(options);
-    this.setBarPosition();
+    this.setBar();
     if (this.tooltipLast) {
       this.setTooltipValues(options);
     }
@@ -208,7 +208,7 @@ class View extends Observable<ViewMessage, undefined> implements IView {
 
     this.buildThumbs(options);
 
-    this.setBarPosition();
+    this.setBar();
 
     if (options.tooltip) {
       this.buildTooltips(options);
@@ -281,7 +281,7 @@ class View extends Observable<ViewMessage, undefined> implements IView {
     }
   }
 
-  private setBarPosition(): void {
+  private setBar(): void {
     const styleNameOfStart: 'top' | 'left' = !this.vertical ? 'left' : 'top';
     const styleNameOfLength: 'width' | 'height' = !this.vertical ? 'width' : 'height';
 
