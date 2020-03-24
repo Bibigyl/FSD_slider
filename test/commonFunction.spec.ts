@@ -61,32 +61,3 @@ describe('function normalizeNumber', () => {
         expect(notNumber).toBe(1);
     });
 });
-
-/* describe('function findClosestValue', () => {
-    it('returns closest value by step between min and max', () => {
-        // @ts-ignore
-        let value: number = findClosestValue(5.4, defaultOptions);
-        expect(value).toBe(5);
-        // @ts-ignore
-        let tooBigValue: number = findClosestValue(100, defaultOptions);
-         expect(tooBigValue).toBe(defaultOptions.max);
-        // @ts-ignore
-        let tooSmallValue: number = findClosestValue(-100, defaultOptions);
-        expect(tooSmallValue).toBe(defaultOptions.min);
-    });
-
-    it('considers reverse to find steps', () => {
-        let options: IModelOptions = Object.assign({}, defaultOptions, {step: 3});
-        // @ts-ignore
-        let value: number = findClosestValue(2.8, options);
-        expect(value).toBe(3);
-
-        let optionsReversed: IModelOptions = Object.assign({}, defaultOptions, {
-            step: 3,
-            reverse: true
-        });
-        // @ts-ignore
-        let value: number = findClosestValue(2.8, optionsReversed);
-        expect(value).toBe(4);
-    });
-}); */

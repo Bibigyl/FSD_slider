@@ -105,5 +105,3 @@ describe('Presenter has public methods', () => {
         });
     });
 });
-
-
