@@ -154,7 +154,7 @@ describe('View has private methods', () => {
     describe('method handleThumbMove', () => {
         it('handles event coordinates and sends to observers new thumb position - the offset as a racio of slider length, and witch of thumbs moved', () => {
             let isNotified: Boolean = false;
-            let offsetRacio: number;
+            let offsetRacio: number = 0;
             view.subscribe((message: ViewMessage) => {
                 if (message.type === 'LAST_THUMB_MOVED') {
                     isNotified = true;
@@ -204,7 +204,7 @@ describe('View has private methods', () => {
             view.rerender(optionsWithRange);
 
             let isNotified: Boolean = false;
-            let offsetRacio: number;
+            let offsetRacio: number = 0;
             view.subscribe((message: ViewMessage) => {
                 if (message.type === 'FIRST_THUMB_MOVED') {
                     isNotified = true;
@@ -228,7 +228,7 @@ describe('View has private methods', () => {
         it('if its not range, ignores the thumb of begin (first thumb if its not reverse and last thumb in other way), always works with the thumb of end', () => {
             let isNotifiedFirst: Boolean = false;
             let isNotifiedLast: Boolean = false;
-            let offsetRacio: number;
+            let offsetRacio: number = 0;
             view.subscribe((message: ViewMessage) => {
                 if (message.type === 'FIRST_THUMB_MOVED') {
                     isNotifiedFirst = true;
