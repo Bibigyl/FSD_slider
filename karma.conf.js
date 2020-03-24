@@ -4,20 +4,18 @@ module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine'],
-        files: ['test/*.ts', 'test/*.css'],
+        files: [
+            'test/*.spec.ts', 
+            'src/*.css', 
+            'src/MVP/**/*.ts'
+        ],
         exclude: [],
         preprocessors: {
-            'test/**/*.ts': ['webpack', 'coverage'],
-            'test/**/*.js': ['webpack', 'coverage'],
+            'test/**/*.ts': ['webpack'],
+            'src/MVP/**/*.ts': ['webpack', 'coverage'],
         },
         mime: {
             'text/x-typescript': ['ts', 'tsx']
-        },
-        webpack: {
-            module: webpackConfig.module,
-            resolve: webpackConfig.resolve,
-            mode: webpackConfig.mode,
-            devtool: 'inline-source-map',
         },
         reporters: [
             'spec',
