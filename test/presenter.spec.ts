@@ -29,7 +29,7 @@ describe('Presenter is created with defaultOptions', () => {
         expect(presenter).toBeDefined();
     });
 
-    it('stores model and view as privet properites', () => {
+    it('stores model and view has privet properites', () => {
         // @ts-ignore
         expect(presenter.view).toBeDefined();
         // @ts-ignore
@@ -41,6 +41,97 @@ describe('Presenter is created with defaultOptions', () => {
         expect(presenter.model.listeners.length).not.toBeNull();
         // @ts-ignore
         expect(presenter.view.listeners.length).not.toBeNull();
+    });
+});
+
+describe('Presenter organizes a subscription between Model and View', () => {
+
+    it('changes view by model message', () => {
+        // @ts-ignore
+        const oldThumbOffset = view.thumbLast.style.left;
+        
+        model.notify({
+            type: 'NEW_VALUE',
+            options: Object.assign({}, defaultOptions, {end: 5})
+        });
+        // @ts-ignore
+        const newThumbOffset = view.thumbLast.style.left;
+
+        expect(newThumbOffset).not.toBe(oldThumbOffset)
+    });
+
+    describe('changes model by view message', () => {
+        it('sets begin by first thumb, when its not reverse', () => {
+            // @ts-ignore
+            model.range = true;
+            // @ts-ignore
+            let oldBegin = model.begin;
+            
+            view.notify({
+                type: 'FIRST_THUMB_MOVED',
+                offsetRacio: 0.3,
+            });
+    
+            // @ts-ignore
+            let newBegin = model.begin;
+    
+            expect(newBegin).not.toBe(oldBegin);
+        });
+    
+        it('sets end by last thumb, when its not reverse', () => {
+            // @ts-ignore
+            model.range = true;
+            // @ts-ignore
+            let oldEnd = model.end;
+    
+            view.notify({
+                type: 'LAST_THUMB_MOVED',
+                offsetRacio: 0.5,
+            });
+    
+            // @ts-ignore
+            let newEnd = model.end;
+
+            expect(newEnd).not.toBe(oldEnd);
+        });
+
+        it('sets begin by last thumb, when it is reverse', () => {
+            // @ts-ignore
+            model.range = true;
+            // @ts-ignore
+            model.reverse = true;
+            // @ts-ignore
+            let oldBegin = model.begin;
+    
+            view.notify({
+                type: 'LAST_THUMB_MOVED',
+                offsetRacio: 0.5,
+            });
+    
+            // @ts-ignore
+            let newBegin = model.begin;
+    
+            expect(newBegin).not.toBe(oldBegin);
+        });
+
+        it('sets end by first thumb, when it is reverse', () => {
+            // @ts-ignore
+            model.range = true;
+            // @ts-ignore
+            model.reverse = true;
+            // @ts-ignore
+            let oldEnd = model.end;
+
+            view.notify({
+                type: 'FIRST_THUMB_MOVED',
+                offsetRacio: 0.3,
+            });
+    
+            // @ts-ignore
+            let newEnd = model.end;
+    
+            expect(newEnd).not.toBe(oldEnd);
+        });
     });
 });
 

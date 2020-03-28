@@ -2,42 +2,29 @@ const webpackConfig = require('./webpack.dev.config');
 
 module.exports = function (config) {
     config.set({
-        basePath: '',
-        frameworks: ['jasmine'],
+        frameworks: ['jasmine', "karma-typescript"],
         files: [
-            'test/*.spec.ts', 
-            'src/*.css', 
+            'test/*.spec.ts',
+            'src/slider.css',
             'src/MVP/**/*.ts'
         ],
-        exclude: [],
         preprocessors: {
-            'test/**/*.ts': ['webpack'],
-            'src/MVP/**/*.ts': ['webpack', 'coverage'],
-        },
-        mime: {
-            'text/x-typescript': ['ts', 'tsx']
+            'test/**/*.ts': ['webpack', 'karma-typescript'],
+            'src/MVP/**/*.ts': ['webpack', 'karma-typescript'],
         },
         reporters: [
             'spec',
-            'coverage'
+            'karma-typescript'
         ],
-        port: 9876,
-        colors: true,
-        logLevel: config.LOG_INFO,
-        autoWatch: true,
         browsers: ['Chrome'],
-        singleRun: false,
-        concurrency: Infinity,
         webpack: webpackConfig,
-        webpackMiddleware: {
-            noInfo: true
-        },
         plugins: [
             'karma-webpack',
             'karma-jasmine',
             'karma-chrome-launcher',
             'karma-spec-reporter',
-            'karma-coverage',
+            'karma-typescript'
         ],
+        browsers: ['Chrome'],
     });
 };

@@ -2,7 +2,6 @@
 // https://issue.life/questions/35903246
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 
 
@@ -24,7 +23,6 @@ var config = {
         new MiniCssExtractPlugin({
             filename: 'slider.css'
         }),
-        //new CleanWebpackPlugin(),
     ],
     resolve: {
         extensions: ['.ts', '.js'],
