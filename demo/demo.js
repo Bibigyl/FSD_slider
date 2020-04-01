@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
    $('#slider1').slider({
-        end: 5,
+        end: 7,
         length: '100%'
     });
 

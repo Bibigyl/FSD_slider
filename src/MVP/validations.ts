@@ -24,7 +24,7 @@ const viewWarnings = {
 
 
 function validateNumbers(numbers: number[]): boolean {
-  let isValid = true;
+  let isValid: boolean = true;
   numbers.forEach((item) => {
     if (!isNumeric(item)) {
       isValid = false;
@@ -34,7 +34,7 @@ function validateNumbers(numbers: number[]): boolean {
 }
 
 function validateIntegers(numbers: number[]): boolean {
-  let isValid = true;
+  let isValid: boolean = true;
   numbers.forEach((num) => {
     if (num % 1 !== 0) {
       isValid = false;
@@ -64,23 +64,23 @@ function validateModel(options: IModelOptions): IModelWarnings {
     warns.valuesAreNotInteger = modelWarnings.valuesAreNotInteger;
   }
 
-  if (min > max) {
+  if (Number(min) > Number(max)) {
     warns.minIsOverMax = modelWarnings.minIsOverMax;
   }
 
-  if (min === max) {
+  if (Number(min) === Number(max)) {
     warns.minIsEqualToMax = modelWarnings.minIsEqualToMax;
   }
 
-  if (range && (begin > end)) {
+  if (!!range && (Number(begin) > Number(end))) {
     warns.beginIsOverEnd = modelWarnings.beginIsOverEnd;
   }
 
-  if (Math.abs(max - min) < Math.abs(step)) {
+  if (Math.abs(Number(max) - Number(min)) < Math.abs(Number(step))) {
     warns.tooBigStep = modelWarnings.tooBigStep;
   }
 
-  if (Number(step) === 0) {
+  if (Number(Number(step)) === 0) {
     warns.stepIsNull = modelWarnings.stepIsNull;
   }
 
