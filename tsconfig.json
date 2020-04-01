@@ -11,8 +11,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "pretty": true,
-    "watch": true,
-    "declaration": true
+    "watch": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/jquerySlider1.ts"],
