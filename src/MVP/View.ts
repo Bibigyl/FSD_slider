@@ -375,9 +375,9 @@ class View extends Observable<ViewMessage, undefined> implements IView {
     }
 
     if (this.thumbFirst) {
-      const CRITICAL_POS: number = 95
-      if ((parseFloat(String(this.thumbFirst.style.left)) > CRITICAL_POS) || 
-      (parseFloat(String(this.thumbFirst.style.top)) > CRITICAL_POS)) {
+      const CRITICAL_POS: number = 95;
+      if ((parseFloat(String(this.thumbFirst.style.left)) > CRITICAL_POS)
+      || (parseFloat(String(this.thumbFirst.style.top)) > CRITICAL_POS)) {
         this.thumbFirst.style.zIndex = '1';
       } else {
         this.thumbFirst.style.zIndex = '';
