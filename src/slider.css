@@ -121,7 +121,7 @@
 
 .slider_vertical .slider__scale-division-text {
     position: absolute;
-    left: 20px;
+    right: 20px;
     top: -10px;
 }
 
