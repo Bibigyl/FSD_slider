@@ -158,7 +158,7 @@ class View extends Observable<ViewMessage, undefined> implements IView {
       let isLastCloser: boolean;
 
       if (firstThumbPos === lastThumbPos) {
-        isLastCloser = newThumbPos > lastThumbPos/100;
+        isLastCloser = newThumbPos > lastThumbPos / 100;
       } else {
         isLastCloser = firstOffest > lastOffset;
       }

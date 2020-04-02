@@ -76,7 +76,8 @@ function validateModel(options: IModelOptions): IModelWarnings {
     warns.beginIsOverEnd = modelWarnings.beginIsOverEnd;
   }
 
-  if (Math.abs(parseFloat(String(max)) - parseFloat(String(min))) < Math.abs(parseFloat(String(step)))) {
+  const difference: number = parseFloat(String(max)) - parseFloat(String(min));
+  if (Math.abs(difference) < Math.abs(parseFloat(String(step)))) {
     warns.tooBigStep = modelWarnings.tooBigStep;
   }
 
@@ -129,24 +130,11 @@ function validateView(options: IViewOptions): IViewWarnings {
 
 export {
   validateModel, validateView, validateNumbers, validateIntegers,
-  modelWarnings, viewWarnings
+  modelWarnings, viewWarnings,
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
+/*
 
 
 import { isNumeric } from './commonFunctions';
