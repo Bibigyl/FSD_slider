@@ -291,7 +291,7 @@ class View extends Observable<ViewMessage, undefined> implements IView {
     const styleNameOfLength: 'width' | 'height' = !this.vertical ? 'width' : 'height';
 
     const start = String(this.thumbFirst.style[styleNameOfStart]);
-    const length: string = `${parseFloat(String(this.thumbLast.style[styleNameOfStart])) - parseFloat(start)}%`;
+    const length: string = `${parseFloat(String(this.thumbLast.style[styleNameOfStart])) - parseFloat(start) + 0.01}%`;
 
     this.bar.style[styleNameOfStart] = start;
     this.bar.style[styleNameOfLength] = length;
