@@ -80,7 +80,7 @@ function validateModel(options: IModelOptions): IModelWarnings {
     warns.tooBigStep = modelWarnings.tooBigStep;
   }
 
-  if (Number(Number(step)) === 0) {
+  if (Number(step) === 0) {
     warns.stepIsNull = modelWarnings.stepIsNull;
   }
 

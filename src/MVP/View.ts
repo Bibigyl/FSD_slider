@@ -155,8 +155,13 @@ class View extends Observable<ViewMessage, undefined> implements IView {
 
       const firstOffest: number = Math.abs(firstThumbPos / 100 - newThumbPos);
       const lastOffset: number = Math.abs(lastThumbPos / 100 - newThumbPos);
+      let isLastCloser: boolean;
 
-      const isLastCloser: boolean = firstOffest > lastOffset;
+      if (firstThumbPos === lastThumbPos) {
+        isLastCloser = newThumbPos > lastThumbPos/100;
+      } else {
+        isLastCloser = firstOffest > lastOffset;
+      }
 
       isLastMoved = isLastCloser;
     }
