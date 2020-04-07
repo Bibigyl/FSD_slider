@@ -76,7 +76,7 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
     const optionsForModel: {} = { ...options };
     this.model.update(optionsForModel);
 
-    const optionsForView: IModelOptions = Object.assign(options, this.model.getOptions());
+    const optionsForView: IModelOptions = { ...options, ...this.model.getOptions() };
     this.view.rerender(optionsForView);
 
     this.notify(this.getOptions(), this.getWarnings());
