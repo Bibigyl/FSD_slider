@@ -23,7 +23,7 @@ type Fn<A, B, C> = (a: A, b?: B) => C;
 
 
 class Observable<A, B> implements IObservable {
-  protected listeners: Fn<A, B, void>[] = [];
+  private listeners: Fn<A, B, void>[] = [];
 
   @bind
   public subscribe(listener: Fn<A, B, void>): void {
