@@ -1,10 +1,10 @@
 import {
-  IObservable, Observable, ModelMessage, ViewMessage,
+  IObservable, Observable
 } from './Observable';
 import { IOptions, IModelOptions } from './options';
 import { IWarnings } from './warnings';
-import { IModel } from './Model';
-import { IView } from './View';
+import { IModel, ModelMessage } from './Model';
+import { IView, ViewMessage } from './View';
 import { findValueByOffsetRacio } from './commonFunctions';
 
 

@@ -1,5 +1,5 @@
 import bind from 'bind-decorator';
-import { IObservable, Observable, ViewMessage } from './Observable';
+import { IObservable, Observable } from './Observable';
 import { IModelOptions, IViewOptions, IOptions } from './options';
 import { IViewWarnings } from './warnings';
 import defaultOptions from './defaultOptions';
@@ -14,6 +14,13 @@ interface IView extends IObservable {
   getOptions(): IViewOptions;
   getWarnings(): IViewWarnings;
 }
+
+
+type LastThumbMoved = { type: 'LAST_THUMB_MOVED'; offsetRacio: number };
+type FirstThumbMoved = { type: 'FIRST_THUMB_MOVED'; offsetRacio: number };
+type ViewWarnings = { type: 'WARNINGS'; warnings: IViewWarnings };
+
+type ViewMessage = LastThumbMoved | FirstThumbMoved | ViewWarnings;
 
 
 class View extends Observable<ViewMessage, undefined> implements IView {
@@ -435,5 +442,5 @@ class View extends Observable<ViewMessage, undefined> implements IView {
 }
 
 
-export { IView };
+export { IView, ViewMessage };
 export default View;

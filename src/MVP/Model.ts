@@ -1,4 +1,4 @@
-import { IObservable, Observable, ModelMessage } from './Observable';
+import { IObservable, Observable } from './Observable';
 import { IModelOptions } from './options';
 import { IModelWarnings } from './warnings';
 import defaultOptions from './defaultOptions';
@@ -14,6 +14,13 @@ interface IModel extends IObservable {
   getOptions(): IModelOptions;
   getWarnings(): IModelWarnings;
 }
+
+
+type NewValue = { type: 'NEW_VALUE'; options: IModelOptions };
+type NewData = { type: 'NEW_DATA'; options: IModelOptions };
+type ModelWarnings = { type: 'WARNINGS'; warnings: IModelWarnings };
+
+type ModelMessage = NewValue | NewData | ModelWarnings;
 
 
 class Model extends Observable<ModelMessage, undefined> implements IModel {
@@ -225,5 +232,5 @@ class Model extends Observable<ModelMessage, undefined> implements IModel {
 }
 
 
-export { IModel };
+export { IModel, ModelMessage };
 export default Model;
