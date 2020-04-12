@@ -1,9 +1,8 @@
-import Model, { IModel } from '../src/MVP/Model';
+import Model, { IModel, ModelMessage } from '../src/MVP/Model';
 import { IModelOptions } from '../src/MVP/options';
 import defaultOptions from '../src/MVP/defaultOptions';
 import { validateModel, modelWarnings } from '../src/MVP/validations';
 import { IWarnings } from '../src/MVP/warnings';
-import { ModelMessage } from '../src/MVP/Observable';
 
 let model: IModel;
 

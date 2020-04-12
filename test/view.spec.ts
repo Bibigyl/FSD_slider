@@ -1,9 +1,7 @@
 import Model, { IModel } from '../src/MVP/Model';
-import View, { IView } from '../src/MVP/View';
+import View, { IView, ViewMessage } from '../src/MVP/View';
 import { IModelOptions, IViewOptions, IOptions } from '../src/MVP/options';
 import defaultOptions from '../src/MVP/defaultOptions';
-//import { validateView, viewWarnings } from '../src/MVP/validations';
-import { ViewMessage } from '../src/MVP/Observable';
 import { getNumberOfSteps } from '../src/MVP/commonFunctions';
 import { IWarnings } from '../src/MVP/warnings';
 
@@ -424,7 +422,7 @@ describe('View has private methods', () => {
             // @ts-ignore
             expect(view.bar.style.left).toBe('0%');
             // @ts-ignore
-            expect(view.bar.style.width).toBe('100%');
+            expect(view.bar.style.width).toBe('100.01%');
 
             // @ts-ignore
             view.rebuild(Object.assign({}, viewOptions, {vertical: true}))
@@ -440,7 +438,7 @@ describe('View has private methods', () => {
             // @ts-ignore
             expect(view.bar.style.top).toBe('0%');
             // @ts-ignore
-            expect(view.bar.style.height).toBe('100%');
+            expect(view.bar.style.height).toBe('100.01%');
         });
     });
 

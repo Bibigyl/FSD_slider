@@ -158,10 +158,10 @@ describe('Presenter has public methods', () => {
             let isNotified: Boolean = false;
             let newData: IOptions | undefined = undefined;
             let newWarnings: IWarnings | undefined = undefined;
-            presenter.subscribe((options: IOptions, warnings: IWarnings) => {
+            presenter.subscribe((data: { options: IOptions; warnings: IWarnings; }) => {
                 isNotified = true;
-                newData = options;
-                newWarnings = warnings;
+                newData = data.options;
+                newWarnings = data.warnings;
             });
 
             let newOptions = {
