@@ -23,7 +23,7 @@ type ModelWarnings = { type: 'WARNINGS'; warnings: IModelWarnings };
 type ModelMessage = NewValue | NewData | ModelWarnings;
 
 
-class Model extends Observable<ModelMessage, undefined> implements IModel {
+class Model extends Observable<ModelMessage> implements IModel {
   private begin: number = defaultOptions.min;
 
   private end: number = defaultOptions.max;

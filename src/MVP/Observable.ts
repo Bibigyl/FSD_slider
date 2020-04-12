@@ -5,26 +5,26 @@ interface IObservable {
   notify(...args: any): void;
 }
 
-type Fn<A, B, C> = (a: A, b?: B) => C;
+type Fn<A, B> = (a: A) => B;
 
 
-class Observable<A, B> implements IObservable {
-  private listeners: Fn<A, B, void>[] = [];
+class Observable<A> implements IObservable {
+  private listeners: Fn<A, void>[] = [];
 
   @bind
-  public subscribe(listener: Fn<A, B, void>): void {
+  public subscribe(listener: Fn<A, void>): void {
     this.listeners.push(listener);
   }
 
   @bind
-  public notify(arg1: A, arg2?: B): void {
+  public notify(arg: A): void {
     this.listeners.forEach((listener) => {
-      listener(arg1, arg2);
+      listener(arg);
     });
   }
 }
 
 
 export {
-  Observable, IObservable
+  Observable, IObservable,
 };

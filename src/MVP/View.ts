@@ -23,7 +23,7 @@ type ViewWarnings = { type: 'WARNINGS'; warnings: IViewWarnings };
 type ViewMessage = LastThumbMoved | FirstThumbMoved | ViewWarnings;
 
 
-class View extends Observable<ViewMessage, undefined> implements IView {
+class View extends Observable<ViewMessage> implements IView {
   private length: string = defaultOptions.length;
 
   private vertical: boolean = defaultOptions.vertical;

@@ -132,7 +132,7 @@ $(document).ready(function () {
             });
         });
 
-        $slider.slider('observe', function (options, warnings) {
+        $slider.slider('observe', function (data) {
 
             let $error = $demo.find('.error');
             $error.text('');
@@ -141,6 +141,7 @@ $(document).ready(function () {
 
             let name;
             let $option;
+            let {options, warnings} = data;
 
             $demo.find('.option').each(function () {
 

@@ -1,5 +1,5 @@
 import {
-  IObservable, Observable
+  IObservable, Observable,
 } from './Observable';
 import { IOptions, IModelOptions } from './options';
 import { IWarnings } from './warnings';
@@ -15,8 +15,13 @@ interface IPresenter extends IObservable {
   getWarnings(): IWarnings;
 }
 
+type SliderData = {
+  options: IOptions,
+  warnings: IWarnings
+};
 
-class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
+
+class Presenter extends Observable<SliderData> implements IPresenter {
   private model: IModel;
 
   private view: IView;
@@ -33,7 +38,10 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
         case 'NEW_VALUE':
 
           this.view.update(message.options);
-          this.notify(this.getOptions(), {});
+          this.notify({
+            options: this.getOptions(),
+            warnings: {},
+          });
           break;
 
         default:
@@ -79,7 +87,10 @@ class Presenter extends Observable<IOptions, IWarnings> implements IPresenter {
     const optionsForView: IModelOptions = { ...options, ...this.model.getOptions() };
     this.view.rerender(optionsForView);
 
-    this.notify(this.getOptions(), this.getWarnings());
+    this.notify({
+      options: this.getOptions(),
+      warnings: this.getWarnings(),
+    });
   }
 
 
