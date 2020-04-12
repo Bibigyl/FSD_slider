@@ -5,7 +5,7 @@ interface IModelOptions {
   min: number;
   max: number;
   step: number;
-  customValues: string[] | null;
+  customValues: any[] | null;
   reverse: boolean;
 }
 
