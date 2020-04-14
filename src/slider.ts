@@ -4,18 +4,18 @@ import { IModelOptions, IOptions } from './MVP/options';
 import View, { IView } from './MVP/View';
 
 interface ISlider {
-  update(options: {}): void;
+  update(options: IOptions): void;
   subscribe(func: Function): void;
 }
 
 class Slider implements ISlider {
   private presenter: IPresenter;
 
-  constructor(options: {}, node: HTMLElement) {
-    const optionsForModel: {} = { ...options };
+  constructor(options: IOptions, node: HTMLElement) {
+    const optionsForModel: IModelOptions = { ...options };
     const model: IModel = new Model(optionsForModel);
 
-    const optionsForView: IModelOptions = { ...options, ...model.getOptions() };
+    const optionsForView: IOptions = { ...options, ...model.getOptions() };
     const view: IView = new View(optionsForView, node);
 
     this.presenter = new Presenter(model, view);
@@ -25,7 +25,7 @@ class Slider implements ISlider {
     this.presenter.subscribe(func);
   }
 
-  public update(options: IOptions): void {
+  public update(options: {}): void {
     this.presenter.update(options);
   }
 }

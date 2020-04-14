@@ -42,15 +42,13 @@ class Model extends Observable<ModelMessage> implements IModel {
 
   private warnings: IModelWarnings = {};
 
-  constructor(options: {}) {
+  constructor(options: IModelOptions) {
     super();
 
-    const fullOptions: IModelOptions = { ...defaultOptions, ...options };
-
-    this.warnings = validateModel(fullOptions);
+    this.warnings = validateModel(options);
     this.handleWarnings();
 
-    const validOptions: IModelOptions = this.normalize(fullOptions, defaultOptions);
+    const validOptions: IModelOptions = this.normalize(options, defaultOptions);
     this.setOptions(validOptions);
   }
 
@@ -146,13 +144,16 @@ class Model extends Observable<ModelMessage> implements IModel {
 
 
   private normalize(opts: {}, baseOpts: IModelOptions): IModelOptions {
-    let options: IModelOptions = { ...baseOpts, ...opts };
+    const options: IModelOptions = { ...baseOpts, ...opts };
     const baseOptions: IModelOptions = { ...baseOpts };
     let {
       begin, end, range, min, max, step, reverse, customValues,
     } = options;
 
-    if (this.warnings.customValuesIsNotArray || this.warnings.customValuesIsTooSmall) {
+    if (!customValues
+      || this.warnings.customValuesIsNotArray
+      || this.warnings.customValuesIsTooSmall
+    ) {
       customValues = null;
     }
 
@@ -186,25 +187,31 @@ class Model extends Observable<ModelMessage> implements IModel {
       [begin, end] = [end, begin];
     }
 
-
-    options = {
-      begin, end, range, min, max, step, reverse, customValues,
-    };
-
     end = normalizeNumber(end, max);
-    options.end = Model.findClosestValue(end, options);
+    end = Model.findClosestValue(end, {
+      min, max, step, reverse,
+    });
 
     if (!range) {
-      options.begin = min;
+      begin = min;
     } else {
       begin = normalizeNumber(begin, min);
-      options.begin = Model.findClosestValue(begin, options);
+      begin = Model.findClosestValue(begin, {
+        min, max, step, reverse,
+      });
     }
 
-    return options;
+    return {
+      begin, end, range, min, max, step, reverse, customValues,
+    };
   }
 
-  static findClosestValue(value: number, options: IModelOptions): number {
+  static findClosestValue(value: number, options: {
+    min: number,
+    max: number,
+    step: number,
+    reverse: boolean
+  }): number {
     let prev: number;
     let next: number;
     const {

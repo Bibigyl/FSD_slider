@@ -46,10 +46,9 @@ class View extends Observable<ViewMessage> implements IView {
 
   private warnings: IViewWarnings = {};
 
-  constructor(opts: {}, sliderNode: HTMLElement) {
+  constructor(options: IOptions, sliderNode: HTMLElement) {
     super();
 
-    const options: IOptions = { ...defaultOptions, ...opts };
     this.warnings = validateView(options);
     this.handleWarnings();
 
